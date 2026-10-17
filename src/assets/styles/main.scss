@@ -1,5 +1,6 @@
 @use "variables" as v;
 @use "editor";
+@use "public";
 @use "bootstrap/scss/bootstrap" with (
   $font-family-sans-serif: v.$font-family-sans-serif,
   $primary: v.$primary

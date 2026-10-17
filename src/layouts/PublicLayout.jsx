@@ -1,8 +1,9 @@
-import { Link, Outlet } from 'react-router-dom'
+import { useState } from 'react'
+import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { Button, Container, Dropdown, Form, Nav, NavDropdown, Navbar } from 'react-bootstrap'
 import { BoxArrowRight, PersonCircle, Search } from 'react-bootstrap-icons'
 import logo from '../assets/images/logo.svg'
-import { HOME_BY_ROLE, ROUTES } from '../constants/routes'
+import { categoryPath, HOME_BY_ROLE, ROUTES } from '../constants/routes'
 import { useActiveCategories } from '../hooks/useActiveCategories'
 import { useAuth } from '../hooks/useAuth'
 
@@ -11,6 +12,15 @@ export default function PublicLayout() {
   const { categories } = useActiveCategories()
   const displayName = user?.fullName || user?.username
   const dashboardPath = user ? HOME_BY_ROLE[user.role] : ROUTES.HOME
+  const navigate = useNavigate()
+  const [keyword, setKeyword] = useState('')
+
+  const handleSearch = (event) => {
+    event.preventDefault()
+    const text = keyword.trim()
+    navigate(text ? `${ROUTES.NEWS}?${new URLSearchParams({ keyword: text })}` : ROUTES.NEWS)
+    setKeyword('')
+  }
 
   return (
     <div className="d-flex flex-column min-vh-100">
@@ -22,24 +32,27 @@ export default function PublicLayout() {
           </Navbar.Brand>
           <Navbar.Toggle aria-controls="public-navbar" />
           <Navbar.Collapse id="public-navbar">
-            {/* active categories from the API; the home page filters by ?category=slug in a later step */}
+            {/* active categories from the API */}
             <Nav className="me-auto">
+              <Nav.Link as={NavLink} to={ROUTES.NEWS} end>
+                News
+              </Nav.Link>
               {categories.length === 0 ? (
                 <Nav.Link disabled>Categories</Nav.Link>
               ) : (
                 <NavDropdown title="Categories" id="category-menu">
                   {categories.map((category) => (
-                    <NavDropdown.Item key={category.id} as={Link} to={`${ROUTES.HOME}?category=${category.slug}`}>
+                    <NavDropdown.Item key={category.id} as={Link} to={categoryPath(category.slug)}>
                       {category.name}
                     </NavDropdown.Item>
                   ))}
                 </NavDropdown>
               )}
             </Nav>
-            {/* search box placeholder: not wired yet */}
-            <Form className="d-flex me-lg-3 my-2 my-lg-0" role="search" onSubmit={(event) => event.preventDefault()}>
-              <Form.Control type="search" placeholder="Search news..." aria-label="Search" disabled />
-              <Button variant="outline-primary" className="ms-2" disabled aria-label="Search">
+            {/* the search box opens the news list with ?keyword= (the list has the other filters) */}
+            <Form className="d-flex me-lg-3 my-2 my-lg-0" role="search" onSubmit={handleSearch}>
+              <Form.Control type="search" maxLength={100} placeholder="Search news..." aria-label="Search" value={keyword} onChange={(event) => setKeyword(event.target.value)} />
+              <Button type="submit" variant="outline-primary" className="ms-2" aria-label="Search">
                 <Search />
               </Button>
             </Form>

@@ -2,6 +2,7 @@ import { ROLES } from './roles'
 
 export const ROUTES = {
   HOME: '/',
+  NEWS: '/news',
   LOGIN: '/login',
   REGISTER: '/register',
   VERIFY_EMAIL: '/verify-email',
@@ -25,6 +26,13 @@ export const ROUTES = {
   ADMIN_REVIEW: '/admin/review',
   ADMIN_NEWS_NEW: '/admin/news/new',
 }
+
+// public site (slugs are plain a-z, digits and hyphens)
+export const newsPath = (slug) => `/news/${slug}`
+
+export const categoryPath = (slug) => `/category/${slug}`
+
+export const tagPath = (slug) => `/tag/${slug}`
 
 export const authorArticlePath = (id) => `/author/articles/${id}`
 

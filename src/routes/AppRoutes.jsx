@@ -9,7 +9,7 @@ import AdminHomePage from '../pages/admin/AdminHomePage'
 import CategoriesPage from '../pages/admin/CategoriesPage'
 import TagsPage from '../pages/admin/TagsPage'
 import NewsEditorPage from '../pages/admin/NewsEditorPage'
-import NewsListPage from '../pages/admin/NewsListPage'
+import AdminNewsListPage from '../pages/admin/NewsListPage'
 import AdminReviewPage from '../pages/admin/ReviewPage'
 import AdminReviewQueuePage from '../pages/admin/ReviewQueuePage'
 import RolesPage from '../pages/admin/RolesPage'
@@ -31,7 +31,11 @@ import EditorReviewPage from '../pages/editor/ReviewPage'
 import EditorReviewQueuePage from '../pages/editor/ReviewQueuePage'
 import ForbiddenPage from '../pages/errors/ForbiddenPage'
 import NotFoundPage from '../pages/errors/NotFoundPage'
+import CategoryPage from '../pages/public/CategoryPage'
 import HomePage from '../pages/public/HomePage'
+import NewsDetailPage from '../pages/public/NewsDetailPage'
+import NewsListPage from '../pages/public/NewsListPage'
+import TagPage from '../pages/public/TagPage'
 import RequireAuth from './RequireAuth'
 
 export default function AppRoutes() {
@@ -40,6 +44,10 @@ export default function AppRoutes() {
       {/* public */}
       <Route element={<PublicLayout />}>
         <Route path={ROUTES.HOME} element={<HomePage />} />
+        <Route path={ROUTES.NEWS} element={<NewsListPage />} />
+        <Route path="/news/:slug" element={<NewsDetailPage />} />
+        <Route path="/category/:slug" element={<CategoryPage />} />
+        <Route path="/tag/:slug" element={<TagPage />} />
         <Route path={ROUTES.FORBIDDEN} element={<ForbiddenPage />} />
         {/* logged-in, any role */}
         <Route element={<RequireAuth />}>
@@ -79,7 +87,7 @@ export default function AppRoutes() {
           <Route path="users" element={<UsersPage />} />
           <Route path="users/new" element={<UserCreatePage />} />
           <Route path="users/:id" element={<UserDetailPage />} />
-          <Route path="news" element={<NewsListPage />} />
+          <Route path="news" element={<AdminNewsListPage />} />
           <Route path="news/new" element={<NewsEditorPage />} />
           <Route path="news/:id" element={<NewsEditorPage />} />
           <Route path="review" element={<AdminReviewQueuePage />} />

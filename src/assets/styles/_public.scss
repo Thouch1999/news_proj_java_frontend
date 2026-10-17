@@ -1,0 +1,71 @@
+// Public reader pages (home, news list, category, tag, article).
+// The fonts (Kantumruy Pro, Noto Sans Khmer) are loaded in index.html and set in _variables.scss, so Khmer text
+// has its own font. Khmer has no spaces between words, so long lines may break anywhere and a title can never
+// push the page wider than the screen.
+
+.news-title,
+.article-page h1,
+.article-content {
+  overflow-wrap: anywhere;
+  word-break: normal;
+  line-break: auto;
+}
+
+// Khmer script is taller than Latin: more line height keeps the stacked marks apart
+.news-title {
+  line-height: 1.5;
+}
+
+.article-page {
+  max-width: 760px;
+}
+
+.article-page .article-content {
+  font-size: 1.1rem;
+  line-height: 1.9;
+}
+
+.article-page .article-content p {
+  margin-bottom: 1.1rem;
+}
+
+.article-page .article-content img {
+  height: auto;
+}
+
+.article-page .article-content table {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.article-page .article-content pre {
+  overflow-x: auto;
+}
+
+// a card without a thumbnail
+.news-thumb-empty {
+  background: linear-gradient(135deg, #e9ecef, #dee2e6);
+}
+
+.news-clamp-2,
+.news-clamp-3 {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.news-clamp-2 {
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+}
+
+.news-clamp-3 {
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+}
+
+.gallery-item:focus-visible {
+  outline: 3px solid rgba(13, 110, 253, 0.5);
+  outline-offset: 2px;
+}
