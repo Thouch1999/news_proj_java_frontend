@@ -1,0 +1,30 @@
+// Look of the Tiptap rich text editor (components/form/RichTextEditor.jsx)
+.rich-editor .ProseMirror {
+  min-height: 280px;
+  padding: 0.75rem;
+  outline: none;
+}
+
+.rich-editor:focus-within {
+  border-color: #86b7fe;
+  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+.rich-editor .ProseMirror > :last-child {
+  margin-bottom: 0;
+}
+
+.rich-editor.is-invalid {
+  border-color: #dc3545;
+}
+
+// the same typography for the editor and for a read-only article
+.article-content img {
+  max-width: 100%;
+}
+
+.article-content blockquote {
+  border-left: 4px solid #dee2e6;
+  padding-left: 1rem;
+  color: #6c757d;
+}
