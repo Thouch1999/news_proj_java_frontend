@@ -4,6 +4,8 @@ import { ROUTES } from '../constants/routes'
 import AuthLayout from '../layouts/AuthLayout'
 import DashboardLayout from '../layouts/DashboardLayout'
 import PublicLayout from '../layouts/PublicLayout'
+import BookmarksPage from '../pages/account/BookmarksPage'
+import DashboardProfilePage from '../pages/account/DashboardProfilePage'
 import ProfilePage from '../pages/account/ProfilePage'
 import AdminHomePage from '../pages/admin/AdminHomePage'
 import CategoriesPage from '../pages/admin/CategoriesPage'
@@ -13,6 +15,7 @@ import AdminNewsListPage from '../pages/admin/NewsListPage'
 import AdminReviewPage from '../pages/admin/ReviewPage'
 import AdminReviewQueuePage from '../pages/admin/ReviewQueuePage'
 import RolesPage from '../pages/admin/RolesPage'
+import SettingsPage from '../pages/admin/SettingsPage'
 import UserCreatePage from '../pages/admin/UserCreatePage'
 import UserDetailPage from '../pages/admin/UserDetailPage'
 import UsersPage from '../pages/admin/UsersPage'
@@ -24,6 +27,8 @@ import VerifyEmailPage from '../pages/auth/VerifyEmailPage'
 import ArticleEditorPage from '../pages/author/ArticleEditorPage'
 import AuthorHomePage from '../pages/author/AuthorHomePage'
 import MyArticlesPage from '../pages/author/MyArticlesPage'
+import AdminCommentsPage from '../pages/admin/CommentsPage'
+import EditorCommentsPage from '../pages/editor/CommentsPage'
 import EditorAllArticlesPage from '../pages/editor/AllArticlesPage'
 import EditorArticleEditorPage from '../pages/editor/ArticleEditorPage'
 import EditorHomePage from '../pages/editor/EditorHomePage'
@@ -52,6 +57,7 @@ export default function AppRoutes() {
         {/* logged-in, any role */}
         <Route element={<RequireAuth />}>
           <Route path={ROUTES.PROFILE} element={<ProfilePage />} />
+          <Route path={ROUTES.BOOKMARKS} element={<BookmarksPage />} />
         </Route>
         <Route path="*" element={<NotFoundPage />} />
       </Route>
@@ -64,6 +70,12 @@ export default function AppRoutes() {
       </Route>
 
       {/* role routes: not logged in -> login, wrong role -> 403 */}
+      {/* the profile of the staff roles, inside the dashboard layout */}
+      <Route element={<RequireAuth roles={[ROLES.ADMIN, ROLES.EDITOR, ROLES.AUTHOR]} />}>
+        <Route element={<DashboardLayout />}>
+          <Route path={ROUTES.DASHBOARD_PROFILE} element={<DashboardProfilePage />} />
+        </Route>
+      </Route>
       <Route element={<RequireAuth roles={[ROLES.AUTHOR]} />}>
         <Route path={ROUTES.AUTHOR} element={<DashboardLayout />}>
           <Route index element={<AuthorHomePage />} />
@@ -79,6 +91,7 @@ export default function AppRoutes() {
           <Route path="review/:id" element={<EditorReviewPage />} />
           <Route path="news" element={<EditorAllArticlesPage />} />
           <Route path="news/:id" element={<EditorArticleEditorPage />} />
+          <Route path="comments" element={<EditorCommentsPage />} />
         </Route>
       </Route>
       <Route element={<RequireAuth roles={[ROLES.ADMIN]} />}>
@@ -92,9 +105,11 @@ export default function AppRoutes() {
           <Route path="news/:id" element={<NewsEditorPage />} />
           <Route path="review" element={<AdminReviewQueuePage />} />
           <Route path="review/:id" element={<AdminReviewPage />} />
+          <Route path="comments" element={<AdminCommentsPage />} />
           <Route path="roles" element={<RolesPage />} />
           <Route path="categories" element={<CategoriesPage />} />
           <Route path="tags" element={<TagsPage />} />
+          <Route path="settings" element={<SettingsPage />} />
         </Route>
       </Route>
     </Routes>

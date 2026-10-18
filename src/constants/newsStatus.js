@@ -2,27 +2,30 @@ import { ROLES } from './roles'
 
 // Values match the backend NewsStatus enum. `variant` is the Bootstrap color used for the badge.
 export const NEWS_STATUS = {
-  DRAFT: { value: 'DRAFT', label: 'Draft', variant: 'secondary' },
-  PENDING: { value: 'PENDING', label: 'Pending review', variant: 'warning' },
-  PUBLISHED: { value: 'PUBLISHED', label: 'Published', variant: 'success' },
-  REJECTED: { value: 'REJECTED', label: 'Rejected', variant: 'danger' },
-  ARCHIVED: { value: 'ARCHIVED', label: 'Archived', variant: 'dark' },
+  DRAFT: { value: 'DRAFT', labelKey: 'news.status.DRAFT', variant: 'secondary' },
+  PENDING: { value: 'PENDING', labelKey: 'news.status.PENDING', variant: 'warning' },
+  PUBLISHED: { value: 'PUBLISHED', labelKey: 'news.status.PUBLISHED', variant: 'success' },
+  REJECTED: { value: 'REJECTED', labelKey: 'news.status.REJECTED', variant: 'danger' },
+  ARCHIVED: { value: 'ARCHIVED', labelKey: 'news.status.ARCHIVED', variant: 'dark' },
 }
+
+// The page sizes of the article list (the backend allows 1-50)
+export const ARTICLE_PAGE_SIZES = [10, 20, 50]
 
 // The editorial workflow actions (keys match newsService.runWorkflowAction).
 export const WORKFLOW_ACTIONS = {
-  submit: { label: 'Submit for review', variant: 'primary', done: 'Submitted for review.' },
-  publish: { label: 'Publish', variant: 'success', done: 'Article published.' },
-  reject: { label: 'Reject', variant: 'danger', done: 'Article rejected.' },
-  archive: { label: 'Archive', variant: 'outline-dark', done: 'Article archived.' },
-  restore: { label: 'Restore', variant: 'outline-success', done: 'Article restored and published again.' },
+  submit: { labelKey: 'news.workflow.actions.submit', variant: 'primary', doneKey: 'news.workflow.done.submit' },
+  publish: { labelKey: 'news.workflow.actions.publish', variant: 'success', doneKey: 'news.workflow.done.publish' },
+  reject: { labelKey: 'news.workflow.actions.reject', variant: 'danger', doneKey: 'news.workflow.done.reject' },
+  archive: { labelKey: 'news.workflow.actions.archive', variant: 'outline-dark', doneKey: 'news.workflow.done.archive' },
+  restore: { labelKey: 'news.workflow.actions.restore', variant: 'outline-success', doneKey: 'news.workflow.done.restore' },
 }
 
 // The actions that are valid for a role on an article in `status` (mirrors the backend rules, which still decide):
 //  - AUTHOR: submit an own DRAFT or REJECTED article
 //  - EDITOR: publish or reject a PENDING article, archive a PUBLISHED one
 //  - ADMIN: the same, plus "publish now" for a DRAFT and restore for an ARCHIVED article
-// Returns [{ key, label, variant }].
+// Returns [{ key, labelKey, variant }] (labelKey is a translation key: t(labelKey)).
 export function workflowActions(role, status) {
   const keys = []
   if (role === ROLES.AUTHOR) {
@@ -35,7 +38,7 @@ export function workflowActions(role, status) {
   }
   return keys.map((key) => ({
     key,
-    label: key === 'publish' && status === 'DRAFT' ? 'Publish now' : WORKFLOW_ACTIONS[key].label,
+    labelKey: key === 'publish' && status === 'DRAFT' ? 'news.workflow.actions.publishNow' : WORKFLOW_ACTIONS[key].labelKey,
     variant: WORKFLOW_ACTIONS[key].variant,
   }))
 }

@@ -1,17 +1,21 @@
 import { Badge } from 'react-bootstrap'
+import { useTranslation } from 'react-i18next'
+import { useFormat } from '../../hooks/useFormat'
 import { mediaUrl } from '../../utils/mediaUrl'
 import SafeHtml from './SafeHtml'
 
 // An article laid out like a public article page: category, title, byline, summary, thumbnail, content (sanitized
 // by SafeHtml), images and tags.
 export default function ArticlePreview({ article }) {
+  const { t } = useTranslation()
+  const { formatDateTime } = useFormat()
   return (
-    <article className="bg-white border rounded p-4">
+    <article className="bg-surface border rounded p-4">
       <div className="text-uppercase text-primary small fw-semibold mb-2">{article.category.name}</div>
       <h1 className="h2 mb-2">{article.title}</h1>
       <p className="text-muted small mb-3">
-        By {article.authorName || 'Unknown author'}
-        {article.publishedAt && <> &middot; Published {new Date(article.publishedAt).toLocaleString()}</>}
+        {t('news.preview.by', { name: article.authorName || t('news.preview.unknownAuthor') })}
+        {article.publishedAt && <> &middot; {t('news.preview.published', { date: formatDateTime(article.publishedAt) })}</>}
       </p>
       {article.summary && <p className="lead">{article.summary}</p>}
       {article.thumbnail && <img src={mediaUrl(article.thumbnail)} alt="" className="img-fluid rounded mb-3" />}

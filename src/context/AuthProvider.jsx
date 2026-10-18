@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ROUTES } from '../constants/routes'
+import i18n from '../i18n'
 import * as authService from '../services/authService'
 import { setUnauthorizedHandler } from '../services/httpClient'
 import * as userService from '../services/userService'
@@ -19,7 +20,7 @@ export default function AuthProvider({ children }) {
       setUser(null)
       navigate(ROUTES.LOGIN, {
         replace: true,
-        state: { message: 'Your session has expired. Please log in again.' },
+        state: { message: i18n.t('auth.sessionExpired') },
       })
     })
     return () => setUnauthorizedHandler(null)

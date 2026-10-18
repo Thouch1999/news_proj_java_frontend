@@ -1,17 +1,21 @@
 import { useState } from 'react'
-import { Alert, Button, Form } from 'react-bootstrap'
+import { Alert, Button, Form, Spinner } from 'react-bootstrap'
+import { Trans, useTranslation } from 'react-i18next'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
+import AuthPage from '../../components/common/AuthPage'
 import ErrorAlert from '../../components/common/ErrorAlert'
 import FormField from '../../components/form/FormField'
+import PasswordFields from '../../components/form/PasswordFields'
 import OtpInput from '../../components/form/OtpInput'
 import ResendButton from '../../components/form/ResendButton'
-import { FORGOT_PASSWORD_NOTICE, OTP_PURPOSE, RESEND_COOLDOWN_SECONDS } from '../../constants/otp'
+import { OTP_PURPOSE, RESEND_COOLDOWN_SECONDS } from '../../constants/otp'
 import { ROUTES } from '../../constants/routes'
 import { useCountdown } from '../../hooks/useCountdown'
 import * as authService from '../../services/authService'
 import { hasErrors, rules } from '../../utils/validators'
 
 export default function ResetPasswordPage() {
+  const { t } = useTranslation()
   const { state } = useLocation()
   const navigate = useNavigate()
   const countdown = useCountdown()
@@ -20,7 +24,7 @@ export default function ResetPasswordPage() {
   const [otp, setOtp] = useState('')
   const [errors, setErrors] = useState({})
   const [apiError, setApiError] = useState(null)
-  const [notice, setNotice] = useState(state?.notice ?? null)
+  const [notice, setNotice] = useState(state?.noticeKey ?? null)
   const [submitting, setSubmitting] = useState(false)
 
   // arriving from "forgot password": the code was just requested, so the countdown starts right away
@@ -55,7 +59,7 @@ export default function ResetPasswordPage() {
       })
       navigate(ROUTES.LOGIN, {
         replace: true,
-        state: { message: 'Your password has been reset. Please log in with the new password.', variant: 'success' },
+        state: { message: t('auth.reset.success'), variant: 'success' },
       })
     } catch (error) {
       setApiError(error)
@@ -75,7 +79,7 @@ export default function ResetPasswordPage() {
     }
     try {
       await authService.resendOtp({ email: form.email.trim().toLowerCase(), purpose: OTP_PURPOSE.RESET_PASSWORD })
-      setNotice(FORGOT_PASSWORD_NOTICE)
+      setNotice('auth.notices.forgotPassword')
       countdown.start(RESEND_COOLDOWN_SECONDS)
     } catch (error) {
       setApiError(error)
@@ -83,23 +87,35 @@ export default function ResetPasswordPage() {
   }
 
   return (
-    <Form onSubmit={handleSubmit} noValidate>
-      <h1 className="h4 mb-3">Reset password</h1>
-      {notice && <Alert variant="info">{notice}</Alert>}
-      <ErrorAlert error={apiError} />
-      <FormField id="email" label="Email" type="email" value={form.email} onChange={update('email')} error={errors.email} autoComplete="email" />
-      <Form.Label className="d-block text-center">Verification code</Form.Label>
-      <OtpInput value={otp} onChange={setOtp} invalid={Boolean(errors.otp)} disabled={submitting} />
-      {errors.otp && <div className="text-danger text-center small mb-2">{errors.otp}</div>}
-      <FormField id="password" label="New password" type="password" value={form.password} onChange={update('password')} error={errors.password} help="At least 8 characters" autoComplete="new-password" />
-      <FormField id="confirm" label="Confirm new password" type="password" value={form.confirm} onChange={update('confirm')} error={errors.confirm} autoComplete="new-password" />
-      <Button type="submit" className="w-100" disabled={submitting}>
-        {submitting ? 'Resetting...' : 'Reset password'}
-      </Button>
-      <div className="d-flex justify-content-between align-items-center mt-2">
-        <ResendButton remaining={countdown.remaining} onClick={handleResend} />
-        <Link to={ROUTES.LOGIN}>Back to log in</Link>
-      </div>
-    </Form>
+    <AuthPage title={t('auth.reset.title')} description={t('auth.reset.description')} secondary={<Trans i18nKey="auth.secondary.remembered" components={{ 1: <Link to={ROUTES.LOGIN} /> }} />}>
+      <Form onSubmit={handleSubmit} noValidate>
+        {notice && <Alert variant="info">{t(notice)}</Alert>}
+        <ErrorAlert error={apiError} />
+        <FormField id="email" label={t('auth.fields.email')} type="email" value={form.email} onChange={update('email')} error={errors.email} autoComplete="email" />
+        <Form.Label className="d-block text-center">{t('auth.fields.verificationCode')}</Form.Label>
+        <OtpInput value={otp} onChange={setOtp} invalid={Boolean(errors.otp)} describedBy="otp-error" disabled={submitting} />
+        {errors.otp && (
+          <div id="otp-error" className="text-danger text-center small mb-2">
+            {errors.otp}
+          </div>
+        )}
+        <PasswordFields
+          idPrefix="reset"
+          generator={false}
+          compact
+          value={{ password: form.password, confirm: form.confirm }}
+          errors={errors}
+          labels={{ password: t('auth.fields.newPassword'), confirm: t('auth.fields.confirmNewPassword') }}
+          onChange={(value) => setForm((current) => ({ ...current, ...value }))}
+        />
+        <Button type="submit" className="w-100" disabled={submitting}>
+          {submitting && <Spinner size="sm" className="me-2" aria-hidden="true" />}
+          {submitting ? t('auth.reset.resetting') : t('auth.reset.submit')}
+        </Button>
+        <div className="text-center mt-2">
+          <ResendButton remaining={countdown.remaining} onClick={handleResend} />
+        </div>
+      </Form>
+    </AuthPage>
   )
 }

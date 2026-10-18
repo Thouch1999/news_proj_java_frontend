@@ -10,5 +10,5 @@ export const OTP_PURPOSE = {
 // Backend message (MessageConstant.EMAIL_NOT_VERIFIED) returned with 403 when a staff account logs in unverified.
 export const EMAIL_NOT_VERIFIED_MESSAGE = 'Email has not been verified by OTP'
 
-// Shown after "forgot password" and on resend: the same text whether or not the email has an account.
-export const FORGOT_PASSWORD_NOTICE = 'If an account exists for this email, we have sent a verification code to it.'
+// Translation key of the text shown after "forgot password" and on resend (same text whether or not the email has an account).
+export const FORGOT_PASSWORD_NOTICE_KEY = 'auth.forgot.notice'

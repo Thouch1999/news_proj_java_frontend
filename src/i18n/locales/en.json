@@ -1,0 +1,1381 @@
+{
+  "auth": {
+    "backToLogin": "Back to log in",
+    "capsLock": "Caps Lock is on",
+    "emailNotVerified": "Your email is not verified yet.",
+    "fields": {
+      "confirmNewPassword": "Confirm new password",
+      "confirmPassword": "Confirm password",
+      "currentPassword": "Current password",
+      "email": "Email",
+      "fullName": "Full name",
+      "fullNameOptional": "Full name (optional)",
+      "newPassword": "New password",
+      "password": "Password",
+      "passwordHelp": "At least {{min}} characters",
+      "username": "Username",
+      "verificationCode": "Verification code"
+    },
+    "forgot": {
+      "intro": "Enter your email and we will send you a code to reset your password.",
+      "notice": "If an account exists for this email, we have sent a verification code to it.",
+      "send": "Send code",
+      "sending": "Sending...",
+      "title": "Forgot password"
+    },
+    "layout": {
+      "back": "Back to {{site}}"
+    },
+    "login": {
+      "createAccount": "Create an account",
+      "description": "Bookmark articles and join the conversation.",
+      "forgot": "Forgot password?",
+      "goToVerify": "Go to Verify Email",
+      "heading": "Log in to {{site}}",
+      "loggingIn": "Logging in...",
+      "newTo": "New to {{site}}? <1>Create an account</1>",
+      "otpTitle": "Enter verification code",
+      "submit": "Log in",
+      "title": "Log in",
+      "verifyAndLogin": "Verify and log in",
+      "verifying": "Verifying..."
+    },
+    "notices": {
+      "codeResent": "A new code has been sent to your email.",
+      "forgotPassword": "If an account exists for this email, we have sent a verification code to it.",
+      "verifyResent": "A new code has been sent if this email is waiting for verification."
+    },
+    "otp": {
+      "digit": "Digit {{number}}",
+      "group": "Verification code",
+      "notYou": "Not you? <1>Use a different account</1>",
+      "resend": "Resend code",
+      "resendIn": "Resend code in {{seconds}}s",
+      "sentTo": "We sent a {{length}}-digit code to {{email}}.",
+      "verify": "Verify"
+    },
+    "register": {
+      "creating": "Creating account...",
+      "description": "Create an account on {{site}} to bookmark articles and comment.",
+      "haveAccount": "Already have an account? <1>Log in</1>",
+      "submit": "Register",
+      "title": "Create an account"
+    },
+    "reset": {
+      "description": "Enter the code we emailed you and choose a new password.",
+      "resetting": "Resetting...",
+      "submit": "Reset password",
+      "success": "Your password has been reset. Please log in with the new password.",
+      "title": "Reset password"
+    },
+    "secondary": {
+      "remembered": "Remembered your password? <1>Log in</1>"
+    },
+    "sessionExpired": "Your session has expired. Please log in again.",
+    "validation": {
+      "avatarMax": "Avatar must be at most {{max}} characters",
+      "confirmBlank": "Confirm password can not be blank",
+      "confirmMismatch": "Confirm password does not match",
+      "contentTooLong": "Content is too long",
+      "descriptionMax": "Description must be at most {{max}} characters",
+      "emailBlank": "Email can not be blank",
+      "emailInvalid": "Invalid email address",
+      "fullNameMax": "Full name must be at most {{max}} characters",
+      "imageChoose": "Choose an image",
+      "imageTooLarge": "The image is too large ({{max}} MB at most)",
+      "imageType": "Only JPEG, PNG, GIF and WebP images are allowed",
+      "nameBlank": "Name can not be blank",
+      "nameMax": "Name must be at most {{max}} characters",
+      "otpInvalid": "OTP must be {{length}} digits",
+      "passwordBlank": "Password can not be blank",
+      "passwordMin": "Password must be at least {{min}} characters long",
+      "phoneInvalid": "Invalid phone number (for example {{example}})",
+      "required": "{{label}} can not be blank",
+      "slugInvalid": "Slug may only contain a-z, 0-9 and single hyphens",
+      "slugMax": "Slug must be at most {{max}} characters",
+      "summaryMax": "Summary must be at most {{max}} characters",
+      "titleBlank": "Title can not be blank",
+      "titleMax": "Title must be at most {{max}} characters",
+      "usernameBlank": "Name can not be blank",
+      "usernameInvalid": "Username allows only English letters and spaces"
+    },
+    "verify": {
+      "intro": "Enter the {{length}}-digit code we sent to your email address.",
+      "secondary": "Already verified? <1>Log in</1>",
+      "submit": "Verify email",
+      "success": "Your email has been verified. Please log in.",
+      "title": "Verify your email",
+      "verifying": "Verifying..."
+    }
+  },
+  "common": {
+    "actions": {
+      "add": "Add",
+      "apply": "Apply",
+      "back": "Back",
+      "cancel": "Cancel",
+      "clear": "Clear",
+      "close": "Close",
+      "confirm": "Confirm",
+      "create": "Create",
+      "delete": "Delete",
+      "deleting": "Deleting...",
+      "edit": "Edit",
+      "next": "Next",
+      "no": "No",
+      "previous": "Previous",
+      "retry": "Try again",
+      "review": "Review",
+      "save": "Save",
+      "saving": "Saving...",
+      "search": "Search",
+      "submit": "Submit",
+      "view": "View",
+      "yes": "Yes"
+    },
+    "chart": {
+      "noData": "No data.",
+      "value": "Value"
+    },
+    "language": {
+      "label": "Language: {{name}}. Change"
+    },
+    "loading": "Loading...",
+    "optional": "Optional",
+    "pagination": {
+      "current": "(current)",
+      "more": "More"
+    },
+    "roles": {
+      "ADMIN": "Admin",
+      "AUTHOR": "Author",
+      "EDITOR": "Editor",
+      "READER": "Reader"
+    },
+    "siteTitle": "News Portal",
+    "slugField": {
+      "asIs": "This slug is used as it is.",
+      "editingWarning": "Renaming does not change the slug; changing it breaks existing links.",
+      "empty": "Leave empty to generate it from the name.",
+      "generated": "Generated from the name: {{slug}}",
+      "label": "Slug",
+      "labelOptional": "Slug (optional)",
+      "noLatin": "This name has no Latin letters, so enter a slug yourself (letters a-z, digits and hyphens)."
+    },
+    "theme": {
+      "dark": "Dark",
+      "label": "Color theme: {{name}}. Change",
+      "light": "Light",
+      "system": "System"
+    },
+    "working": "Working..."
+  },
+  "dashboard": {
+    "categories": {
+      "actions": "Actions",
+      "activeOff": "Inactive — hidden from the website",
+      "activeOn": "Active — shown on the website",
+      "create": "Create category",
+      "created": "Category created.",
+      "createdNotHidden": "Category created, but it could not be hidden.",
+      "deleteBlocked_one": "Has {{count}} article — turn it off instead",
+      "deleteBlocked_other": "Has {{count}} articles — turn it off instead",
+      "deleteText": "Delete <1>{{name}}</1>? This cannot be undone.",
+      "deleteTitle": "Delete category",
+      "deleted": "Category deleted.",
+      "description": "Description",
+      "descriptionOptional": "Description (optional)",
+      "edit": "Edit category",
+      "empty": {
+        "none": "No categories yet.",
+        "search": "No categories match your search."
+      },
+      "hidden": "Category hidden.",
+      "hideConfirm": "Hide",
+      "hideText_one": "Hide \"{{name}}\" from the website? Its {{count}} article stays in the system.",
+      "hideText_other": "Hide \"{{name}}\" from the website? Its {{count}} articles stay in the system.",
+      "hideTitle": "Hide category",
+      "intro": "Group articles and choose which categories appear on the website.",
+      "name": "Name",
+      "news": "News",
+      "noDescription": "No description",
+      "search": "Search categories",
+      "shown": "Category shown.",
+      "shownColumn": "Shown on website",
+      "shownOnWebsite": "Shown on website: {{name}}",
+      "status": "Status",
+      "tabs": {
+        "all": "All",
+        "active": "Active",
+        "inactive": "Inactive"
+      },
+      "title": "Categories",
+      "updated": "Category updated.",
+      "viewArticles": "View articles"
+    },
+    "form": {
+      "path": "Public path",
+      "pathOptional": "Public path (optional)",
+      "preview": "Public path:"
+    },
+    "home": {
+      "title": "Dashboard"
+    },
+    "layout": {
+      "backToSite": "Back to site",
+      "brand": "News Dashboard",
+      "footer": "© {{year}} {{name}}",
+      "logOut": "Log out",
+      "myProfile": "My profile",
+      "toggleMenu": "Toggle menu"
+    },
+    "menu": {
+      "groups": {
+        "content": "Content",
+        "overview": "Overview",
+        "system": "System",
+        "users": "Users"
+      },
+      "items": {
+        "allArticles": "All articles",
+        "categories": "Categories",
+        "comments": "Comments",
+        "dashboard": "Dashboard",
+        "myArticles": "My articles",
+        "news": "News",
+        "reviewQueue": "Review queue",
+        "roles": "Roles",
+        "settings": "Settings",
+        "tags": "Tags",
+        "users": "Users",
+        "writeArticle": "Create article"
+      },
+      "pendingCount_one": "{{count}} article waiting for review",
+      "pendingCount_other": "{{count}} articles waiting for review"
+    },
+    "overview": {
+      "greeting": {
+        "morning": "Good morning, {{name}}",
+        "afternoon": "Good afternoon, {{name}}",
+        "evening": "Good evening, {{name}}"
+      },
+      "range": {
+        "label": "Date range",
+        "last7": "Last 7 days",
+        "last30": "Last 30 days",
+        "thisMonth": "This month",
+        "thisYear": "This year",
+        "custom": "Custom range",
+        "from": "From",
+        "to": "To",
+        "problem": {
+          "incomplete": "Choose both dates.",
+          "order": "The \"From\" date must not be after the \"To\" date.",
+          "tooLong": "The range is too long (at most 366 days)."
+        }
+      },
+      "actions": {
+        "createArticle": "Create article",
+        "addUser": "Add user"
+      },
+      "kpi": {
+        "users": "Users",
+        "news": "News",
+        "views": "Total views",
+        "comments": "Comments",
+        "pending": "Pending review",
+        "myArticles": "My articles",
+        "rejected": "Rejected",
+        "pendingNone": "Nothing is waiting.",
+        "pendingMine": "Waiting for an editor.",
+        "reviewNow": "Review now",
+        "rejectedNone": "Nothing to fix.",
+        "fixNow": "Fix them now"
+      },
+      "trend": {
+        "vs": "vs previous period",
+        "up": "Up",
+        "down": "Down",
+        "flat": "No change",
+        "none": "No previous data",
+        "detail": "{{metric}}: {{current}} in this period, {{previous}} in the previous period",
+        "metric": {
+          "newUsers": "New users",
+          "published": "Articles published",
+          "views": "Views",
+          "comments": "Comments"
+        }
+      },
+      "attention": {
+        "title": "Needs attention",
+        "caughtUp": "All caught up",
+        "pending": "Pending reviews",
+        "hiddenComments": "Hidden comments",
+        "rejected": "Rejected, waiting for their author",
+        "unverified": "Unverified users",
+        "myRejected": "Rejected articles to fix",
+        "drafts": "Drafts not submitted yet"
+      },
+      "chart": {
+        "title": "Views and published articles",
+        "perDay": "Per day",
+        "perMonth": "Per month",
+        "groupBy": "Group by",
+        "views": "Views",
+        "published": "Published articles",
+        "empty": "No views or published articles in this period.",
+        "aria": "Views ({{views}} in total) and published articles ({{published}} in total) from {{from}} to {{to}}"
+      },
+      "status": {
+        "title": "News by status",
+        "myTitle": "My articles by status",
+        "total": "Articles",
+        "empty": "No articles yet.",
+        "aria": "Articles by status, {{total}} in total"
+      },
+      "category": {
+        "title": "News per category",
+        "empty": "No category has news yet.",
+        "inactive": "{{name}} (inactive)"
+      },
+      "activity": {
+        "title": "Recent activity",
+        "empty": "No activity yet.",
+        "verb": {
+          "created": "created",
+          "backToDraft": "moved back to draft",
+          "PENDING": "submitted for review",
+          "PUBLISHED": "published",
+          "REJECTED": "rejected",
+          "ARCHIVED": "archived",
+          "comment": "commented on"
+        }
+      },
+      "top": {
+        "title": "Top articles",
+        "viewed": "Most viewed",
+        "commented": "Most commented",
+        "views": "views",
+        "comments": "comments",
+        "empty": "No articles to show for this period."
+      }
+    },
+    "profile": {
+      "address": "Address",
+      "allSaved": "All changes saved",
+      "avatarRemoved": "Profile picture removed.",
+      "avatarUpdated": "Profile picture updated.",
+      "changePassword": "Change password",
+      "changing": "Changing...",
+      "discard": {
+        "body": "You have unsaved changes. If you leave now, they will be lost.",
+        "confirm": "Discard changes",
+        "title": "Discard unsaved changes?"
+      },
+      "emailLocked": "Email cannot be changed",
+      "intro": "Manage your personal details, password and preferences.",
+      "notVerified": "Not verified",
+      "passwordChanged": "Password changed.",
+      "phone": "Phone",
+      "photo": {
+        "change": "Change photo",
+        "help": "JPEG, PNG, GIF or WebP, up to {{max}} MB.",
+        "linkFailed": "The image could not be loaded from this link.",
+        "linkHelp": "Paste the address of an image on the web (up to 500 characters).",
+        "linkLabel": "Image link",
+        "linkSave": "Use this image",
+        "linkTitle": "Use an image link",
+        "previewAlt": "Preview of the photo",
+        "remove": "Remove photo",
+        "removeText": "Your photo will be removed and your initial will be shown instead.",
+        "removeTitle": "Remove photo?",
+        "upload": "Upload photo",
+        "uploadAction": "Upload",
+        "uploadTitle": "Upload photo",
+        "useLink": "Use an image link instead"
+      },
+      "preferences": {
+        "language": "Language",
+        "saved": "Saved on this device and applied right away.",
+        "theme": "Theme"
+      },
+      "saveChanges": "Save changes",
+      "tabs": {
+        "password": "Password",
+        "preferences": "Preferences",
+        "profile": "Profile"
+      },
+      "tabsLabel": "Profile sections",
+      "title": "My profile",
+      "unsaved": "Unsaved changes",
+      "updated": "Profile updated.",
+      "uploading": "Uploading...",
+      "usernameHelp": "Your old username will stop working.",
+      "verified": "Verified",
+      "verifyEmail": "Verify your email"
+    },
+    "roles": {
+      "adminNote": "Admin can do everything the other roles can do.",
+      "allowed": "Allowed",
+      "emptySearch": "No permissions match your search.",
+      "fullControl": "full control",
+      "groups": {
+        "articles": "Articles",
+        "comments": "Comments",
+        "other": "Other",
+        "reading": "Reading and profile",
+        "reports": "Reports and dashboard",
+        "review": "Review and publishing",
+        "settings": "System settings",
+        "taxonomy": "Categories and tags",
+        "usersRoles": "Users and roles"
+      },
+      "intro": "What each role can do. Roles are fixed; change a user's role on the <1>Users page</1>.",
+      "notAllowed": "Not allowed",
+      "notUsed": "Not used",
+      "notUsedHint": "No part of the system checks this permission any more.",
+      "permission": "Permission",
+      "permissions": {
+        "BOOKMARK_MANAGE": "Bookmark articles",
+        "CATEGORY_MANAGE": "Manage categories",
+        "COMMENT_CREATE": "Write comments",
+        "COMMENT_MODERATE": "Hide and manage comments",
+        "DASHBOARD_VIEW": "View the dashboard",
+        "NEWS_APPROVE": "Approve articles",
+        "NEWS_ARCHIVE": "Archive articles",
+        "NEWS_CREATE": "Create articles",
+        "NEWS_EDIT": "Edit any article",
+        "NEWS_EDIT_OWN": "Edit own articles",
+        "NEWS_FILTER": "Filter articles",
+        "NEWS_MANAGE": "Manage all articles",
+        "NEWS_PUBLISH": "Publish articles",
+        "NEWS_READ": "Read articles",
+        "NEWS_REJECT": "Reject articles",
+        "NEWS_REVIEW": "Review articles",
+        "NEWS_SAVE_DRAFT": "Save drafts",
+        "NEWS_SEARCH": "Search articles",
+        "NEWS_STATUS_VIEW": "See the status of own articles",
+        "NEWS_SUBMIT": "Submit articles for review",
+        "NEWS_VIEW_OWN_PUBLISHED": "View own published articles",
+        "NEWS_VIEW_SUBMITTED": "View submitted articles",
+        "PROFILE_MANAGE": "Manage own profile",
+        "REPORT_VIEW": "View reports",
+        "ROLE_MANAGE": "Manage roles",
+        "SETTINGS_MANAGE": "Manage system settings",
+        "STATISTICS_VIEW": "View statistics",
+        "TAG_MANAGE": "Manage tags",
+        "USER_MANAGE": "Manage users"
+      },
+      "searchLabel": "Search permissions",
+      "searchPlaceholder": "Search permissions...",
+      "showCodes": "Show codes",
+      "summary": {
+        "ADMIN": "Manages the whole system",
+        "AUTHOR": "Writes articles and submits them for review",
+        "EDITOR": "Reviews and publishes articles",
+        "READER": "Reads, comments and bookmarks articles"
+      },
+      "tableCaption": "Which role is allowed each permission",
+      "title": "Roles",
+      "users_one": "{{formattedCount}} user",
+      "users_other": "{{formattedCount}} users"
+    },
+    "settings": {
+      "actions": {
+        "discard": "Discard changes",
+        "save": "Save changes"
+      },
+      "color": {
+        "darkText": "Dark text",
+        "hex": "{{name}}: hex value",
+        "lowContrast": "This color is hard to read as text ({{light}}:1 on a light page, {{dark}}:1 on a dark page; 4.5:1 is the minimum). The site makes the text on it readable and adjusts the color where it is used as text, so it may look different there.",
+        "picker": "{{name}}: color picker",
+        "ratios": "Contrast: {{light}}:1 on a light page, {{dark}}:1 on a dark page.",
+        "useDefault": "Use default",
+        "whiteText": "White text"
+      },
+      "discard": {
+        "body": "The {{tab}} tab has changes that are not saved. If you leave it they are lost.",
+        "confirm": "Discard changes",
+        "title": "Discard changes?"
+      },
+      "fields": {
+        "accent_color": {
+          "label": "Accent color"
+        },
+        "comments_enabled_default": {
+          "help": "Used when an author does not choose.",
+          "label": "Open comments on new articles"
+        },
+        "contact_address": {
+          "label": "Contact address"
+        },
+        "contact_email": {
+          "label": "Contact email"
+        },
+        "contact_phone": {
+          "label": "Contact phone"
+        },
+        "copyright_text": {
+          "help": "Leave empty to show © with the year and the site name.",
+          "label": "Copyright text"
+        },
+        "dashboard_name": {
+          "help": "Shown in the top bar of the dashboard.",
+          "label": "Dashboard name"
+        },
+        "default_language": {
+          "help": "The language a first-time visitor sees. A visitor who chose a language keeps it.",
+          "label": "Default language"
+        },
+        "footer_description_en": {
+          "label": "Footer description (English)"
+        },
+        "footer_description_km": {
+          "help": "If it is empty, the English description is used.",
+          "label": "Footer description (Khmer)"
+        },
+        "meta_description_en": {
+          "help": "Shown by search engines under the page title.",
+          "label": "Meta description (English)"
+        },
+        "meta_description_km": {
+          "help": "If it is empty, the English description is used.",
+          "label": "Meta description (Khmer)"
+        },
+        "news_per_page": {
+          "help": "How many articles a list shows on one page, from 5 to 50.",
+          "label": "News per page"
+        },
+        "primary_color": {
+          "label": "Primary color"
+        },
+        "show_view_count": {
+          "help": "Shows the number of views on the article cards and pages.",
+          "label": "Show view counts"
+        },
+        "site_name_en": {
+          "label": "Site name (English)"
+        },
+        "site_name_km": {
+          "help": "Shown when the language is Khmer. If it is empty, the English name is used.",
+          "label": "Site name (Khmer)"
+        },
+        "social_facebook": {
+          "help": "An https link. Leave empty to hide the icon.",
+          "label": "Facebook link"
+        },
+        "social_telegram": {
+          "help": "An https link. Leave empty to hide the icon.",
+          "label": "Telegram link"
+        },
+        "social_tiktok": {
+          "help": "An https link. Leave empty to hide the icon.",
+          "label": "TikTok link"
+        },
+        "social_youtube": {
+          "help": "An https link. Leave empty to hide the icon.",
+          "label": "YouTube link"
+        },
+        "tagline_en": {
+          "label": "Tagline (English)"
+        },
+        "tagline_km": {
+          "help": "Shown when the language is Khmer. If it is empty, the English tagline is used.",
+          "label": "Tagline (Khmer)"
+        },
+        "title_format": {
+          "help": "Use {page} for the page title and {site} for the site name, for example {page} | {site}.",
+          "label": "Browser tab title format"
+        }
+      },
+      "fixErrors": "Some values are not valid. Check the fields below.",
+      "images": {
+        "broken": "The image cannot be loaded",
+        "choose": "Choose a file for {{name}}",
+        "helps": {
+          "favicon": "The small icon in the browser tab.",
+          "logo": "Shown in the header, the footer, the dashboard and the login pages.",
+          "logo-dark": "Used instead of the logo in dark mode. Optional.",
+          "share-image": "Shown when a page is shared on social networks. About 1200 × 630 pixels."
+        },
+        "intro": "Images are saved as soon as they are uploaded. PNG, JPG or WebP, up to 2 MB (the favicon may also be ICO). SVG is not allowed.",
+        "none": "No image",
+        "preview": "Preview of {{name}}",
+        "remove": "Remove",
+        "removeBody": "{{name}} will be removed and its file deleted.",
+        "removed": "Image removed.",
+        "removeTitle": "Remove the image?",
+        "replace": "Replace",
+        "titles": {
+          "favicon": "Favicon",
+          "logo": "Logo",
+          "logo-dark": "Dark logo",
+          "share-image": "Share image"
+        },
+        "upload": "Upload",
+        "uploaded": "Image saved.",
+        "uploading": "Uploading..."
+      },
+      "intro": "Change the name, logo, colors and texts of the website and the dashboard. Each tab is saved on its own.",
+      "leave": {
+        "body": "Some settings are changed but not saved. If you leave this page they are lost.",
+        "confirm": "Leave without saving",
+        "title": "Leave without saving?"
+      },
+      "preview": {
+        "date": "17 Oct 2026",
+        "heading": "Preview",
+        "hint": "Updates while you type. The logo is the saved one.",
+        "home": "Home",
+        "label": "Preview of the site header",
+        "link": "A link to an article",
+        "logIn": "Log in",
+        "news": "News",
+        "section": "Section"
+      },
+      "saved": "Settings saved.",
+      "sections": {
+        "colors": "Colors",
+        "contact": "Contact",
+        "footer": "Footer",
+        "images": "Images",
+        "names": "Names and language",
+        "news": "News",
+        "search": "Search engines and sharing",
+        "social": "Social links"
+      },
+      "seoImageHint": "The image shown when a page is shared is set in the Branding tab (Share image).",
+      "tabs": {
+        "branding": "Branding",
+        "content": "Content",
+        "general": "General",
+        "seo": "SEO",
+        "website": "Website"
+      },
+      "title": "System settings",
+      "unsaved": "unsaved changes",
+      "validation": {
+        "badCharacters": "Contains characters that are not allowed",
+        "boolean": "Must be on or off",
+        "color": "Use a color like #1A2B3C",
+        "email": "Enter a valid email address",
+        "faviconType": "Only PNG, JPG, WebP and ICO images are allowed",
+        "https": "Enter an https link, for example https://example.com",
+        "imageChoose": "Choose an image",
+        "imageTooLarge": "The image is too large ({{max}} MB at most)",
+        "imageType": "Only PNG, JPG and WebP images are allowed",
+        "max": "At most {{max}} characters",
+        "oneOf": "Must be one of: {{values}}",
+        "plainText": "Plain text only: the characters < and > are not allowed",
+        "range": "Enter a number from {{min}} to {{max}}",
+        "required": "This field is required",
+        "singleLine": "Must be a single line",
+        "wholeNumber": "Enter a whole number"
+      }
+    },
+    "slugRequired": "Slug is required for this name (letters a-z, digits and hyphens)",
+    "tags": {
+      "actions": "Actions",
+      "create": "Create tag",
+      "created": "Tag created.",
+      "deleteText": "Delete <1>{{name}}</1>? It is also removed from every news article that uses it. This cannot be undone.",
+      "deleteTitle": "Delete tag",
+      "deleted": "Tag deleted.",
+      "edit": "Edit tag",
+      "empty": {
+        "none": "No tags yet.",
+        "search": "No tags match your search."
+      },
+      "intro": "Tags link related articles together.",
+      "name": "Name",
+      "search": "Search tags",
+      "title": "Tags",
+      "updated": "Tag updated."
+    }
+  },
+  "errors": {
+    "backend": {
+      "ACCOUNT_DISABLED": "Account is disabled",
+      "ACCOUNT_LOCKED": "Account is locked",
+      "BAD_REQUEST": "Invalid request",
+      "CANNOT_DEACTIVATE_SELF": "You cannot deactivate your own account",
+      "CANNOT_REMOVE_OWN_ADMIN_ROLE": "You cannot remove your own ADMIN role",
+      "CATEGORY_HAS_NEWS": "This category has news and cannot be deleted; deactivate it instead",
+      "CATEGORY_INACTIVE": "This category is not active",
+      "CATEGORY_NAME_EXISTS": "A category with this name already exists",
+      "CATEGORY_NOT_FOUND": "Category not found",
+      "COMMENT_NOT_FOUND": "Comment not found",
+      "COMMENTS_DISABLED": "Comments are disabled for this article",
+      "CONFIRM_PASSWORD_NOT_MATCH": "Confirm password not match",
+      "CONFLICT": "Resource conflict",
+      "CURRENT_PASSWORD_INCORRECT": "Current password is incorrect",
+      "DATABASE_ERROR": "Database error occurred",
+      "DUPLICATE_RESOURCE": "Resource already exists",
+      "EMAIL_ALREADY_EXISTS": "Email already registered",
+      "EMAIL_NOT_VERIFIED": "Email has not been verified by OTP",
+      "ENDPOINT_NOT_FOUND": "Endpoint not found",
+      "EXTERNAL_SERVICE_ERROR": "External service failed",
+      "FILE_EMPTY": "The file is missing or empty",
+      "FILE_STORAGE_ERROR": "The file could not be stored",
+      "FILE_TOO_LARGE": "The file is too large",
+      "FILE_TYPE_NOT_ALLOWED": "Only JPEG, PNG, GIF and WebP images are allowed",
+      "FORBIDDEN": "Access denied",
+      "INSUFFICIENT_PERMISSIONS": "Insufficient permissions",
+      "INTERNAL_SERVER_ERROR": "Something went wrong",
+      "INVALID_CREDENTIALS": "Invalid credentials",
+      "INVALID_INPUT": "Invalid input provided",
+      "INVALID_PARAMETER": "Invalid parameter value",
+      "INVALID_REFRESH_TOKEN": "Invalid refresh token",
+      "MALFORMED_JSON": "Malformed JSON request",
+      "METHOD_NOT_ALLOWED": "HTTP method not allowed",
+      "MISSING_HEADER": "Required header is missing",
+      "MISSING_PARAMETER": "Required parameter is missing",
+      "NEWS_ACTION_NOT_ALLOWED": "Your role is not allowed to perform this action",
+      "NEWS_DELETE_ONLY_DRAFT": "Only a DRAFT article can be deleted",
+      "NEWS_IMAGE_LIMIT": "This article already has the maximum number of images",
+      "NEWS_IMAGE_NOT_FOUND": "Image not found",
+      "NEWS_INVALID_TRANSITION": "This action is not allowed for the article's current status",
+      "NEWS_NOT_EDITABLE": "This article cannot be edited in its current status",
+      "NEWS_NOT_FOUND": "News not found",
+      "NOT_ACCEPTABLE": "Requested media type not acceptable",
+      "NOT_FOUND": "Resource not found",
+      "OTP_ALREADY_USED": "OTP has already been used",
+      "OTP_ATTEMPTS_EXCEEDED": "Too many wrong attempts, please request a new OTP",
+      "OTP_EXPIRED": "OTP has expired or was never requested",
+      "OTP_INVALID": "Invalid OTP",
+      "OTP_RESEND_COOLDOWN": "Please wait before requesting another OTP",
+      "OTP_RESEND_LIMIT_EXCEEDED": "OTP request limit reached, please try again later",
+      "REPORT_RANGE_TOO_LONG": "The date range is too long for this report (at most 366 days or 60 months)",
+      "RESOURCE_NOT_FOUND": "Resource not found",
+      "SERVICE_UNAVAILABLE": "Service temporarily unavailable",
+      "SLUG_ALREADY_EXISTS": "This slug is already in use",
+      "SLUG_REQUIRED": "A slug is required for this name: use letters a-z, digits and hyphens",
+      "TAG_NAME_EXISTS": "A tag with this name already exists",
+      "TAG_NOT_FOUND": "Tag not found",
+      "TOKEN_EXPIRED": "Token has expired",
+      "TOKEN_INVALID": "Invalid token",
+      "TOKEN_MISSING": "Authentication token is missing",
+      "TOO_MANY_REQUESTS": "Too many requests, please slow down",
+      "UNAUTHORIZED": "Authentication required",
+      "UNSUPPORTED_MEDIA_TYPE": "Unsupported media type",
+      "USER_NOT_FOUND": "User not found",
+      "USERNAME_ALREADY_EXISTS": "Username already taken",
+      "VALIDATION_FAILED": "Validation failed"
+    },
+    "backHome": "Back to home",
+    "forbidden": {
+      "backToArea": "Back to my area",
+      "message": "You do not have permission to view this page."
+    },
+    "generic": "Something went wrong",
+    "network": "Cannot reach the server. Please try again.",
+    "notFound": {
+      "message": "Page not found."
+    }
+  },
+  "news": {
+    "areas": {
+      "allArticles": "All articles",
+      "backToAllArticles": "Back to all articles",
+      "backToMyArticles": "Back to my articles",
+      "myArticles": "My articles",
+      "allArticlesText": "Manage the articles of all authors.",
+      "myArticlesText": "Manage your own articles and follow their review."
+    },
+    "bookmarks": {
+      "browse": "Browse the news",
+      "empty": "You have not saved any news yet.",
+      "loadFailed": "Could not load your saved news: {{error}}",
+      "remove": "Remove",
+      "removed": "Removed.",
+      "removeFailed": "Could not remove the bookmark: {{error}}",
+      "savedOn": "Saved {{date}}",
+      "saveFailed": "Could not save the bookmark: {{error}}",
+      "summary_one": "{{count}} saved article, page {{page}} of {{totalPages}}",
+      "summary_other": "{{count}} saved articles, page {{page}} of {{totalPages}}",
+      "title": "My bookmarks"
+    },
+    "comments": {
+      "moderation": {
+        "articleChip": "Article: {{title}}",
+        "bulk": {
+          "progress": "Working… {{done}} of {{total}}",
+          "hide_one": "{{count}} hidden",
+          "hide_other": "{{count}} hidden",
+          "show_one": "{{count}} shown",
+          "show_other": "{{count}} shown",
+          "delete_one": "{{count}} deleted",
+          "delete_other": "{{count}} deleted",
+          "failed_one": "{{count}} failed",
+          "failed_other": "{{count}} failed"
+        },
+        "clearSelection": "Clear selection",
+        "commenter": "Commenter: {{name}}",
+        "deleteBody": "Delete the comment by <strong>{{user}}</strong> on <strong>{{article}}</strong> for good? This cannot be undone. To keep it but remove it from the site, use Hide instead.",
+        "deleteSelected": "Delete selected",
+        "deleteSelectedBody_one": "Delete {{count}} comment? This cannot be undone.",
+        "deleteSelectedBody_other": "Delete {{count}} comments? This cannot be undone.",
+        "deleteSelectedTitle": "Delete comments",
+        "deleteTitle": "Delete comment",
+        "deleted": "Comment deleted.",
+        "empty": {
+          "none": "No comments yet.",
+          "hidden": "No hidden comments.",
+          "filtered": "No comments match these filters."
+        },
+        "hidden": "Hidden",
+        "hiddenDone": "Comment hidden.",
+        "hide": "Hide",
+        "hideSelected": "Hide selected",
+        "intro": "Hide or remove comments that break the rules.",
+        "on": "On:",
+        "onlyArticle": "Only this article",
+        "onlyCommenter": "Show only this commenter's comments",
+        "picker": {
+          "label": "Filter by article",
+          "placeholder": "Find an article by title…",
+          "noResults": "No published article found"
+        },
+        "removeArticleFilter": "Remove the article filter",
+        "removeCommenterFilter": "Remove the commenter filter",
+        "selectAll": "Select all on this page",
+        "selectRow": "Select the comment of {{name}}",
+        "selected_one": "{{count}} selected",
+        "selected_other": "{{count}} selected",
+        "show": "Show",
+        "showLess": "Show less",
+        "showMore": "Show more",
+        "showSelected": "Show selected",
+        "status": "Status",
+        "tabs": {
+          "all": "All",
+          "VISIBLE": "Visible",
+          "HIDDEN": "Hidden"
+        },
+        "title": "Comments",
+        "unhiddenDone": "Comment shown.",
+        "viewOnSite": "View on site",
+        "viewUser": "View user",
+        "visible": "Visible"
+      },
+      "toggle": {
+        "disabled": "Comments disabled",
+        "disabledDone": "Comments are disabled.",
+        "enabled": "Comments enabled",
+        "enabledDone": "Comments are enabled.",
+        "hint": "Applies at once. Existing comments stay visible; readers just cannot add new ones.",
+        "moderate": "Moderate the comments of this article",
+        "title": "Comments"
+      }
+    },
+    "delete": {
+      "bodyAdmin": "<strong>{{title}}</strong> will be removed for good, together with its <strong>comments</strong>, bookmarks, views, tags, <strong>images</strong> and status history. Readers will no longer find it. This cannot be undone.",
+      "bodyDraft": "Delete the draft <strong>{{title}}</strong> with its images? This cannot be undone.",
+      "confirmAdmin": "Delete permanently",
+      "titleAdmin": "Delete article permanently",
+      "titleDraft": "Delete draft",
+      "understood": "I understand that this cannot be undone"
+    },
+    "editor": {
+      "allSaved": "All changes saved",
+      "by": "by {{name}}",
+      "commentsHelp": "Readers can comment on this article once it is published.",
+      "deleteArticle": "Delete article",
+      "deleteDraft": "Delete draft",
+      "editTitle": "Edit article",
+      "errors": {
+        "chooseCategory": "Choose a category",
+        "maxTags": "An article can have at most 20 tags"
+      },
+      "fields": {
+        "allowComments": "Allow comments",
+        "category": "Category",
+        "content": "Content",
+        "summary": "Summary (optional)",
+        "tags": "Tags",
+        "title": "Title"
+      },
+      "imageHint": "You can paste or drop images into the text.",
+      "imageSaveFirst": "Save the draft first. Then you can paste images into the text.",
+      "imageUploading": "Uploading image…",
+      "leave": {
+        "body": "You have unsaved changes. If you leave this page they are lost.",
+        "confirm": "Leave",
+        "title": "Leave without saving?"
+      },
+      "locked": {
+        "author": "This article is {{status}} and cannot be edited. Only a draft or a rejected article can be changed.",
+        "staff": "This article is {{status}}. Only an admin can edit an archived article."
+      },
+      "messages": {
+        "changesSaved": "Changes saved.",
+        "draftCreated": "Draft saved. You can now add a thumbnail and images.",
+        "draftSaved": "Draft saved."
+      },
+      "noTags": "No tags exist yet.",
+      "notice": {
+        "PUBLISHED": "This article is live. Changes are visible to readers as soon as you save.",
+        "PENDING": "This article is waiting for review.",
+        "DRAFT": "This is a draft. Readers cannot see it yet.",
+        "ARCHIVED": "This article is archived. Readers cannot see it."
+      },
+      "organize": {
+        "title": "Organize"
+      },
+      "preview": "Preview",
+      "publishing": {
+        "title": "Publishing",
+        "status": "Status",
+        "author": "Author",
+        "created": "Created",
+        "updated": "Updated",
+        "published": "Published",
+        "notSaved": "Not saved yet",
+        "notPublished": "Not published"
+      },
+      "rejection": {
+        "hintAdmin": "As an admin you can edit this article in any status.",
+        "hintAuthor": "Fix what the editor asked for, save your changes and submit the article for review again.",
+        "hintEditor": "The author can fix it and submit it again. You can also edit it yourself.",
+        "noReason": "The editor did not give a reason.",
+        "title": "This article was rejected"
+      },
+      "saveChanges": "Save changes",
+      "saveDraft": "Save draft",
+      "saveFirst": "Save the draft first. Then you can add a thumbnail and images.",
+      "stats_one": "{{words}} word · {{minutes}} min read",
+      "stats_other": "{{words}} words · {{minutes}} min read",
+      "summaryHint": "A short teaser works best.",
+      "tagRemove": "Remove tag {{name}}",
+      "tagsLine": "Tags: {{tags}}",
+      "tagsNoMatch": "No tag matches",
+      "tagsPlaceholder": "Type to find a tag",
+      "titlePlaceholder": "Article title",
+      "unsaved": "Unsaved changes",
+      "viewTitle": "View article"
+    },
+    "history": {
+      "createdAs": "Created as",
+      "empty": "No status changes yet.",
+      "loading": "Loading history...",
+      "showAll": "Show all ({{count}})",
+      "showLess": "Show less",
+      "to": "to",
+      "unknownUser": "Unknown user"
+    },
+    "list": {
+      "actions": {
+        "viewOnSite": "View on site",
+        "more": "More actions"
+      },
+      "columns": {
+        "actions": "Actions",
+        "author": "Author",
+        "category": "Category",
+        "status": "Status",
+        "title": "Title",
+        "updated": "Updated",
+        "article": "Article"
+      },
+      "create": "Create article",
+      "deleted": "\"{{title}}\" deleted.",
+      "empty": {
+        "none": "No articles yet.",
+        "filtered": "No articles match these filters."
+      },
+      "filters": {
+        "all": "All",
+        "allAuthors": "All authors",
+        "allCategories": "All categories",
+        "author": "Author",
+        "category": "Category"
+      },
+      "inactive": "(inactive)",
+      "pageSize": "Rows per page",
+      "perPage": "{{count}} per page",
+      "rejected": "Rejected: {{reason}}",
+      "showing": "Showing {{from}}–{{to}} of {{total}}",
+      "summary_one": "{{count}} article, page {{page}} of {{totalPages}}",
+      "summary_other": "{{count}} articles, page {{page}} of {{totalPages}}",
+      "tabs": {
+        "label": "Filter by status",
+        "all": "All",
+        "DRAFT": "Draft",
+        "PENDING": "Pending",
+        "PUBLISHED": "Published",
+        "REJECTED": "Rejected",
+        "ARCHIVED": "Archived"
+      },
+      "toolbar": {
+        "filters": "Filters",
+        "clear": "Clear filters"
+      },
+      "userFallback": "User {{id}}",
+      "workflowDone": "\"{{title}}\": {{message}}"
+    },
+    "media": {
+      "browse": "browse",
+      "caption": "Caption",
+      "captionPlaceholder": "Caption (optional)",
+      "deleteBody": "Delete this image from the article? This cannot be undone.",
+      "deleteImage": "Delete image",
+      "deleteTitle": "Delete image",
+      "dismiss": "Dismiss",
+      "dropHint": "JPG, PNG, GIF, WebP · max 5 MB",
+      "dropImages": "Drag images here or",
+      "dropThumbnail": "Drag a thumbnail here or",
+      "failedFile": "{{name}}: {{error}}",
+      "images": "Images",
+      "limitReached": "The limit of {{max}} images is reached.",
+      "moveDown": "Move down",
+      "moveUp": "Move up",
+      "noImages": "No images yet.",
+      "noThumbnail": "No thumbnail yet.",
+      "remove": "Remove",
+      "replace": "Replace",
+      "saveCaption": "Save caption",
+      "thumbnail": "Thumbnail",
+      "uploading": "Uploading...",
+      "uploadingFile": "Uploading {{name}}"
+    },
+    "preview": {
+      "by": "By {{name}}",
+      "published": "Published {{date}}",
+      "unknownAuthor": "Unknown author"
+    },
+    "queue": {
+      "intro": "Articles waiting for review, oldest first.",
+      "title": "Review queue"
+    },
+    "review": {
+      "allArticles": "See all articles",
+      "author": "Author",
+      "back": "Back to the review queue",
+      "category": "Category",
+      "caughtUp": "All caught up — no articles are waiting for review.",
+      "edit": "Edit article",
+      "editShort": "Edit",
+      "lastChanged": "Last changed",
+      "next": "Next article",
+      "noTags": "None",
+      "notPending": "This article is not waiting for review any more",
+      "notSubmitted": "Not submitted",
+      "openEditor": "Open editor",
+      "position": "{{current}} of {{total}}",
+      "previous": "Previous article",
+      "published": "Article published.",
+      "quick": "Quick review",
+      "rejected": "Article rejected.",
+      "stats_one": "{{words}} word · {{minutes}} min read",
+      "stats_other": "{{words}} words · {{minutes}} min read",
+      "submitted": "Submitted",
+      "submittedOn": "Submitted {{date}}",
+      "tags": "Tags",
+      "waiting": {
+        "less": "Waiting less than a minute",
+        "minute_one": "Waiting {{count}} minute",
+        "minute_other": "Waiting {{count}} minutes",
+        "hour_one": "Waiting {{count}} hour",
+        "hour_other": "Waiting {{count}} hours",
+        "day_one": "Waiting {{count}} day",
+        "day_other": "Waiting {{count}} days"
+      }
+    },
+    "richText": {
+      "bold": "Bold",
+      "bulletList": "Bulleted list",
+      "heading2": "Heading 2",
+      "heading3": "Heading 3",
+      "italic": "Italic",
+      "link": "Link",
+      "linkNotAllowed": "Only http(s) and mailto links are allowed.",
+      "linkPrompt": "Link address (https://...)",
+      "numberedList": "Numbered list",
+      "quote": "Quote",
+      "redo": "Redo",
+      "undo": "Undo"
+    },
+    "status": {
+      "ARCHIVED": "Archived",
+      "DRAFT": "Draft",
+      "PENDING": "Pending review",
+      "PUBLISHED": "Published",
+      "REJECTED": "Rejected"
+    },
+    "workflow": {
+      "actions": {
+        "archive": "Archive",
+        "publish": "Publish",
+        "publishNow": "Publish now",
+        "reject": "Reject",
+        "restore": "Restore",
+        "submit": "Submit for review"
+      },
+      "dialog": {
+        "archive": "Archive <strong>{{title}}</strong>? It is removed from the public site. Only an admin can restore it.",
+        "publish": "Publish <strong>{{title}}</strong>? It becomes visible to readers.",
+        "publishNow": "Publish <strong>{{title}}</strong> now, without review? It becomes visible to readers.",
+        "publishNowLabel": "Publish now",
+        "reason": "Reason (required)",
+        "reject": "Reject <strong>{{title}}</strong>? The author sees your reason, fixes the article and submits it again.",
+        "rejectTitle": "Reject article",
+        "restore": "Restore <strong>{{title}}</strong>? It is published again.",
+        "submit": "Submit <strong>{{title}}</strong> for review? An editor will check it. While it is pending you cannot edit it."
+      },
+      "done": {
+        "archive": "Article archived.",
+        "publish": "Article published.",
+        "reject": "Article rejected.",
+        "restore": "Article restored and published again.",
+        "submit": "Submitted for review."
+      },
+      "history": "Status history",
+      "none": "No workflow action is available for this status.",
+      "saveFirst": "Save your changes first, then use the workflow actions.",
+      "title": "Workflow"
+    }
+  },
+  "public": {
+    "active": {
+      "clearAll": "Clear all",
+      "from": "From {{date}}",
+      "keyword": "Search: {{keyword}}",
+      "label": "Active filters",
+      "remove": "Remove filter: {{label}}",
+      "to": "Until {{date}}"
+    },
+    "bookmark": {
+      "add": "Bookmark",
+      "labelWithTitle": "{{label}}: {{title}}",
+      "loginMessage": "Log in to save news.",
+      "loginTitle": "Log in to save news",
+      "remove": "Remove bookmark",
+      "save": "Save",
+      "saved": "Saved"
+    },
+    "breadcrumb": {
+      "home": "Home",
+      "label": "breadcrumb",
+      "news": "News"
+    },
+    "comments": {
+      "deleteConfirm": "Delete your comment? This cannot be undone.",
+      "deleteTitle": "Delete comment",
+      "empty": "No comments yet.",
+      "loadMore": "Load more comments",
+      "loginPrompt": "<1>Log in</1> to comment.",
+      "off": "Comments are turned off for this article. You can still read the existing ones.",
+      "placeholder": "Write a comment...",
+      "post": "Post comment",
+      "sending": "Sending...",
+      "title": "Comments ({{total}})",
+      "write": "Write a comment"
+    },
+    "detail": {
+      "by": "By {{name}}",
+      "comments_one": "{{formatted}} comment",
+      "comments_other": "{{formatted}} comments",
+      "moreIn": "More in {{category}}",
+      "readingTime_one": "{{formatted}} min read",
+      "readingTime_other": "{{formatted}} min read",
+      "related": "Related news",
+      "tags": "Tags",
+      "unavailable": "This article is not available",
+      "unavailableText": "It may have been removed or is not published.",
+      "views_one": "{{formatted}} view",
+      "views_other": "{{formatted}} views"
+    },
+    "filters": {
+      "all": "All",
+      "category": "Category",
+      "done": "Show results",
+      "from": "From",
+      "more": "More filters",
+      "rangeInvalid": "The \"From\" date must not be after the \"To\" date.",
+      "search": "Search",
+      "searchPlaceholder": "Title, summary or content",
+      "tag": "Tag",
+      "to": "To"
+    },
+    "footer": {
+      "about": "The latest and most read news, with categories, search and comments. Log in to bookmark the articles you want to read later.",
+      "allNews": "All news",
+      "contact": {
+        "address": "Address",
+        "email": "Email",
+        "phone": "Phone"
+      },
+      "social": {
+        "facebook": "Facebook",
+        "telegram": "Telegram",
+        "tiktok": "TikTok",
+        "youtube": "YouTube"
+      }
+    },
+    "gallery": {
+      "label": "Image gallery",
+      "next": "Next image",
+      "previous": "Previous image",
+      "title": "Gallery"
+    },
+    "header": {
+      "categories": "Categories",
+      "dashboard": "Dashboard",
+      "home": "Home",
+      "logIn": "Log in",
+      "logOut": "Log out",
+      "myBookmarks": "My bookmarks",
+      "myProfile": "My profile",
+      "news": "News",
+      "register": "Register",
+      "searchPlaceholder": "Search news...",
+      "toggleNavigation": "Toggle navigation"
+    },
+    "home": {
+      "allNews": "All news",
+      "description": "The latest and most read news, by category.",
+      "empty": "No news has been published yet.",
+      "latestNews": "Latest news",
+      "mostViewed": "Most viewed",
+      "nothingYet": "Nothing yet.",
+      "seeAll": "See all",
+      "viewCount_one": "{{formatted}} view",
+      "viewCount_other": "{{formatted}} views"
+    },
+    "list": {
+      "allNews": "All news",
+      "count_one": "{{formatted}} article",
+      "count_other": "{{formatted}} articles",
+      "description": "Search and browse all published news.",
+      "emptyFiltered": "No news matches these filters.",
+      "resultsFor": "Results for “{{keyword}}”",
+      "title": "News"
+    },
+    "newsCard": {
+      "comments": "Comments",
+      "views": "Views"
+    },
+    "share": {
+      "copied": "Link copied",
+      "copy": "Copy link",
+      "copyFailed": "The link could not be copied",
+      "label": "Share"
+    },
+    "side": {
+      "label": "Sidebar",
+      "tags": "Tags"
+    },
+    "term": {
+      "description": "News about {{name}}",
+      "emptyCategory": "No news in this category yet.",
+      "emptyTag": "No news in this tag yet."
+    },
+    "ticker": {
+      "ariaLabel": "Latest headlines",
+      "latest": "Latest"
+    },
+    "view": {
+      "grid": "Grid view",
+      "label": "View",
+      "list": "List view"
+    }
+  },
+  "users": {
+    "create": {
+      "account": "Account",
+      "created": "User added.",
+      "creating": "Adding…",
+      "discard": "Discard",
+      "discardText": "What you typed is lost.",
+      "discardTitle": "Discard this user?",
+      "info": "The account is active and the email is verified right away. Share the password with the user safely.",
+      "intro": "Create an account for a new author or editor.",
+      "profile": "Profile",
+      "roles": {
+        "AUTHOR": "Writes articles and submits them for review.",
+        "EDITOR": "Reviews, publishes and archives articles."
+      },
+      "submit": "Add user",
+      "title": "Add user"
+    },
+    "detail": {
+      "activate": "Activate user",
+      "activated": "User activated.",
+      "activateShort": "Activate",
+      "activateText": "{{username}} will be able to log in again.",
+      "backToUsers": "Back to users",
+      "cannotChangeSelf": "You cannot remove your own ADMIN role.",
+      "cannotDeactivateSelf": "You cannot deactivate your own account.",
+      "changeRole": "Change role",
+      "changeRoleText": "Change the role of <1>{{username}}</1> from <2>{{from}}</2> to <3>{{to}}</3>?",
+      "confirmNewPassword": "Confirm new password",
+      "deactivate": "Deactivate user",
+      "deactivated": "User deactivated.",
+      "deactivateShort": "Deactivate",
+      "deactivateText": "{{username}} will no longer be able to use the site, and their sessions are ended.",
+      "information": "Information",
+      "newPassword": "New password",
+      "oneRole": "A user has exactly one role; choosing another replaces it.",
+      "passwordReset": "Password reset.",
+      "resetPassword": "Reset password",
+      "resetText": "Set a new password for <1>{{username}}</1>. Their refresh tokens are revoked, so they have to log in again.",
+      "roleChanged": "Role changed.",
+      "you": "You"
+    },
+    "fields": {
+      "address": "Address",
+      "confirmPassword": "Confirm password",
+      "email": "Email",
+      "emailVerified": "Email verified",
+      "fullName": "Full name",
+      "password": "Password",
+      "phone": "Phone",
+      "role": "Role",
+      "status": "Status",
+      "username": "Username"
+    },
+    "list": {
+      "all": "All",
+      "anyEmail": "Any email",
+      "anyStatus": "Any status",
+      "create": "Add user",
+      "editRole": "Edit role",
+      "emptyFiltered": "No users match these filters.",
+      "emptyNone": "No users yet.",
+      "intro": "Manage accounts, roles and access.",
+      "roleChange": "Role will change from <1>{{from}}</1> to <2>{{to}}</2>.",
+      "roles": "Role",
+      "searchLabel": "Search name or email",
+      "searchPlaceholder": "Search...",
+      "title": "Users",
+      "user": "User",
+      "viewProfile": "View profile"
+    },
+    "password": {
+      "generate": "Generate strong password",
+      "copy": "Copy",
+      "copied": "Copied",
+      "copiedToast": "Copied",
+      "show": "Show password",
+      "hide": "Hide password",
+      "strength": "Strength: {{level}}",
+      "level": {
+        "0": "",
+        "1": "weak",
+        "2": "fair",
+        "3": "good",
+        "4": "strong"
+      },
+      "ruleMin": "At least {{min}} characters",
+      "match": "Passwords match",
+      "noMatch": "Passwords do not match"
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive",
+      "notVerified": "Not verified",
+      "verified": "Verified"
+    }
+  }
+}

@@ -1,37 +1,14 @@
 import { useEffect } from 'react'
+import { useSettings } from './useSettings'
 
-const SITE_TITLE = 'News Portal'
-
-// Sets the browser tab title ("<title> | News Portal") and, when given, the meta description; both go back to
-// their previous value when the page is left.
-export function usePageMeta(title, description) {
+// Tells the page's own title and, when given, meta description to SettingsProvider, which sets the browser tab with the
+// site's title format (setting title_format, for example "<title> | News Portal"), the default description and the share
+// image. Both go back to the site's own when the page is left.
+// `image` (optional) is the share image of the page (an article's thumbnail); the setting's share image is the default.
+export function usePageMeta(title, description, image) {
+  const { setPageMeta } = useSettings()
   useEffect(() => {
-    const previousTitle = document.title
-    document.title = title ? `${title} | ${SITE_TITLE}` : SITE_TITLE
-
-    let meta = document.head.querySelector('meta[name="description"]')
-    const created = !meta
-    const previousDescription = meta?.getAttribute('content')
-    if (description) {
-      if (!meta) {
-        meta = document.createElement('meta')
-        meta.setAttribute('name', 'description')
-        document.head.appendChild(meta)
-      }
-      meta.setAttribute('content', description)
-    }
-
-    return () => {
-      document.title = previousTitle
-      if (description && meta) {
-        if (created) {
-          meta.remove()
-        } else if (previousDescription !== null && previousDescription !== undefined) {
-          meta.setAttribute('content', previousDescription)
-        } else {
-          meta.removeAttribute('content')
-        }
-      }
-    }
-  }, [title, description])
+    setPageMeta({ title, description, image })
+    return () => setPageMeta(null)
+  }, [title, description, image, setPageMeta])
 }

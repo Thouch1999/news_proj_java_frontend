@@ -1,23 +1,36 @@
-import { useEffect, useState } from 'react'
-import { Alert, Button, Card, Col, Form, Row } from 'react-bootstrap'
+import { useEffect, useRef, useState } from 'react'
+import { Card, Form, Toast, ToastContainer } from 'react-bootstrap'
+import { useTranslation } from 'react-i18next'
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 import ConfirmDialog from '../common/ConfirmDialog'
 import ErrorAlert from '../common/ErrorAlert'
 import PageSpinner from '../common/PageSpinner'
-import FormField from '../form/FormField'
-import RichTextEditor from '../form/RichTextEditor'
+import { WORKFLOW_ACTIONS, workflowActions } from '../../constants/newsStatus'
+import { MAX_IMAGES_PER_NEWS } from '../../constants/upload'
+import { useAuth } from '../../hooks/useAuth'
 import { useNewsHistory } from '../../hooks/useNewsHistory'
+import { useReviewCount } from '../../hooks/useReviewCount'
 import { useUnsavedChangesWarning } from '../../hooks/useUnsavedChangesWarning'
-import { NEWS_STATUS } from '../../constants/newsStatus'
+import { useWorkflowAction } from '../../hooks/useWorkflowAction'
 import * as categoryService from '../../services/categoryService'
 import * as newsService from '../../services/newsService'
 import * as tagService from '../../services/tagService'
+import { errorMessage } from '../../utils/errorMessage'
+import { mediaUrl } from '../../utils/mediaUrl'
 import { blankToNull, hasErrors, rules } from '../../utils/validators'
-import ArticleMedia from './ArticleMedia'
+import ArticleEditorHeader, { ArticleNotice } from './ArticleEditorHeader'
+import { ContentField, SummaryField, TitleField } from './ArticleFields'
+import { ImagesCard, ThumbnailCard } from './ArticleMedia'
+import ArticlePreviewModal from './ArticlePreviewModal'
+import { CommentsFormCard, HistoryCard, OrganizeCard, PublishingCard } from './ArticleSideCards'
+import CommentsToggleCard from './CommentsToggleCard'
 import DeleteArticleDialog from './DeleteArticleDialog'
 import SafeHtml from './SafeHtml'
-import StatusBadge from './StatusBadge'
-import WorkflowCard from './WorkflowCard'
+import WorkflowDialog from './WorkflowDialog'
+
+// The fields the backend can report an error for, in the order of the page (the page scrolls to the first one)
+const FIELD_ORDER = ['title', 'summary', 'content', 'categoryId', 'tagIds']
+const FIELD_ID = { title: 'field-title', summary: 'field-summary', content: 'field-content', categoryId: 'field-category', tagIds: 'field-tags' }
 
 // What the backend needs from the form
 function toForm(article) {
@@ -31,106 +44,100 @@ function toForm(article) {
   }
 }
 
-function RejectionNotice({ reason, area }) {
-  const hint = area.admin
-    ? 'As an admin you can edit this article in any status.'
-    : area.staff
-      ? 'The author can fix it and submit it again. You can also edit it yourself.'
-      : 'Fix what the editor asked for, save your changes and submit the article for review again.'
+// An article that this role cannot edit (an author: any status except DRAFT and REJECTED; an editor: ARCHIVED): shown as it is
+function ReadOnlyArticle({ article }) {
+  const { t } = useTranslation()
   return (
-    <Alert variant="danger">
-      <Alert.Heading className="h6">This article was rejected</Alert.Heading>
-      <p className="mb-0">{reason || 'The editor did not give a reason.'}</p>
-      <hr />
-      <p className="mb-0 small">{hint}</p>
-    </Alert>
-  )
-}
-
-// Why a read-only article cannot be edited by this role
-function lockedReason(article, area) {
-  const status = NEWS_STATUS[article.status]?.label.toLowerCase() ?? article.status
-  if (area.staff) {
-    return `This article is ${status}. Only an admin can edit an archived article.`
-  }
-  return `This article is ${status} and cannot be edited. Only a draft or a rejected article can be changed.`
-}
-
-// Everything of an article that cannot be edited: shown as it is
-function ArticleView({ area, article, history, message, onWorkflowChange, onThumbnailChange, onImagesChange }) {
-  return (
-    <Row className="g-4">
-      <Col lg={8}>
-        <h1 className="h3 mb-2">{article.title}</h1>
-        <p className="mb-3">
-          <StatusBadge status={article.status} /> <span className="text-muted small ms-2">{article.category.name}</span>
-          {area.staff && article.authorName && <span className="text-muted small ms-2">by {article.authorName}</span>}
-        </p>
-        {message && <Alert variant="success">{message}</Alert>}
-        <Alert variant="secondary">{lockedReason(article, area)}</Alert>
-        {article.summary && <p className="lead">{article.summary}</p>}
-        <SafeHtml html={article.content} />
-        {article.tags.length > 0 && <p className="text-muted small">Tags: {article.tags.map((tag) => tag.name).join(', ')}</p>}
-        <ArticleMedia newsId={article.id} thumbnail={article.thumbnail} images={article.images} editable={false} onThumbnailChange={onThumbnailChange} onImagesChange={onImagesChange} />
-      </Col>
-      <Col lg={4}>
-        <WorkflowCard area={area} article={article} history={history} onChange={onWorkflowChange} />
-      </Col>
-    </Row>
+    <Card body>
+      <h2 className="h3 mb-2">{article.title}</h2>
+      <p className="text-muted small">
+        {article.category.name}
+        {article.tags.length > 0 && <> &middot; {t('news.editor.tagsLine', { tags: article.tags.map((tag) => tag.name).join(', ') })}</>}
+      </p>
+      {article.summary && <p className="lead">{article.summary}</p>}
+      <SafeHtml html={article.content} />
+    </Card>
   )
 }
 
 function ArticleForm({ area, initial, categories, tags }) {
+  const { t } = useTranslation()
+  const { user } = useAuth()
   const admin = area.admin
   const navigate = useNavigate()
   const { state: locationState } = useLocation()
   const [article, setArticle] = useState(initial) // null while writing a new article
   const [form, setForm] = useState(() => toForm(initial))
   const [saved, setSaved] = useState(() => JSON.stringify(toForm(initial)))
-  const [errors, setErrors] = useState({})
+  const [errors, setErrors] = useState({}) // the checks of this page
+  const [apiFields, setApiFields] = useState({}) // field errors the backend answered with
   const [apiError, setApiError] = useState(null)
-  const [message, setMessage] = useState(locationState?.message ?? null)
+  const [toast, setToast] = useState(() => (locationState?.message ? { variant: 'success', text: t(locationState.message) } : null))
   const [submitting, setSubmitting] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [deleting, setDeleting] = useState(false)
+  const [previewing, setPreviewing] = useState(false)
+  const [focusField, setFocusField] = useState(null)
+  const [imageBusy, setImageBusy] = useState(false)
+  const rootRef = useRef(null)
+  const headerRef = useRef(null)
 
   const history = useNewsHistory(article)
-
+  const { refresh: refreshReviewCount } = useReviewCount()
   const dirty = JSON.stringify(form) !== saved
   const { blocker, markClean } = useUnsavedChangesWarning(dirty)
+  const readOnly = Boolean(article) && !article.editable
+  const actions = article ? workflowActions(area.role, article.status) : []
 
   // after a workflow action (submit, publish, ...) the backend returns the whole article
-  const handleWorkflowChange = (updated, done) => {
+  const workflow = useWorkflowAction((updated, action) => {
     setArticle(updated)
-    setMessage(done)
     setApiError(null)
+    setToast({ variant: 'success', text: t(WORKFLOW_ACTIONS[action].doneKey) })
+    refreshReviewCount() // submit, publish, reject or archive can change the number of pending articles
+  })
+  // after the comments switch of an editor / admin
+  const handleCommentsChange = (updated, messageKey) => {
+    setArticle(updated)
+    setToast({ variant: 'success', text: t(messageKey) })
   }
 
-  const change = (field, value) => setForm((current) => ({ ...current, [field]: value }))
-  const toggleTag = (id) => change('tagIds', form.tagIds.includes(id) ? form.tagIds.filter((tagId) => tagId !== id) : [...form.tagIds, id])
+  const change = (field, value) => {
+    setForm((current) => ({ ...current, [field]: value }))
+    setErrors((current) => ({ ...current, [field]: '' }))
+    setApiFields((current) => ({ ...current, [field]: '' }))
+  }
+  const fieldErrors = { ...apiFields, ...errors }
 
   // the article's own category may have been deactivated since: keep it in the list so the form still shows it
   const options = [...categories]
   if (article && !options.some((category) => category.id === article.category.id)) {
-    options.push({ ...article.category, name: `${article.category.name} (inactive)` })
+    options.push({ ...article.category, name: `${article.category.name} ${t('news.list.inactive')}` })
   }
 
   // an author may delete an own DRAFT only; an admin any article; an editor none
   const canDelete = Boolean(article) && (admin || (!area.staff && article.status === 'DRAFT'))
 
+  const revealFirst = (found) => {
+    const name = FIELD_ORDER.find((field) => found[field])
+    if (name) setFocusField({ name, nonce: Date.now() })
+  }
+
   const handleSave = async (event) => {
-    event.preventDefault()
+    event?.preventDefault()
+    if (readOnly || submitting) return
     const found = {
       title: rules.title(form.title),
       summary: rules.summary(form.summary),
       content: rules.content(form.content),
-      categoryId: form.categoryId ? '' : 'Choose a category',
-      tagIds: form.tagIds.length > 20 ? 'An article can have at most 20 tags' : '',
+      categoryId: form.categoryId ? '' : t('news.editor.errors.chooseCategory'),
+      tagIds: form.tagIds.length > 20 ? t('news.editor.errors.maxTags') : '',
     }
     setErrors(found)
+    setApiFields({})
     setApiError(null)
-    setMessage(null)
     if (hasErrors(found)) {
+      revealFirst(found)
       return
     }
 
@@ -142,20 +149,26 @@ function ArticleForm({ area, initial, categories, tags }) {
         content: form.content,
         categoryId: Number(form.categoryId),
         tagIds: form.tagIds,
-        commentsEnabled: form.commentsEnabled,
+        // for a saved article an editor/admin changes this with the Comments card: never overwrite it with an old value
+        commentsEnabled: area.staff && article ? article.commentsEnabled : form.commentsEnabled,
       }
       if (article) {
         const updated = await newsService.updateNews(article.id, payload)
         setArticle(updated)
         setSaved(JSON.stringify(form))
-        setMessage(article.status === 'DRAFT' ? 'Draft saved.' : 'Changes saved.')
+        setToast({ variant: 'success', text: t(article.status === 'DRAFT' ? 'news.editor.messages.draftSaved' : 'news.editor.messages.changesSaved') })
       } else {
         const created = await newsService.createNews(payload)
         markClean() // the page changes to the saved article: no "unsaved changes" question
-        navigate(area.editPath(created.id), { replace: true, state: { message: 'Draft saved. You can now add a thumbnail and images.' } })
+        navigate(area.editPath(created.id), { replace: true, state: { message: 'news.editor.messages.draftCreated' } })
       }
     } catch (error) {
-      setApiError(error)
+      // field errors go under their fields; anything else stays in the alert at the top
+      const details = Object.fromEntries(Object.entries(error?.details ?? {}).filter(([field]) => FIELD_ORDER.includes(field)))
+      setApiFields(details)
+      setApiError(Object.keys(details).length > 0 ? null : error)
+      if (Object.keys(details).length > 0) revealFirst(details)
+      else window.scrollTo({ top: 0, behavior: 'smooth' })
     } finally {
       setSubmitting(false)
     }
@@ -175,136 +188,157 @@ function ArticleForm({ area, initial, categories, tags }) {
     }
   }
 
-  const leaveDialog = (
-    <ConfirmDialog show={blocker.state === 'blocked'} title="Leave without saving?" confirmLabel="Leave" confirmVariant="danger" onCancel={() => blocker.reset()} onConfirm={() => blocker.proceed()}>
-      You have unsaved changes. If you leave this page they are lost.
-    </ConfirmDialog>
-  )
+  // Ctrl/Cmd+S saves
+  useEffect(() => {
+    const onKeyDown = (event) => {
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 's') {
+        event.preventDefault()
+        if (dirty) handleSave()
+      }
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  })
 
-  // not editable (an author: any status except DRAFT and REJECTED; an editor: ARCHIVED): read-only view
-  if (article && !article.editable) {
-    return (
-      <div style={{ maxWidth: 1000 }}>
-        <div className="mb-3">
-          <Link to={area.listPath}>&larr; {area.backLabel}</Link>
-        </div>
-        <ArticleView
-          area={area}
-          article={article}
-          history={history}
-          message={message}
-          onWorkflowChange={handleWorkflowChange}
-          onThumbnailChange={(thumbnail) => setArticle((current) => ({ ...current, thumbnail }))}
-          onImagesChange={(images) => setArticle((current) => ({ ...current, images }))}
-        />
-      </div>
-    )
+  // the first field with an error scrolls into view and takes the focus
+  useEffect(() => {
+    if (!focusField) return
+    const element = document.getElementById(FIELD_ID[focusField.name])
+    if (!element) return
+    element.scrollIntoView({ block: 'center', behavior: 'smooth' })
+    const target = focusField.name === 'content' ? element.querySelector('.ProseMirror') : element
+    target?.focus?.({ preventScroll: true })
+  }, [focusField])
+
+  // the sticky header's height, so the editor toolbar can stick right under it (see _theme.scss)
+  useEffect(() => {
+    const header = headerRef.current
+    if (!header || typeof ResizeObserver === 'undefined') return undefined
+    const apply = () => rootRef.current?.style.setProperty('--editor-header-h', `${header.offsetHeight}px`)
+    apply()
+    const observer = new ResizeObserver(apply)
+    observer.observe(header)
+    return () => observer.disconnect()
+  }, [])
+
+  const setThumbnail = (thumbnail) => setArticle((current) => ({ ...current, thumbnail }))
+  const setImages = (change) => setArticle((current) => ({ ...current, images: typeof change === 'function' ? change(current.images) : change }))
+  const name = user?.fullName || user?.username || ''
+
+  // An image pasted or dropped into the text is stored as an image of the article (the only way the backend takes a
+  // file), so it also shows in the Images card and counts for the limit. Returns the address for the text, or null.
+  const addContentImage = async (file) => {
+    const fail = (text) => {
+      setToast({ variant: 'danger', text })
+      return null
+    }
+    if (!article) return fail(t('news.editor.imageSaveFirst'))
+    const problem = rules.imageFile(file)
+    if (problem) return fail(problem)
+    if (article.images.length >= MAX_IMAGES_PER_NEWS) return fail(t('news.media.limitReached', { max: MAX_IMAGES_PER_NEWS }))
+    setImageBusy(true)
+    try {
+      const added = await newsService.addNewsImage(article.id, file, null)
+      setImages((current) => [...current, added])
+      return mediaUrl(added.url)
+    } catch (caught) {
+      return fail(errorMessage(caught))
+    } finally {
+      setImageBusy(false)
+    }
   }
-
-  const staffEditingNonDraft = area.staff && article && article.status !== 'DRAFT' && article.status !== 'REJECTED'
+  const previewArticle = {
+    id: article?.id,
+    title: form.title,
+    summary: form.summary,
+    content: form.content,
+    thumbnail: article?.thumbnail ?? null,
+    images: article?.images ?? [],
+    tags: tags.filter((tag) => form.tagIds.includes(tag.id)),
+    category: options.find((category) => String(category.id) === form.categoryId) ?? { name: '' },
+    authorName: article?.authorName ?? name,
+    publishedAt: article?.publishedAt ?? null,
+  }
+  const slot = (order, node) => <div style={{ order }}>{node}</div>
 
   return (
-    <div style={{ maxWidth: 1000 }}>
-      <div className="mb-3">
-        <Link to={area.listPath}>&larr; {area.backLabel}</Link>
-      </div>
-      {article?.status === 'REJECTED' && <RejectionNotice reason={article.rejectionReason} area={area} />}
-      {staffEditingNonDraft && (
-        <Alert variant="warning">
-          This article is {NEWS_STATUS[article.status]?.label.toLowerCase() ?? article.status}. You can edit it as {admin ? 'an admin' : 'an editor'}; changes apply to the stored article straight away.
-        </Alert>
-      )}
-      <div className="d-flex align-items-center gap-3 mb-3">
-        <h1 className="h4 mb-0">{article ? 'Edit article' : 'Write an article'}</h1>
-        {article && <StatusBadge status={article.status} />}
-        {article && area.staff && article.authorName && <span className="text-muted small">by {article.authorName}</span>}
-        {dirty && <span className="text-warning small">Unsaved changes</span>}
-      </div>
-      {message && <Alert variant="success">{message}</Alert>}
+    <div ref={rootRef} className="editor-page">
+      <ArticleEditorHeader
+        innerRef={headerRef}
+        area={area}
+        article={article}
+        creating={!article}
+        readOnly={readOnly}
+        dirty={dirty}
+        saving={submitting}
+        onSave={handleSave}
+        onPreview={() => setPreviewing(true)}
+        actions={actions}
+        onAction={(key) => workflow.start(key, article)}
+        canDelete={canDelete}
+        onDelete={() => setConfirmDelete(true)}
+      />
+      <ArticleNotice area={area} article={article} readOnly={readOnly} />
       <ErrorAlert error={apiError} />
 
       <Form onSubmit={handleSave} noValidate>
-        <Row className="g-4">
-          <Col lg={8}>
-            <FormField id="title" label="Title" value={form.title} onChange={(event) => change('title', event.target.value)} error={errors.title} />
-            <FormField id="summary" label="Summary (optional)" as="textarea" rows={3} value={form.summary} onChange={(event) => change('summary', event.target.value)} error={errors.summary} />
-            <Form.Group className="mb-3">
-              <Form.Label>Content</Form.Label>
-              <RichTextEditor value={form.content} onChange={(html) => change('content', html)} invalid={Boolean(errors.content)} />
-              {errors.content && <div className="text-danger small mt-1">{errors.content}</div>}
-            </Form.Group>
-          </Col>
-
-          <Col lg={4}>
-            <Card body className="mb-3">
-              <Form.Group className="mb-3" controlId="category">
-                <Form.Label>Category</Form.Label>
-                <Form.Select value={form.categoryId} isInvalid={Boolean(errors.categoryId)} onChange={(event) => change('categoryId', event.target.value)}>
-                  <option value="">Choose a category</option>
-                  {options.map((category) => (
-                    <option key={category.id} value={category.id}>
-                      {category.name}
-                    </option>
-                  ))}
-                </Form.Select>
-                <Form.Control.Feedback type="invalid">{errors.categoryId}</Form.Control.Feedback>
-              </Form.Group>
-
-              <Form.Group className="mb-3">
-                <Form.Label>Tags</Form.Label>
-                <div className="d-flex flex-wrap gap-2">
-                  {tags.length === 0 && <span className="text-muted small">No tags exist yet.</span>}
-                  {tags.map((tag) => (
-                    <Button key={tag.id} type="button" size="sm" variant={form.tagIds.includes(tag.id) ? 'primary' : 'outline-secondary'} aria-pressed={form.tagIds.includes(tag.id)} onClick={() => toggleTag(tag.id)}>
-                      {tag.name}
-                    </Button>
-                  ))}
-                </div>
-                {errors.tagIds && <div className="text-danger small mt-1">{errors.tagIds}</div>}
-              </Form.Group>
-
-              <Form.Check id="comments" type="switch" label="Allow comments" checked={form.commentsEnabled} onChange={(event) => change('commentsEnabled', event.target.checked)} />
-            </Card>
-
-            <div className="d-flex gap-2 mb-3">
-              <Button type="submit" disabled={submitting}>
-                {submitting ? 'Saving...' : article && article.status !== 'DRAFT' ? 'Save changes' : 'Save draft'}
-              </Button>
-              {canDelete && (
-                <Button type="button" variant="outline-danger" disabled={submitting} onClick={() => setConfirmDelete(true)}>
-                  {admin ? 'Delete article' : 'Delete draft'}
-                </Button>
-              )}
-            </div>
-
-            {article && <WorkflowCard area={area} article={article} history={history} dirty={dirty} onChange={handleWorkflowChange} />}
-
-            {article ? (
-              <ArticleMedia
-                newsId={article.id}
-                thumbnail={article.thumbnail}
-                images={article.images}
-                editable
-                onThumbnailChange={(thumbnail) => setArticle((current) => ({ ...current, thumbnail }))}
-                onImagesChange={(images) => setArticle((current) => ({ ...current, images }))}
-              />
+        <div className="editor-layout">
+          <div className="editor-col editor-col--main">
+            {readOnly ? (
+              slot(1, <ReadOnlyArticle article={article} />)
             ) : (
-              <Alert variant="info" className="small">
-                Save the draft first. Then you can add a thumbnail and images.
-              </Alert>
+              <>
+                {slot(1, <TitleField value={form.title} error={fieldErrors.title} onChange={(value) => change('title', value)} />)}
+                {slot(2, <SummaryField value={form.summary} error={fieldErrors.summary} onChange={(value) => change('summary', value)} />)}
+                {slot(3, <ContentField value={form.content} error={fieldErrors.content} busy={imageBusy} onChange={(html) => change('content', html)} onImage={addContentImage} />)}
+              </>
             )}
-          </Col>
-        </Row>
+            {slot(7, <ImagesCard newsId={article?.id} images={article?.images ?? []} editable={!readOnly} saved={Boolean(article)} onImagesChange={setImages} />)}
+          </div>
+
+          <div className="editor-col editor-col--side">
+            {slot(4, <PublishingCard article={article} author={name} dirty={dirty} action={actions[0]} onAction={(key) => workflow.start(key, article)} />)}
+            {!readOnly && slot(5, <OrganizeCard form={form} errors={fieldErrors} categories={options} tags={tags} onChange={change} />)}
+            {slot(6, <ThumbnailCard newsId={article?.id} thumbnail={article?.thumbnail} editable={!readOnly} saved={Boolean(article)} onThumbnailChange={setThumbnail} />)}
+            {/* an editor/admin switches the comments of a saved article at once; everybody else saves the switch with the article */}
+            {article && area.staff
+              ? slot(8, <CommentsToggleCard area={area} article={article} onChange={handleCommentsChange} />)
+              : !readOnly && slot(8, <CommentsFormCard checked={form.commentsEnabled} onChange={(value) => change('commentsEnabled', value)} />)}
+            {article && slot(9, <HistoryCard history={history} />)}
+          </div>
+        </div>
       </Form>
 
-      {leaveDialog}
+      <ConfirmDialog show={blocker.state === 'blocked'} title={t('news.editor.leave.title')} confirmLabel={t('news.editor.leave.confirm')} confirmVariant="danger" onCancel={() => blocker.reset()} onConfirm={() => blocker.proceed()}>
+        {t('news.editor.leave.body')}
+      </ConfirmDialog>
+      <WorkflowDialog
+        key={`${workflow.pending?.action}-${workflow.pending?.article.id}`}
+        action={workflow.pending?.action}
+        article={workflow.pending?.article}
+        busy={workflow.busy}
+        error={workflow.error}
+        onCancel={workflow.cancel}
+        onConfirm={workflow.confirm}
+      />
       <DeleteArticleDialog key={confirmDelete ? 'open' : 'closed'} article={confirmDelete ? article : null} admin={admin} busy={deleting} onCancel={() => setConfirmDelete(false)} onConfirm={handleDelete} />
+      <ArticlePreviewModal show={previewing} article={previewArticle} onClose={() => setPreviewing(false)} />
+
+      <ToastContainer position="bottom-end" className="p-3 editor-toasts" style={{ zIndex: 2000 }}>
+        <Toast bg={toast?.variant ?? 'success'} show={Boolean(toast)} onClose={() => setToast(null)} delay={4000} autohide>
+          <Toast.Body className="text-white d-flex justify-content-between gap-3">
+            <span>{toast?.text}</span>
+            <button type="button" className="btn-close btn-close-white" aria-label={t('common.actions.close')} onClick={() => setToast(null)} />
+          </Toast.Body>
+        </Toast>
+      </ToastContainer>
     </div>
   )
 }
 
 // Loads the article (when editing), the active categories and the tags; the form mounts when all are there.
 export default function ArticleEditor({ area }) {
+  const { t } = useTranslation()
   const { id } = useParams()
   const isEdit = Boolean(id)
 
@@ -337,7 +371,7 @@ export default function ArticleEditor({ area }) {
     return (
       <div>
         <ErrorAlert error={data.error} />
-        <Link to={area.listPath}>{area.backLabel}</Link>
+        <Link to={area.listPath}>{t(area.backLabelKey)}</Link>
       </div>
     )
   }

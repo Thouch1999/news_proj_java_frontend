@@ -1,3 +1,9 @@
 // Overrides for Bootstrap variables. They are passed to Bootstrap in main.scss.
-$font-family-sans-serif: "Kantumruy Pro", "Noto Sans Khmer", sans-serif;
-$primary: #1a56db;
+// The palette and the look come from the Laravel news site (news_laravel_pro): navy header, red accent.
+$navy: #27306d;
+$red: #da0000;
+
+$font-family-sans-serif: "Roboto Condensed", "Kantumruy Pro", "Noto Sans Khmer", sans-serif;
+$primary: $navy;
+$danger: $red;
+$link-hover-color: $red;

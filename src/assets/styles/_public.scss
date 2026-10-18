@@ -16,36 +16,274 @@
   line-height: 1.5;
 }
 
-.article-page {
-  max-width: 760px;
+// ---- the article page: no card, the text in a column about 720px wide
+.article-column {
+  max-width: 720px;
 }
 
+.article-chip {
+  display: inline-block;
+  margin-bottom: 0.75rem;
+  padding: 0.2rem 0.75rem;
+  border-radius: 999px;
+  background: var(--app-icon-bg);
+  color: var(--app-primary-text);
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.article-title {
+  margin: 0 0 0.75rem;
+  color: var(--app-heading);
+  font-size: 2.1rem;
+  font-weight: 800;
+  line-height: 1.4; // Khmer needs room above and below the letters
+
+  @media (max-width: 575.98px) {
+    font-size: 1.65rem;
+  }
+}
+
+.article-lead {
+  margin: 0 0 1.25rem;
+  color: var(--app-muted);
+  font-size: 1.2rem;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+
+.article-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 1.5rem;
+  margin-bottom: 1.5rem;
+  padding: 0.9rem 0;
+  border-block: 1px solid var(--app-border);
+
+  &__info {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.4rem 1.1rem;
+    color: var(--app-muted);
+    font-size: 0.92rem;
+
+    .fw-semibold {
+      color: var(--app-heading);
+    }
+  }
+
+  &__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+}
+
+.article-hero {
+  margin: 0 0 1.75rem;
+
+  .ratio {
+    overflow: hidden;
+    border-radius: 0.75rem;
+    background: var(--app-surface-2);
+  }
+
+  img {
+    object-fit: cover;
+  }
+
+  figcaption {
+    margin-top: 0.5rem;
+    color: var(--app-muted);
+    font-size: 0.85rem;
+  }
+}
+
+.article-section-title {
+  margin: 0 0 1rem;
+  color: var(--app-heading);
+  font-size: 1.35rem;
+  font-weight: 700;
+}
+
+.article-share {
+  padding-top: 1rem;
+  border-top: 1px solid var(--app-border);
+}
+
+// the sidebar stays in view while the article scrolls (on a wide screen)
+@media (min-width: 992px) {
+  .article-side {
+    position: sticky;
+    top: calc(var(--news-header-height, 80px) + 1rem);
+  }
+}
+
+// the text of the article
 .article-page .article-content {
+  color: var(--app-text);
   font-size: 1.1rem;
   line-height: 1.9;
+
+  > :first-child {
+    margin-top: 0;
+  }
+
+  p {
+    margin-bottom: 1.25rem;
+  }
+
+  h2,
+  h3,
+  h4 {
+    margin: 2rem 0 0.75rem;
+    color: var(--app-heading);
+    font-weight: 700;
+    line-height: 1.45;
+  }
+
+  h2 {
+    font-size: 1.55rem;
+  }
+
+  h3 {
+    font-size: 1.3rem;
+  }
+
+  h4 {
+    font-size: 1.15rem;
+  }
+
+  a {
+    color: var(--app-primary-text);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+
+    &:hover {
+      text-decoration-thickness: 2px;
+    }
+  }
+
+  ul,
+  ol {
+    margin-bottom: 1.25rem;
+    padding-left: 1.5rem;
+  }
+
+  li {
+    margin-bottom: 0.4rem;
+  }
+
+  blockquote {
+    margin: 1.75rem 0;
+    padding: 0.25rem 0 0.25rem 1.25rem;
+    border-left: 4px solid var(--app-primary-text);
+    color: var(--app-muted);
+    font-style: italic;
+  }
+
+  img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    margin: 1.5rem auto;
+    border-radius: 0.6rem;
+  }
+
+  figure {
+    margin: 1.75rem 0;
+
+    img {
+      width: 100%;
+      margin: 0;
+    }
+  }
+
+  figcaption {
+    margin-top: 0.5rem;
+    color: var(--app-muted);
+    font-size: 0.85rem;
+    text-align: center;
+  }
+
+  hr {
+    margin: 2rem 0;
+    border-color: var(--app-border);
+    opacity: 1;
+  }
+
+  table {
+    display: block;
+    max-width: 100%;
+    margin-bottom: 1.25rem;
+    overflow-x: auto;
+    border-collapse: collapse;
+
+    th,
+    td {
+      padding: 0.5rem 0.75rem;
+      border: 1px solid var(--app-border);
+    }
+  }
+
+  pre {
+    padding: 1rem;
+    overflow-x: auto;
+    border-radius: 0.5rem;
+    background: var(--app-surface-2);
+    color: var(--app-text);
+    font-size: 0.95rem;
+    line-height: 1.6;
+  }
+
+  code {
+    color: var(--app-text);
+  }
+
+  iframe,
+  video {
+    max-width: 100%;
+    border-radius: 0.6rem;
+  }
 }
 
-.article-page .article-content p {
-  margin-bottom: 1.1rem;
+// ---- comments
+.comment-login {
+  margin-bottom: 1.5rem;
+  padding: 1rem 1.25rem;
+  border: 1px solid var(--app-border);
+  border-radius: 0.6rem;
+  background: var(--app-surface-2);
+  text-align: center;
 }
 
-.article-page .article-content img {
-  height: auto;
+.comment-list {
+  border-top: 1px solid var(--app-border);
 }
 
-.article-page .article-content table {
-  display: block;
-  max-width: 100%;
-  overflow-x: auto;
-}
+.comment-item {
+  display: flex;
+  gap: 0.75rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--app-border);
 
-.article-page .article-content pre {
-  overflow-x: auto;
+  &__body {
+    flex: 1;
+    min-width: 0;
+  }
 }
 
 // a card without a thumbnail
 .news-thumb-empty {
-  background: linear-gradient(135deg, #e9ecef, #dee2e6);
+  background: linear-gradient(135deg, var(--bs-tertiary-bg), var(--bs-secondary-bg));
 }
 
 .news-clamp-2,
@@ -63,6 +301,22 @@
 .news-clamp-3 {
   -webkit-line-clamp: 3;
   line-clamp: 3;
+}
+
+// comments are plain text: keep the line breaks, wrap long words (and Khmer, which has no spaces)
+.comment-text {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  line-height: 1.7;
+}
+
+// the small coloured square of a chart legend
+.bar-legend {
+  display: inline-block;
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 2px;
+  vertical-align: -1px;
 }
 
 .gallery-item:focus-visible {

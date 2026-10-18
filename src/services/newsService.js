@@ -87,6 +87,16 @@ export function runWorkflowAction(action, id, reason) {
   }
 }
 
+// EDITOR/ADMIN: allow or stop new comments on an article, in any status; both return the whole article.
+// The existing comments stay.
+export function enableComments(id) {
+  return httpClient.put(`${NEWS}/${id}/comments/enable`)
+}
+
+export function disableComments(id) {
+  return httpClient.put(`${NEWS}/${id}/comments/disable`)
+}
+
 // EDITOR/ADMIN: the PENDING articles, oldest first. Returns { items, page, size, totalElements, totalPages, ... };
 // an item has the same fields as the management list (updatedAt is when it was last changed, i.e. submitted).
 export function listReviewQueue({ page = 1, size = 10 } = {}) {

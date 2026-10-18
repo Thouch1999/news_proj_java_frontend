@@ -1,103 +1,175 @@
-import { Badge, Col, Row } from 'react-bootstrap'
-import { ChatDots, Eye } from 'react-bootstrap-icons'
+import { useEffect, useState } from 'react'
+import { Button, Col, Placeholder, Row } from 'react-bootstrap'
+import { Newspaper } from 'react-bootstrap-icons'
+import { useTranslation } from 'react-i18next'
 import { Link, useParams } from 'react-router-dom'
-import ErrorAlert from '../../components/common/ErrorAlert'
-import PageSpinner from '../../components/common/PageSpinner'
+import { EmptyState, ErrorState } from '../../components/common/ListStates'
+import ArticleHeader from '../../components/news/ArticleHeader'
+import CommentSection from '../../components/news/CommentSection'
 import ImageGallery from '../../components/news/ImageGallery'
+import { MostViewedBlock, SideBlock, SideNewsList } from '../../components/news/NewsListSidebar'
 import NewsCard from '../../components/news/NewsCard'
 import SafeHtml from '../../components/news/SafeHtml'
-import { categoryPath, ROUTES, tagPath } from '../../constants/routes'
+import ShareActions from '../../components/news/ShareActions'
+import { ROUTES, tagPath } from '../../constants/routes'
+import { useBookmarks } from '../../hooks/useBookmarks'
+import { useFormat } from '../../hooks/useFormat'
 import { usePageMeta } from '../../hooks/usePageMeta'
 import { useRemoteData } from '../../hooks/useRemoteData'
 import * as publicNewsService from '../../services/publicNewsService'
-import { formatDateTime } from '../../utils/dates'
 import { mediaUrl } from '../../utils/mediaUrl'
 import { excerpt, plainText } from '../../utils/text'
-import NotFoundPage from '../errors/NotFoundPage'
 
-const RELATED_COUNT = 4
+const RELATED_COUNT = 3
+const MORE_COUNT = 5
 
-// More news of the same category (not the open article); nothing is shown when there is none.
-function RelatedNews({ article }) {
-  const { data } = useRemoteData(`related|${article.id}`, () => publicNewsService.listPublicNews({ category: article.category.slug, size: RELATED_COUNT + 1 }))
-  const related = (data?.items ?? []).filter((news) => news.id !== article.id).slice(0, RELATED_COUNT)
-  if (related.length === 0) {
-    return null
-  }
-  return (
-    <section aria-labelledby="related-title" className="mt-5">
-      <h2 id="related-title" className="h4 mb-3">
-        More in {article.category.name}
-      </h2>
-      <Row xs={1} sm={2} lg={4} className="g-4">
-        {related.map((news) => (
-          <Col key={news.id}>
-            <NewsCard news={news} />
-          </Col>
-        ))}
-      </Row>
-    </section>
-  )
-}
-
+// The article without a card around it, in a column about 720px wide, with the sidebar beside it (after the comments
+// on a phone). Everything comes from the existing endpoints: the article, its category's news (the first three below the
+// article as cards, the next ones in the sidebar), and the most viewed.
 function Article({ article }) {
-  // the tab title is the article title; the description is its summary, or the start of the text
+  const { t } = useTranslation()
+  const { formatDate } = useFormat()
+  // the tab title is the article title; the description is its summary, or the start of the text; the share image is the thumbnail
   const description = article.summary?.trim() || excerpt(plainText(article.content))
-  usePageMeta(article.title, description)
+  usePageMeta(article.title, description, article.thumbnail ? mediaUrl(article.thumbnail) : undefined)
+
+  // the backend says whether the logged-in user saved this article: the buttons everywhere follow it
+  const { setKnown } = useBookmarks()
+  useEffect(() => {
+    if (typeof article.bookmarked === 'boolean') {
+      setKnown(article.id, article.bookmarked)
+    }
+  }, [article.id, article.bookmarked, setKnown])
+
+  const sameCategory = useRemoteData(`category-news|${article.id}`, () => publicNewsService.listPublicNews({ category: article.category.slug, size: RELATED_COUNT + MORE_COUNT + 1 }).catch(() => null))
+  const others = (sameCategory.data?.items ?? []).filter((news) => news.id !== article.id)
+  const related = others.slice(0, RELATED_COUNT)
+  const more = others.slice(RELATED_COUNT, RELATED_COUNT + MORE_COUNT)
+  const caption = article.images?.[0]?.caption
 
   return (
-    <article>
-      <nav aria-label="breadcrumb" className="small mb-3">
-        <Link to={ROUTES.HOME}>Home</Link> / <Link to={categoryPath(article.category.slug)}>{article.category.name}</Link>
-      </nav>
-      <div className="article-page mx-auto">
-        <Link to={categoryPath(article.category.slug)} className="text-decoration-none">
-          <Badge bg="primary" className="mb-2">
-            {article.category.name}
-          </Badge>
-        </Link>
-        <h1 className="news-title mb-3">{article.title}</h1>
-        <div className="text-muted d-flex flex-wrap column-gap-3 row-gap-1 mb-3">
-          {article.authorName && <span>By {article.authorName}</span>}
-          <span>{formatDateTime(article.publishedAt)}</span>
-          <span>
-            <Eye className="me-1" aria-label="Views" />
-            {article.viewCount} views
-          </span>
-          <span>
-            <ChatDots className="me-1" aria-label="Comments" />
-            {article.commentCount} comments
-          </span>
-        </div>
-        {article.summary && <p className="lead">{article.summary}</p>}
-        {article.thumbnail && <img src={mediaUrl(article.thumbnail)} alt="" className="img-fluid rounded w-100 mb-4" />}
-        <SafeHtml html={article.content} />
-        <ImageGallery images={article.images} />
-        {article.tags.length > 0 && (
-          <div className="d-flex flex-wrap gap-2 mt-4" aria-label="Tags">
-            {article.tags.map((tag) => (
-              <Link key={tag.id} to={tagPath(tag.slug)} className="badge text-bg-light border text-decoration-none fs-6 fw-normal">
-                #{tag.name}
-              </Link>
-            ))}
+    <Row className="g-5">
+      <Col lg={8}>
+        <article className="article-page article-column">
+          <ArticleHeader article={article} />
+
+          {article.thumbnail && (
+            <figure className="article-hero">
+              <div className="ratio ratio-16x9">
+                <img src={mediaUrl(article.thumbnail)} alt="" onError={(event) => (event.currentTarget.closest('figure').hidden = true)} />
+              </div>
+              {caption && <figcaption>{caption}</figcaption>}
+            </figure>
+          )}
+
+          <SafeHtml html={article.content} />
+          <ImageGallery images={article.images} />
+
+          {article.tags.length > 0 && (
+            <div className="d-flex flex-wrap gap-2 mt-4" role="group" aria-label={t('public.detail.tags')}>
+              {article.tags.map((tag) => (
+                <Link key={tag.id} to={tagPath(tag.slug)} className="filter-chip">
+                  #{tag.name}
+                </Link>
+              ))}
+            </div>
+          )}
+          <div className="article-share mt-4">
+            <ShareActions title={article.title} variant="row" />
           </div>
+        </article>
+
+        {related.length > 0 && (
+          <aside className="article-column mt-5" aria-labelledby="related-title">
+            <h2 id="related-title" className="article-section-title">
+              {t('public.detail.related')}
+            </h2>
+            <Row xs={1} sm={2} xl={3} className="g-3">
+              {related.map((news) => (
+                <Col key={news.id}>
+                  <NewsCard news={news} showTags={false} />
+                </Col>
+              ))}
+            </Row>
+          </aside>
         )}
-      </div>
-      <RelatedNews article={article} />
-    </article>
+
+        <div className="article-column">
+          <CommentSection article={article} />
+        </div>
+      </Col>
+
+      <Col lg={4}>
+        <aside className="article-side news-side" aria-label={t('public.side.label')}>
+          <MostViewedBlock />
+          {more.length > 0 && (
+            <SideBlock title={t('public.detail.moreIn', { category: article.category.name })} id="side-more-category">
+              <SideNewsList items={more} meta={(news) => formatDate(news.publishedAt)} />
+            </SideBlock>
+          )}
+        </aside>
+      </Col>
+    </Row>
   )
 }
 
-// /news/:slug. Only published articles exist here: anything else gets the 404 page.
+// grey shapes in the layout of the article while it loads
+function ArticleSkeleton() {
+  const { t } = useTranslation()
+  return (
+    <div role="status">
+      <span className="visually-hidden">{t('common.loading')}</span>
+      <Row className="g-5" aria-hidden="true">
+        <Col lg={8}>
+          <div className="article-column">
+            <Placeholder as="div" animation="glow">
+              <Placeholder xs={4} size="sm" className="d-block mb-3" />
+              <Placeholder xs={3} className="d-block mb-3" />
+              <Placeholder xs={12} size="lg" className="d-block mb-2" />
+              <Placeholder xs={9} size="lg" className="d-block mb-4" />
+              <Placeholder xs={6} size="sm" className="d-block mb-4" />
+              <div className="ratio ratio-16x9 mb-4">
+                <Placeholder as="div" className="rounded" />
+              </div>
+              {[12, 11, 12, 8, 12, 10].map((width, index) => (
+                <Placeholder key={index} xs={width} className="d-block mb-2" />
+              ))}
+            </Placeholder>
+          </div>
+        </Col>
+        <Col lg={4}>
+          <Placeholder as="div" animation="glow">
+            <Placeholder xs={12} className="d-block rounded" style={{ height: 220 }} />
+          </Placeholder>
+        </Col>
+      </Row>
+    </div>
+  )
+}
+
+// /news/:slug. Only published articles exist here: anything else is "not available".
 export default function NewsDetailPage() {
+  const { t } = useTranslation()
   const { slug } = useParams()
-  const { data, error, loading } = useRemoteData(slug, () => publicNewsService.getPublicNews(slug))
+  const [tick, setTick] = useState(0)
+  const { data, error, loading } = useRemoteData(`${slug}|${tick}`, () => publicNewsService.getPublicNews(slug))
+  usePageMeta(error?.code === 404 ? t('public.detail.unavailable') : undefined)
 
   if (loading) {
-    return <PageSpinner />
+    return <ArticleSkeleton />
+  }
+  if (error?.code === 404) {
+    return (
+      <EmptyState icon={Newspaper} text={t('public.detail.unavailable')}>
+        <p className="small text-muted mb-3">{t('public.detail.unavailableText')}</p>
+        <Button as={Link} to={ROUTES.NEWS} variant="outline-primary">
+          {t('public.home.allNews')}
+        </Button>
+      </EmptyState>
+    )
   }
   if (error) {
-    return error.code === 404 ? <NotFoundPage /> : <ErrorAlert error={error} />
+    return <ErrorState error={error} onRetry={() => setTick((value) => value + 1)} />
   }
   return <Article key={data.id} article={data} />
 }

@@ -1,14 +1,17 @@
 import { useState } from 'react'
-import { Button, Form } from 'react-bootstrap'
+import { Button, Form, Spinner } from 'react-bootstrap'
+import { Trans, useTranslation } from 'react-i18next'
 import { Link, useNavigate } from 'react-router-dom'
+import AuthPage from '../../components/common/AuthPage'
 import ErrorAlert from '../../components/common/ErrorAlert'
 import FormField from '../../components/form/FormField'
-import { FORGOT_PASSWORD_NOTICE, RESEND_COOLDOWN_SECONDS } from '../../constants/otp'
+import { RESEND_COOLDOWN_SECONDS } from '../../constants/otp'
 import { ROUTES } from '../../constants/routes'
 import * as authService from '../../services/authService'
 import { rules } from '../../utils/validators'
 
 export default function ForgotPasswordPage() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [error, setError] = useState('')
@@ -28,7 +31,7 @@ export default function ForgotPasswordPage() {
       const normalized = email.trim().toLowerCase()
       await authService.forgotPassword({ email: normalized })
       navigate(ROUTES.RESET_PASSWORD, {
-        state: { email: normalized, notice: FORGOT_PASSWORD_NOTICE, cooldown: RESEND_COOLDOWN_SECONDS },
+        state: { email: normalized, noticeKey: 'auth.notices.forgotPassword', cooldown: RESEND_COOLDOWN_SECONDS },
       })
     } catch (caught) {
       setApiError(caught)
@@ -38,17 +41,15 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <Form onSubmit={handleSubmit} noValidate>
-      <h1 className="h4 mb-3">Forgot password</h1>
-      <p className="text-muted">Enter your email and we will send you a code to reset your password.</p>
-      <ErrorAlert error={apiError} />
-      <FormField id="email" label="Email" type="email" value={email} onChange={(event) => setEmail(event.target.value)} error={error} autoComplete="email" />
-      <Button type="submit" className="w-100" disabled={submitting}>
-        {submitting ? 'Sending...' : 'Send code'}
-      </Button>
-      <p className="text-center mt-3 mb-0">
-        <Link to={ROUTES.LOGIN}>Back to log in</Link>
-      </p>
-    </Form>
+    <AuthPage title={t('auth.forgot.title')} description={t('auth.forgot.intro')} secondary={<Trans i18nKey="auth.secondary.remembered" components={{ 1: <Link to={ROUTES.LOGIN} /> }} />}>
+      <Form onSubmit={handleSubmit} noValidate>
+        <ErrorAlert error={apiError} />
+        <FormField id="email" label={t('auth.fields.email')} type="email" value={email} onChange={(event) => setEmail(event.target.value)} error={error} autoComplete="email" autoFocus />
+        <Button type="submit" className="w-100" disabled={submitting}>
+          {submitting && <Spinner size="sm" className="me-2" aria-hidden="true" />}
+          {submitting ? t('auth.forgot.sending') : t('auth.forgot.send')}
+        </Button>
+      </Form>
+    </AuthPage>
   )
 }

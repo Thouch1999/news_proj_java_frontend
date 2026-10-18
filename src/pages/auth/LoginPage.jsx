@@ -1,23 +1,31 @@
-import { useState } from 'react'
-import { Alert, Button, Form } from 'react-bootstrap'
+import { useRef, useState } from 'react'
+import { Alert, Button, Form, Spinner } from 'react-bootstrap'
+import { Trans, useTranslation } from 'react-i18next'
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom'
+import AuthPage from '../../components/common/AuthPage'
 import ErrorAlert from '../../components/common/ErrorAlert'
 import FormField from '../../components/form/FormField'
+import PasswordInput from '../../components/form/PasswordInput'
 import OtpInput from '../../components/form/OtpInput'
 import ResendButton from '../../components/form/ResendButton'
-import { EMAIL_NOT_VERIFIED_MESSAGE, RESEND_COOLDOWN_SECONDS } from '../../constants/otp'
+import { EMAIL_NOT_VERIFIED_MESSAGE, OTP_LENGTH, RESEND_COOLDOWN_SECONDS } from '../../constants/otp'
 import { ROUTES } from '../../constants/routes'
 import { useAuth } from '../../hooks/useAuth'
 import { useCountdown } from '../../hooks/useCountdown'
+import { useSettings } from '../../hooks/useSettings'
 import * as authService from '../../services/authService'
 import { postLoginPath } from '../../utils/postLoginPath'
+import { maskEmail } from '../../utils/text'
 import { rules } from '../../utils/validators'
 
 export default function LoginPage() {
+  const { t } = useTranslation()
   const { state } = useLocation()
   const navigate = useNavigate()
   const { user, isAuthenticated, setSession } = useAuth()
   const countdown = useCountdown()
+  const { siteName } = useSettings()
+  const passwordRef = useRef(null)
   const from = state?.from
 
   // 'credentials' first; staff accounts then get the 'otp' step
@@ -66,6 +74,8 @@ export default function LoginPage() {
       await requestLogin()
     } catch (error) {
       setApiError(error)
+      setForm((current) => ({ ...current, password: '' }))
+      passwordRef.current?.focus()
     } finally {
       setSubmitting(false)
     }
@@ -95,7 +105,7 @@ export default function LoginPage() {
     setNotice(null)
     try {
       await requestLogin()
-      setNotice('A new code has been sent to your email.')
+      setNotice('auth.notices.codeResent')
     } catch (error) {
       setApiError(error)
     }
@@ -114,48 +124,66 @@ export default function LoginPage() {
 
   if (step === 'otp') {
     return (
-      <Form onSubmit={handleOtp} noValidate>
-        <h1 className="h4 mb-3">Enter your login code</h1>
-        <p className="text-muted">We sent a 6-digit code to {email}.</p>
-        <ErrorAlert error={apiError} />
-        {notice && <Alert variant="info">{notice}</Alert>}
-        <OtpInput value={otp} onChange={setOtp} invalid={Boolean(errors.otp)} disabled={submitting} />
-        {errors.otp && <div className="text-danger text-center small mb-2">{errors.otp}</div>}
-        <Button type="submit" className="w-100" disabled={submitting}>
-          {submitting ? 'Verifying...' : 'Verify and log in'}
-        </Button>
-        <div className="d-flex justify-content-between align-items-center mt-2">
-          <ResendButton remaining={countdown.remaining} onClick={handleResend} />
-          <Button variant="link" type="button" onClick={backToCredentials}>
-            Back
+      <AuthPage
+        title={t('auth.login.otpTitle')}
+        description={t('auth.otp.sentTo', { length: OTP_LENGTH, email: maskEmail(email) })}
+        secondary={<Trans i18nKey="auth.otp.notYou" components={{ 1: <Button variant="link" type="button" className="p-0 align-baseline" onClick={backToCredentials} /> }} />}
+      >
+        <Form onSubmit={handleOtp} noValidate>
+          <ErrorAlert error={apiError} />
+          {notice && <Alert variant="info">{t(notice)}</Alert>}
+          <OtpInput value={otp} onChange={setOtp} invalid={Boolean(errors.otp)} describedBy="otp-error" disabled={submitting} autoFocus />
+          {errors.otp && (
+            <div id="otp-error" className="text-danger text-center small mb-2">
+              {errors.otp}
+            </div>
+          )}
+          <Button type="submit" className="w-100" disabled={submitting}>
+            {submitting && <Spinner size="sm" className="me-2" aria-hidden="true" />}
+            {submitting ? t('auth.login.verifying') : t('auth.otp.verify')}
           </Button>
-        </div>
-      </Form>
+          <div className="text-center mt-2">
+            <ResendButton remaining={countdown.remaining} onClick={handleResend} />
+          </div>
+        </Form>
+      </AuthPage>
     )
   }
 
   return (
-    <Form onSubmit={handleCredentials} noValidate>
-      <h1 className="h4 mb-3">Log in</h1>
-      {state?.message && <Alert variant={state.variant ?? 'warning'}>{state.message}</Alert>}
-      <ErrorAlert error={apiError} />
-      {needsVerification && (
-        <Alert variant="warning">
-          Your email is not verified yet.{' '}
-          <Link to={ROUTES.VERIFY_EMAIL} state={{ email }}>
-            Go to Verify Email
-          </Link>
-        </Alert>
-      )}
-      <FormField id="email" label="Email" type="email" value={form.email} onChange={update('email')} error={errors.email} autoComplete="email" />
-      <FormField id="password" label="Password" type="password" value={form.password} onChange={update('password')} error={errors.password} autoComplete="current-password" />
-      <Button type="submit" className="w-100" disabled={submitting}>
-        {submitting ? 'Logging in...' : 'Log in'}
-      </Button>
-      <div className="d-flex justify-content-between mt-3">
-        <Link to={ROUTES.FORGOT_PASSWORD}>Forgot password?</Link>
-        <Link to={ROUTES.REGISTER}>Create an account</Link>
-      </div>
-    </Form>
+    <AuthPage
+      title={t('auth.login.heading', { site: siteName })}
+      description={t('auth.login.description')}
+      notice={state?.message && <Alert variant={state.variant ?? 'info'}>{state.message}</Alert>}
+      secondary={<Trans i18nKey="auth.login.newTo" values={{ site: siteName }} components={{ 1: <Link to={ROUTES.REGISTER} /> }} />}
+    >
+      <Form onSubmit={handleCredentials} noValidate>
+        <ErrorAlert error={apiError} />
+        {needsVerification && (
+          <Alert variant="warning">
+            {t('auth.emailNotVerified')}{' '}
+            <Link to={ROUTES.VERIFY_EMAIL} state={{ email }}>
+              {t('auth.login.goToVerify')}
+            </Link>
+          </Alert>
+        )}
+        <FormField id="email" label={t('auth.fields.email')} type="email" value={form.email} onChange={update('email')} error={errors.email} autoComplete="username" autoFocus />
+        <PasswordInput
+          id="password"
+          label={t('auth.fields.password')}
+          value={form.password}
+          error={errors.password}
+          autoComplete="current-password"
+          warnCapsLock
+          inputRef={passwordRef}
+          labelAction={<Link to={ROUTES.FORGOT_PASSWORD} className="small">{t('auth.login.forgot')}</Link>}
+          onChange={(value) => setForm((current) => ({ ...current, password: value }))}
+        />
+        <Button type="submit" className="w-100" disabled={submitting}>
+          {submitting && <Spinner size="sm" className="me-2" aria-hidden="true" />}
+          {submitting ? t('auth.login.loggingIn') : t('auth.login.submit')}
+        </Button>
+      </Form>
+    </AuthPage>
   )
 }

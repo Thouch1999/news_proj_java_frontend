@@ -1,7 +1,10 @@
 @use "variables" as v;
 @use "editor";
 @use "public";
+@use "theme";
 @use "bootstrap/scss/bootstrap" with (
   $font-family-sans-serif: v.$font-family-sans-serif,
-  $primary: v.$primary
+  $primary: v.$primary,
+  $danger: v.$danger,
+  $link-hover-color: v.$link-hover-color
 );

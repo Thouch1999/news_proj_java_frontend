@@ -9,9 +9,11 @@ const PUBLIC_NEWS = '/api/v1/public/news'
 
 // Newest first. Returns { items, page, size, totalElements, totalPages, ... }. Every filter is optional:
 // keyword (searched in title, summary and content; Khmer works), category (slug), tag (slug),
-// from / to (yyyy-MM-dd, both days included; from after to is a 400).
-export function listPublicNews({ page = 1, size = 10, keyword, category, tag, from, to } = {}) {
-  const params = { page, size }
+// from / to (yyyy-MM-dd, both days included; from after to is a 400). Without `size` the backend uses the page size of
+// the system settings (news_per_page).
+export function listPublicNews({ page = 1, size, keyword, category, tag, from, to } = {}) {
+  const params = { page }
+  if (size) params.size = size
   if (keyword) params.keyword = keyword
   if (category) params.category = category
   if (tag) params.tag = tag

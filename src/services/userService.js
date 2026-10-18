@@ -12,6 +12,19 @@ export function updateMe(data) {
   return httpClient.put(`${USERS}/me`, data)
 }
 
+// Uploads an image file (JPEG, PNG, GIF or WebP, 5 MB at most) as the avatar. Returns the updated profile; its
+// `avatar` is a path on the backend (/uploads/...): show it with mediaUrl().
+export function uploadAvatar(file) {
+  const form = new FormData()
+  form.append('file', file)
+  return httpClient.post(`${USERS}/me/avatar`, form, { headers: { 'Content-Type': 'multipart/form-data' } })
+}
+
+// Clears the avatar. Returns the updated profile.
+export function removeAvatar() {
+  return httpClient.delete(`${USERS}/me/avatar`)
+}
+
 // ---- admin only ----
 
 // Returns { items, page (1-based), size, totalElements, totalPages, first, last, empty, hasNext, hasPrevious }.

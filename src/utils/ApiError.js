@@ -8,7 +8,7 @@ export default class ApiError extends Error {
   }
 
   static fromBody(body) {
-    return new ApiError(body.message || body.error || 'Request failed', {
+    return new ApiError(body.message || body.error || '', {
       code: body.code,
       details: body.details ?? null,
     })

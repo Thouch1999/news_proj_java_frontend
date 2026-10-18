@@ -92,7 +92,7 @@ httpClient.interceptors.response.use(
     return Promise.reject(
       isWrapper(body)
         ? ApiError.fromBody(body)
-        : new ApiError(response.statusText || 'Request failed', { code: response.status }),
+        : new ApiError(response.statusText || '', { code: response.status }),
     )
   },
 )

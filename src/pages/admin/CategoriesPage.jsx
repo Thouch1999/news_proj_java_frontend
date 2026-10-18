@@ -1,224 +1,310 @@
 import { useEffect, useState } from 'react'
-import { Alert, Badge, Button, Form, Modal, Table } from 'react-bootstrap'
+import { Button, Card, Dropdown, Form, OverlayTrigger, Spinner, Toast, ToastContainer, Tooltip, Table } from 'react-bootstrap'
+import { Folder, PencilSquare, ThreeDots } from 'react-bootstrap-icons'
+import { Trans, useTranslation } from 'react-i18next'
+import { Link, useSearchParams } from 'react-router-dom'
 import ConfirmDialog from '../../components/common/ConfirmDialog'
-import ErrorAlert from '../../components/common/ErrorAlert'
-import PageSpinner from '../../components/common/PageSpinner'
-import FormField from '../../components/form/FormField'
-import SlugField from '../../components/form/SlugField'
+import { EmptyState, ErrorState, RowsSkeleton } from '../../components/common/ListStates'
+import SearchBox from '../../components/common/SearchBox'
+import TaxonomyFormModal from '../../components/form/TaxonomyFormModal'
+import { StatusTabs } from '../../components/news/ArticleListParts'
+import { categoryPath, ROUTES } from '../../constants/routes'
+import { useFormat } from '../../hooks/useFormat'
 import * as categoryService from '../../services/categoryService'
-import { slugify } from '../../utils/slug'
-import { blankToNull, hasErrors, rules } from '../../utils/validators'
+import { errorMessage } from '../../utils/errorMessage'
 
-// category === null creates a new category, otherwise the given one is edited
-function CategoryFormModal({ category, onClose, onSaved }) {
-  const editing = Boolean(category)
-  const [form, setForm] = useState({
-    name: category?.name ?? '',
-    slug: category?.slug ?? '',
-    description: category?.description ?? '',
-  })
-  const [errors, setErrors] = useState({})
-  const [apiError, setApiError] = useState(null)
-  const [submitting, setSubmitting] = useState(false)
+const STATUSES = ['', 'active', 'inactive']
 
-  const update = (field) => (event) => setForm((current) => ({ ...current, [field]: event.target.value }))
+// The articles of one category in "All articles"
+const articlesOf = (category) => `${ROUTES.ADMIN_NEWS}?categoryId=${category.id}`
 
-  const handleSubmit = async (event) => {
-    event.preventDefault()
-    const found = {
-      name: rules.name(form.name),
-      slug: rules.slug(form.slug),
-      description: rules.description(form.description),
-    }
-    if (!found.name && !found.slug && !form.slug && !slugify(form.name)) {
-      found.slug = 'Slug is required for this name (letters a-z, digits and hyphens)'
-    }
-    setErrors(found)
-    setApiError(null)
-    if (hasErrors(found)) {
-      return
-    }
-    setSubmitting(true)
-    try {
-      const data = { name: form.name.trim(), slug: blankToNull(form.slug), description: blankToNull(form.description) }
-      const saved = editing ? await categoryService.updateCategory(category.id, data) : await categoryService.createCategory(data)
-      onSaved(saved, editing)
-    } catch (error) {
-      setApiError(error)
-      setSubmitting(false)
-    }
-  }
-
+// "Shown on website": a switch. It changes only when the backend has answered (a spinner while it saves), so a failure
+// leaves it where it was. Hiding asks first (see the page).
+function ShownSwitch({ category, busy, onToggle }) {
+  const { t } = useTranslation()
   return (
-    <Modal show onHide={submitting ? undefined : onClose} centered>
-      <Form onSubmit={handleSubmit} noValidate>
-        <Modal.Header closeButton={!submitting}>
-          <Modal.Title className="h5">{editing ? 'Edit category' : 'Create category'}</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <ErrorAlert error={apiError} />
-          <FormField id="category-name" label="Name" value={form.name} onChange={update('name')} error={errors.name} autoFocus />
-          <SlugField id="category-slug" name={form.name} slug={form.slug} onChange={update('slug')} error={errors.slug} editing={editing} />
-          <FormField id="category-description" label="Description (optional)" as="textarea" rows={3} value={form.description} onChange={update('description')} error={errors.description} />
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="outline-secondary" onClick={onClose} disabled={submitting}>
-            Cancel
-          </Button>
-          <Button type="submit" disabled={submitting}>
-            {submitting ? 'Saving...' : 'Save'}
-          </Button>
-        </Modal.Footer>
-      </Form>
-    </Modal>
+    <span className="d-inline-flex align-items-center gap-2">
+      <Form.Check type="switch" id={`shown-${category.id}`} className="mb-0" checked={category.active} disabled={busy} aria-label={t('dashboard.categories.shownOnWebsite', { name: category.name })} onChange={() => onToggle(category)} />
+      {busy && <Spinner size="sm" animation="border" />}
+    </span>
   )
 }
 
-export default function CategoriesPage() {
-  const [reloadKey, setReloadKey] = useState(0)
-  const [state, setState] = useState({ key: null, data: null, error: null })
-  const [message, setMessage] = useState(null)
-  const [actionError, setActionError] = useState(null)
-  const [form, setForm] = useState(null) // { category } while the create/edit modal is open
-  const [confirm, setConfirm] = useState(null) // { type: 'toggle' | 'delete', category }
-  const [busy, setBusy] = useState(false)
+// Edit (an icon button) and the "..." menu: View on site (an active category), View articles, Delete (not while the
+// category has news: it can only be turned off)
+function CategoryActions({ category, onEdit, onDelete }) {
+  const { t } = useTranslation()
+  const hasNews = category.newsCount > 0
+  return (
+    <div className="d-inline-flex align-items-center gap-1">
+      <Button size="sm" variant="light" className="icon-btn" aria-label={t('common.actions.edit')} title={t('common.actions.edit')} onClick={() => onEdit(category)}>
+        <PencilSquare aria-hidden="true" />
+      </Button>
+      <Dropdown align="end">
+        <Dropdown.Toggle size="sm" variant="light" className="icon-btn article-more" aria-label={t('news.list.actions.more')} title={t('news.list.actions.more')}>
+          <ThreeDots aria-hidden="true" />
+        </Dropdown.Toggle>
+        <Dropdown.Menu popperConfig={{ strategy: 'fixed' }}>
+          {category.active && (
+            <Dropdown.Item as={Link} to={categoryPath(category.slug)} target="_blank" rel="noopener noreferrer">
+              {t('news.list.actions.viewOnSite')}
+            </Dropdown.Item>
+          )}
+          <Dropdown.Item as={Link} to={articlesOf(category)}>
+            {t('dashboard.categories.viewArticles')}
+          </Dropdown.Item>
+          <Dropdown.Divider />
+          <Dropdown.Item className={hasNews ? undefined : 'text-danger'} disabled={hasNews} onClick={() => onDelete(category)}>
+            {t('common.actions.delete')}
+          </Dropdown.Item>
+          {hasNews && <Dropdown.ItemText className="small text-muted category-delete-reason">{t('dashboard.categories.deleteBlocked', { count: category.newsCount })}</Dropdown.ItemText>}
+        </Dropdown.Menu>
+      </Dropdown>
+    </div>
+  )
+}
 
-  // the list is reloaded after every change; the old rows stay visible while it loads
+function Description({ text }) {
+  const { t } = useTranslation()
+  if (!text) return <span className="text-muted small">{t('dashboard.categories.noDescription')}</span>
+  return (
+    <OverlayTrigger placement="top" overlay={<Tooltip id={`description-${text.length}-${text.slice(0, 8)}`}>{text}</Tooltip>}>
+      <span className="taxonomy-description d-inline-block text-truncate align-bottom" tabIndex={0}>
+        {text}
+      </span>
+    </OverlayTrigger>
+  )
+}
+
+// The name, with the public path under it
+function NameCell({ category }) {
+  return (
+    <div className="taxonomy-name min-w-0">
+      <div className="news-title">{category.name}</div>
+      <div className="small text-muted">{categoryPath(category.slug)}</div>
+    </div>
+  )
+}
+
+function NewsCount({ category }) {
+  const { formatNumber } = useFormat()
+  return category.newsCount > 0 ? <Link to={articlesOf(category)}>{formatNumber(category.newsCount)}</Link> : <span className="text-muted">{formatNumber(0)}</span>
+}
+
+export default function CategoriesPage() {
+  const { t } = useTranslation()
+  const [searchParams, setSearchParams] = useSearchParams()
+  const status = STATUSES.includes(searchParams.get('status') ?? '') ? (searchParams.get('status') ?? '') : ''
+  const query = searchParams.get('q') ?? ''
+
+  const [reloadKey, setReloadKey] = useState(0)
+  const [state, setState] = useState({ data: null, error: null })
+  const [form, setForm] = useState(null) // { category } while the create / edit modal is open
+  const [confirm, setConfirm] = useState(null) // { type: 'hide' | 'delete', category }
+  const [busyId, setBusyId] = useState(null)
+  const [deleting, setDeleting] = useState(false)
+  const [toast, setToast] = useState(null)
+
+  // every category comes at once; after a change the rows are updated here and the list is loaded again quietly
   useEffect(() => {
     let current = true
     categoryService
       .listCategoriesForAdmin()
-      .then((data) => {
-        if (current) setState({ key: reloadKey, data, error: null })
-      })
-      .catch((error) => {
-        if (current) setState({ key: reloadKey, data: null, error })
-      })
+      .then((data) => current && setState({ data: data ?? [], error: null }))
+      .catch((error) => current && setState((previous) => ({ data: previous.data, error: previous.data ? null : error })))
     return () => {
       current = false
     }
   }, [reloadKey])
   const reload = () => setReloadKey((key) => key + 1)
+  const categories = state.data
+  const patch = (change) => setState((previous) => ({ ...previous, data: change(previous.data ?? []) }))
+  const replace = (saved) => patch((list) => list.map((category) => (category.id === saved.id ? { ...category, ...saved } : category)))
 
-  const handleSaved = (saved, wasEditing) => {
-    setForm(null)
-    setActionError(null)
-    setMessage(`Category ${wasEditing ? 'updated' : 'created'}. Slug: ${saved.slug}`)
-    reload()
+  const setParams = (changes) => {
+    const next = new URLSearchParams(searchParams)
+    Object.entries(changes).forEach(([name, value]) => (value ? next.set(name, value) : next.delete(name)))
+    setSearchParams(next, { replace: true })
   }
 
-  const runAction = async (action, successMessage) => {
-    setBusy(true)
-    setActionError(null)
-    setMessage(null)
+  const needle = query.trim().toLowerCase()
+  const shown = (categories ?? []).filter((category) => (!status || category.active === (status === 'active')) && (!needle || category.name.toLowerCase().includes(needle) || category.slug.includes(needle)))
+  const counts = { '': categories?.length, active: categories?.filter((category) => category.active).length, inactive: categories?.filter((category) => !category.active).length }
+  const tabs = ['', 'active', 'inactive'].map((value) => ({ value, label: t(`dashboard.categories.tabs.${value || 'all'}`), count: categories ? counts[value] : undefined }))
+
+  const toggle = async (category) => {
+    setBusyId(category.id)
     try {
-      await action()
-      setMessage(successMessage)
-      reload()
+      replace(await (category.active ? categoryService.deactivateCategory(category.id) : categoryService.activateCategory(category.id)))
+      setToast({ variant: 'success', text: t(category.active ? 'dashboard.categories.hidden' : 'dashboard.categories.shown') })
     } catch (error) {
-      setActionError(error)
+      setToast({ variant: 'danger', text: errorMessage(error) })
     } finally {
-      setBusy(false)
+      setBusyId(null)
+      setConfirm(null)
+    }
+  }
+  const requestToggle = (category) => (category.active ? setConfirm({ type: 'hide', category }) : toggle(category))
+
+  const remove = async () => {
+    const { category } = confirm
+    setDeleting(true)
+    try {
+      await categoryService.deleteCategory(category.id)
+      patch((list) => list.filter((item) => item.id !== category.id))
+      setToast({ variant: 'success', text: t('dashboard.categories.deleted') })
+    } catch (error) {
+      setToast({ variant: 'danger', text: errorMessage(error) })
+      reload()
+    } finally {
+      setDeleting(false)
       setConfirm(null)
     }
   }
 
-  const categories = state.data
-  const target = confirm?.category
+  // a new category is active; a switch that is off hides it right after it was created
+  const submit = (category) => async (data, { active }) => {
+    if (category) return categoryService.updateCategory(category.id, data)
+    const created = await categoryService.createCategory(data)
+    if (active) return created
+    try {
+      return await categoryService.deactivateCategory(created.id)
+    } catch {
+      return { ...created, notHidden: true }
+    }
+  }
+  const saved = (category, wasEditing) => {
+    setForm(null)
+    if (wasEditing) replace(category)
+    else patch((list) => [...list, category])
+    setToast(
+      category.notHidden
+        ? { variant: 'danger', text: t('dashboard.categories.createdNotHidden') }
+        : { variant: 'success', text: t(wasEditing ? 'dashboard.categories.updated' : 'dashboard.categories.created') },
+    )
+    reload()
+  }
+
+  const rows = shown.length > 0
+  const noMatch = categories && categories.length > 0 && shown.length === 0
 
   return (
     <div>
-      <div className="d-flex justify-content-between align-items-center mb-3">
-        <h1 className="h4 mb-0">Categories</h1>
-        <Button onClick={() => setForm({ category: null })}>Create category</Button>
+      <div className="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-3">
+        <div>
+          <h1 className="h4 mb-1">{t('dashboard.categories.title')}</h1>
+          <p className="text-muted small mb-0">{t('dashboard.categories.intro')}</p>
+        </div>
+        <Button onClick={() => setForm({ category: null })}>{t('dashboard.categories.create')}</Button>
       </div>
-      <Alert variant="info" className="small">
-        A category that has news cannot be deleted, only deactivated. A deactivated category is hidden from the public menu, and its news stay in the system.
-      </Alert>
-      {message && <Alert variant="success">{message}</Alert>}
-      <ErrorAlert error={actionError} />
-      <ErrorAlert error={state.error} />
-      {state.key === null && !state.error && <PageSpinner />}
-      {categories && (
-        <Table responsive hover className="bg-white align-middle">
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Slug</th>
-              <th className="text-end">News</th>
-              <th>Status</th>
-              <th className="text-end">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {categories.length === 0 && (
-              <tr>
-                <td colSpan={5} className="text-center text-muted py-4">
-                  No categories yet.
-                </td>
-              </tr>
-            )}
-            {categories.map((category) => (
-              <tr key={category.id}>
-                <td>
-                  {category.name}
-                  {category.description && <div className="text-muted small">{category.description}</div>}
-                </td>
-                <td>
-                  <code>{category.slug}</code>
-                </td>
-                <td className="text-end">{category.newsCount}</td>
-                <td>{category.active ? <Badge bg="success">Active</Badge> : <Badge bg="secondary">Inactive</Badge>}</td>
-                <td className="text-end text-nowrap">
-                  <Button size="sm" variant="outline-primary" className="me-1" onClick={() => setForm({ category })}>
-                    Edit
-                  </Button>
-                  <Button size="sm" variant={category.active ? 'outline-warning' : 'outline-success'} className="me-1" onClick={() => setConfirm({ type: 'toggle', category })}>
-                    {category.active ? 'Deactivate' : 'Activate'}
-                  </Button>
-                  <span title={category.newsCount > 0 ? 'This category has news, so it can only be deactivated.' : undefined}>
-                    <Button size="sm" variant="outline-danger" disabled={category.newsCount > 0} onClick={() => setConfirm({ type: 'delete', category })}>
-                      Delete
-                    </Button>
-                  </span>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </Table>
-      )}
 
-      {form && <CategoryFormModal category={form.category} onClose={() => setForm(null)} onSaved={handleSaved} />}
+      <StatusTabs tabs={tabs} active={status} label={t('dashboard.categories.status')} onChange={(value) => setParams({ status: value })} />
+
+      <Card className="article-card">
+        <div className="article-toolbar p-3">
+          <SearchBox value={query} onChange={(value) => setParams({ q: value })} label={t('dashboard.categories.search')} placeholder={t('dashboard.categories.search')} />
+        </div>
+
+        {!categories && !state.error && <RowsSkeleton />}
+        {!categories && state.error && <ErrorState error={state.error} onRetry={reload} />}
+        {categories && categories.length === 0 && (
+          <EmptyState icon={Folder} text={t('dashboard.categories.empty.none')}>
+            <Button size="sm" onClick={() => setForm({ category: null })}>
+              {t('dashboard.categories.create')}
+            </Button>
+          </EmptyState>
+        )}
+        {noMatch && (
+          <EmptyState icon={Folder} text={t('dashboard.categories.empty.search')}>
+            <Button size="sm" variant="outline-primary" onClick={() => setSearchParams({}, { replace: true })}>
+              {t('news.list.toolbar.clear')}
+            </Button>
+          </EmptyState>
+        )}
+
+        {rows && (
+          <>
+            <div className="article-table-wrap d-none d-md-block">
+              <Table hover className="article-table align-middle mb-0">
+                <thead>
+                  <tr>
+                    <th>{t('dashboard.categories.name')}</th>
+                    <th>{t('dashboard.categories.description')}</th>
+                    <th className="text-end">{t('dashboard.categories.news')}</th>
+                    <th>{t('dashboard.categories.shownColumn')}</th>
+                    <th className="text-end">{t('dashboard.categories.actions')}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {shown.map((category) => (
+                    <tr key={category.id} className={category.active ? undefined : 'is-inactive'}>
+                      <td>
+                        <NameCell category={category} />
+                      </td>
+                      <td className="taxonomy-description-cell">
+                        <Description text={category.description} />
+                      </td>
+                      <td className="text-end">
+                        <NewsCount category={category} />
+                      </td>
+                      <td>
+                        <ShownSwitch category={category} busy={busyId === category.id} onToggle={requestToggle} />
+                      </td>
+                      <td className="text-end text-nowrap">
+                        <CategoryActions category={category} onEdit={(item) => setForm({ category: item })} onDelete={(item) => setConfirm({ type: 'delete', category: item })} />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
+            </div>
+
+            <ul className="article-cards list-unstyled mb-0 d-md-none">
+              {shown.map((category) => (
+                <li key={category.id} className={category.active ? undefined : 'is-inactive'}>
+                  <div className="d-flex justify-content-between align-items-start gap-2">
+                    <NameCell category={category} />
+                    <CategoryActions category={category} onEdit={(item) => setForm({ category: item })} onDelete={(item) => setConfirm({ type: 'delete', category: item })} />
+                  </div>
+                  <div className="d-flex justify-content-between align-items-center mt-2 small">
+                    <span className="text-muted">
+                      {t('dashboard.categories.news')}: <NewsCount category={category} />
+                    </span>
+                    <ShownSwitch category={category} busy={busyId === category.id} onToggle={requestToggle} />
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </>
+        )}
+      </Card>
+
+      {form && <TaxonomyFormModal kind="categories" item={form.category} pathPrefix="/category/" withDescription withActive onSubmit={submit(form.category)} onSaved={saved} onClose={() => setForm(null)} />}
 
       <ConfirmDialog
-        show={confirm?.type === 'toggle'}
-        title={target?.active ? 'Deactivate category' : 'Activate category'}
-        confirmLabel={target?.active ? 'Deactivate' : 'Activate'}
-        confirmVariant={target?.active ? 'warning' : 'success'}
-        busy={busy}
+        show={confirm?.type === 'hide'}
+        title={t('dashboard.categories.hideTitle')}
+        confirmLabel={t('dashboard.categories.hideConfirm')}
+        confirmVariant="warning"
+        busy={busyId !== null}
         onCancel={() => setConfirm(null)}
-        onConfirm={() =>
-          target.active
-            ? runAction(() => categoryService.deactivateCategory(target.id), `Category "${target.name}" deactivated.`)
-            : runAction(() => categoryService.activateCategory(target.id), `Category "${target.name}" activated.`)
-        }
+        onConfirm={() => toggle(confirm.category)}
       >
-        {target?.active
-          ? `"${target?.name}" will disappear from the public menu. Its ${target?.newsCount} news stay in the system.`
-          : `"${target?.name}" will show in the public menu again.`}
+        {confirm?.type === 'hide' && t('dashboard.categories.hideText', { name: confirm.category.name, count: confirm.category.newsCount })}
       </ConfirmDialog>
 
-      <ConfirmDialog
-        show={confirm?.type === 'delete'}
-        title="Delete category"
-        confirmLabel="Delete"
-        confirmVariant="danger"
-        busy={busy}
-        onCancel={() => setConfirm(null)}
-        onConfirm={() => runAction(() => categoryService.deleteCategory(target.id), `Category "${target.name}" deleted.`)}
-      >
-        Delete <strong>{target?.name}</strong>? This cannot be undone.
+      <ConfirmDialog show={confirm?.type === 'delete'} title={t('dashboard.categories.deleteTitle')} confirmLabel={t('common.actions.delete')} confirmVariant="danger" busy={deleting} onCancel={() => setConfirm(null)} onConfirm={remove}>
+        {confirm?.type === 'delete' && <Trans i18nKey="dashboard.categories.deleteText" values={{ name: confirm.category.name }} components={{ 1: <strong /> }} />}
       </ConfirmDialog>
+
+      <ToastContainer position="bottom-end" className="p-3" style={{ zIndex: 2000 }}>
+        <Toast bg={toast?.variant ?? 'success'} show={Boolean(toast)} onClose={() => setToast(null)} delay={5000} autohide>
+          <Toast.Body className="text-white d-flex justify-content-between gap-3">
+            <span>{toast?.text}</span>
+            <button type="button" className="btn-close btn-close-white" aria-label={t('common.actions.close')} onClick={() => setToast(null)} />
+          </Toast.Body>
+        </Toast>
+      </ToastContainer>
     </div>
   )
 }

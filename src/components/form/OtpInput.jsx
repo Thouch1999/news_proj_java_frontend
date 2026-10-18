@@ -1,8 +1,11 @@
 import { useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import { OTP_LENGTH } from '../../constants/otp'
 
 // One box per digit. Typing moves forward, Backspace moves back, and pasting a code fills every box.
-export default function OtpInput({ value, onChange, disabled = false, invalid = false }) {
+// `describedBy` is the id of the error text under the boxes.
+export default function OtpInput({ value, onChange, disabled = false, invalid = false, describedBy, autoFocus = false }) {
+  const { t } = useTranslation()
   const inputs = useRef([])
   const focus = (index) => inputs.current[index]?.focus()
 
@@ -39,7 +42,7 @@ export default function OtpInput({ value, onChange, disabled = false, invalid = 
   }
 
   return (
-    <div className="d-flex justify-content-center gap-2 mb-3">
+    <div className="d-flex justify-content-center gap-2 mb-3" role="group" aria-label={t('auth.otp.group')}>
       {Array.from({ length: OTP_LENGTH }, (_, index) => (
         <input
           key={index}
@@ -51,8 +54,11 @@ export default function OtpInput({ value, onChange, disabled = false, invalid = 
           type="text"
           inputMode="numeric"
           autoComplete={index === 0 ? 'one-time-code' : 'off'}
+          autoFocus={autoFocus && index === 0}
           maxLength={1}
-          aria-label={`Digit ${index + 1}`}
+          aria-label={t('auth.otp.digit', { number: index + 1 })}
+          aria-invalid={invalid ? true : undefined}
+          aria-describedby={invalid ? describedBy : undefined}
           value={value[index] ?? ''}
           disabled={disabled}
           onChange={(event) => handleChange(index, event)}

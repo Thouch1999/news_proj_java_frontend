@@ -2,7 +2,10 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import './assets/styles/main.scss'
+import './i18n'
 import AuthProvider from './context/AuthProvider'
+import BookmarkProvider from './context/BookmarkProvider'
+import SettingsProvider from './context/SettingsProvider'
 import AppRoutes from './routes/AppRoutes'
 
 // A data router (instead of <BrowserRouter>) is needed for useBlocker, which warns before leaving a page with
@@ -11,9 +14,13 @@ const router = createBrowserRouter([
   {
     path: '*',
     element: (
-      <AuthProvider>
-        <AppRoutes />
-      </AuthProvider>
+      <SettingsProvider>
+        <AuthProvider>
+          <BookmarkProvider>
+            <AppRoutes />
+          </BookmarkProvider>
+        </AuthProvider>
+      </SettingsProvider>
     ),
   },
 ])

@@ -1,17 +1,21 @@
 import { useState } from 'react'
 import { Alert, Form } from 'react-bootstrap'
+import { Trans, useTranslation } from 'react-i18next'
 import ConfirmDialog from '../common/ConfirmDialog'
 
 // Delete confirmation. An author can only delete their own draft; an admin can delete any article, so for an
 // admin the dialog says exactly what disappears and the delete button stays off until the box is ticked.
 export default function DeleteArticleDialog({ article, admin, busy, onConfirm, onCancel }) {
+  const { t } = useTranslation()
   const [understood, setUnderstood] = useState(false)
+  const components = { strong: <strong /> }
+  const values = { title: article?.title }
 
   return (
     <ConfirmDialog
       show={Boolean(article)}
-      title={admin ? 'Delete article permanently' : 'Delete draft'}
-      confirmLabel={admin ? 'Delete permanently' : 'Delete'}
+      title={admin ? t('news.delete.titleAdmin') : t('news.delete.titleDraft')}
+      confirmLabel={admin ? t('news.delete.confirmAdmin') : t('common.actions.delete')}
       confirmVariant="danger"
       busy={busy}
       confirmDisabled={admin && !understood}
@@ -24,21 +28,18 @@ export default function DeleteArticleDialog({ article, admin, busy, onConfirm, o
       {admin ? (
         <>
           <Alert variant="danger">
-            <strong>{article?.title}</strong> will be removed for good, together with its <strong>comments</strong>, bookmarks, views,
-            tags, <strong>images</strong> and status history. Readers will no longer find it. This cannot be undone.
+            <Trans i18nKey="news.delete.bodyAdmin" values={values} components={components} />
           </Alert>
           <Form.Check
             id="understood"
             type="checkbox"
-            label="I understand that this cannot be undone"
+            label={t('news.delete.understood')}
             checked={understood}
             onChange={(event) => setUnderstood(event.target.checked)}
           />
         </>
       ) : (
-        <>
-          Delete the draft <strong>{article?.title}</strong> with its images? This cannot be undone.
-        </>
+        <Trans i18nKey="news.delete.bodyDraft" values={values} components={components} />
       )}
     </ConfirmDialog>
   )

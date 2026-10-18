@@ -6,8 +6,20 @@
 }
 
 .rich-editor:focus-within {
-  border-color: #86b7fe;
-  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+  border-color: var(--bs-primary);
+  box-shadow: 0 0 0 0.25rem rgba(var(--bs-primary-rgb), 0.25);
+}
+
+.rich-editor .ProseMirror img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 0.75rem 0;
+  border-radius: 6px;
+}
+
+.rich-editor .ProseMirror img.ProseMirror-selectednode {
+  outline: 3px solid var(--bs-primary);
 }
 
 .rich-editor .ProseMirror > :last-child {
@@ -15,7 +27,7 @@
 }
 
 .rich-editor.is-invalid {
-  border-color: #dc3545;
+  border-color: var(--bs-danger);
 }
 
 // the same typography for the editor and for a read-only article
@@ -24,7 +36,7 @@
 }
 
 .article-content blockquote {
-  border-left: 4px solid #dee2e6;
+  border-left: 4px solid var(--bs-border-color);
   padding-left: 1rem;
-  color: #6c757d;
+  color: var(--bs-secondary-color);
 }

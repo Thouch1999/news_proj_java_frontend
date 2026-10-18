@@ -1,86 +1,73 @@
 import { useEffect, useState } from 'react'
-import { Alert, Button, Card, Col, Form, Row, Table } from 'react-bootstrap'
+import { Alert, Button, Card, Table, Toast, ToastContainer } from 'react-bootstrap'
+import { useTranslation } from 'react-i18next'
 import { Link, useSearchParams } from 'react-router-dom'
-import ErrorAlert from '../common/ErrorAlert'
-import PageSpinner from '../common/PageSpinner'
-import Pagination from '../common/Pagination'
-import { NEWS_STATUS, WORKFLOW_ACTIONS, workflowActions } from '../../constants/newsStatus'
+import { ARTICLE_PAGE_SIZES, WORKFLOW_ACTIONS } from '../../constants/newsStatus'
+import { useArticleFilterChoices } from '../../hooks/useArticleFilterChoices'
 import { useWorkflowAction } from '../../hooks/useWorkflowAction'
-import * as categoryService from '../../services/categoryService'
 import * as newsService from '../../services/newsService'
-import * as userService from '../../services/userService'
+import * as reportService from '../../services/reportService'
+import { errorMessage } from '../../utils/errorMessage'
+import { ArticleActions, ArticleEmpty, ArticleFooter, ArticleSkeleton, ArticleStatusTabs, ArticleTitleCell, ArticleToolbar, AuthorCell, UpdatedCell } from './ArticleListParts'
 import DeleteArticleDialog from './DeleteArticleDialog'
 import StatusBadge from './StatusBadge'
 import WorkflowDialog from './WorkflowDialog'
 
-const PAGE_SIZE = 10
+const DEFAULT_SIZE = ARTICLE_PAGE_SIZES[0]
 
 // Article list shared by the author area (own articles), the editor area (all articles, with author and category
-// filters, Review and Archive) and the admin area (the same plus Publish now, Restore and Delete on every row). `area` comes from constants/articleAreas.js.
+// filters, Review and Archive) and the admin area (the same plus Publish now, Restore and Delete). `area` comes from
+// constants/articleAreas.js. Status, filters, page and page size live in the URL.
+//
+// What the backend list (GET /news/manage) does not offer is left out here: no search by title, no sorting, and no views
+// or comments per article.
 export default function ArticleList({ area }) {
+  const { t } = useTranslation()
   const admin = area.admin
   const staff = area.staff // editor or admin: sees every article and may filter by author and category
 
-  // filters and page live in the URL
   const [searchParams, setSearchParams] = useSearchParams()
   const page = Math.max(parseInt(searchParams.get('page') ?? '1', 10) || 1, 1)
+  const askedSize = parseInt(searchParams.get('size') ?? '', 10)
+  const size = ARTICLE_PAGE_SIZES.includes(askedSize) ? askedSize : DEFAULT_SIZE
   const status = searchParams.get('status') ?? ''
   const authorId = staff ? (searchParams.get('authorId') ?? '') : ''
   const categoryId = staff ? (searchParams.get('categoryId') ?? '') : ''
 
   const [reloadKey, setReloadKey] = useState(0)
-  const queryKey = `${page}|${status}|${authorId}|${categoryId}|${reloadKey}`
+  const queryKey = `${page}|${size}|${status}|${authorId}|${categoryId}|${reloadKey}`
   const [state, setState] = useState({ key: null, data: null, error: null })
   const loading = state.key !== queryKey
   const result = loading ? null : state.data
   const error = loading ? null : state.error
 
+  const choices = useArticleFilterChoices(area)
   const [toDelete, setToDelete] = useState(null)
   const [busy, setBusy] = useState(false)
-  const [message, setMessage] = useState(null)
-  const [actionError, setActionError] = useState(null)
+  const [toast, setToast] = useState(null) // { variant, text }
 
-  // choices for the extra filters of an editor/admin.
-  //  - admin: everybody who can write articles, and all categories (also inactive ones)
-  //  - editor: the users endpoint is admin only, so the authors are the ones found on the first 50 articles;
-  //    the categories are the active ones
-  const [choices, setChoices] = useState({ authors: [], categories: [] })
-
+  // the numbers on the tabs: the status counts of the dashboard report (the whole site for an editor and an admin, the
+  // own articles for an author). The last numbers stay while they are refreshed.
+  const [counts, setCounts] = useState(null)
   useEffect(() => {
-    if (!staff) {
-      return undefined
-    }
     let current = true
-    const load = admin
-      ? Promise.all([
-          userService.listUsers({ role: 'AUTHOR', size: 100 }),
-          userService.listUsers({ role: 'ADMIN', size: 100 }),
-          categoryService.listCategoriesForAdmin(),
-        ]).then(([authors, admins, categories]) => ({
-          authors: [...authors.items, ...admins.items].map((user) => ({ id: user.id, label: `${user.fullName || user.username} (${user.role})` })),
-          categories: categories ?? [],
-        }))
-      : Promise.all([newsService.listManagedNews({ size: 50 }), categoryService.listActiveCategories()]).then(([articles, categories]) => {
-          const seen = new Map()
-          articles.items.forEach((article) => seen.set(article.authorId, article.authorName))
-          return { authors: [...seen].map(([id, label]) => ({ id, label: label || `User ${id}` })), categories: categories ?? [] }
-        })
+    const load = staff ? reportService.getSummary() : reportService.getAuthorDashboard()
     load
-      .then((loaded) => {
-        if (current) setChoices(loaded)
+      .then((data) => {
+        if (current) setCounts(data)
       })
       .catch(() => {
-        // the list still works without the filter choices
+        // the tabs work without the numbers
       })
     return () => {
       current = false
     }
-  }, [staff, admin])
+  }, [staff, reloadKey])
 
   useEffect(() => {
     let current = true
     newsService
-      .listManagedNews({ page, size: PAGE_SIZE, status, authorId, categoryId })
+      .listManagedNews({ page, size, status, authorId, categoryId })
       .then((data) => {
         if (current) setState({ key: queryKey, data, error: null })
       })
@@ -90,9 +77,9 @@ export default function ArticleList({ area }) {
     return () => {
       current = false
     }
-  }, [queryKey, page, status, authorId, categoryId])
+  }, [queryKey, page, size, status, authorId, categoryId])
 
-  const changeParams = (changes) => {
+  const changeParams = (changes, options) => {
     const next = new URLSearchParams(searchParams)
     Object.entries(changes).forEach(([key, value]) => {
       if (value === '' || value === undefined || value === null) {
@@ -104,173 +91,149 @@ export default function ArticleList({ area }) {
     if (!('page' in changes)) {
       next.delete('page')
     }
-    setSearchParams(next)
+    setSearchParams(next, options)
   }
+
+  // after the last article of the last page was removed, go to the new last page
+  useEffect(() => {
+    if (result && result.items.length === 0 && page > 1) {
+      changeParams({ page: Math.max(result.totalPages, 1) }, { replace: true })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [result])
+
+  const clearToolbar = () => changeParams({ authorId: '', categoryId: '' })
+  const clearAll = () => changeParams({ status: '', authorId: '', categoryId: '' })
+  const filtered = Boolean(status || authorId || categoryId)
 
   // an author may delete an own DRAFT only; an admin any article; an editor none
   const canDelete = (article) => admin || (!staff && article.status === 'DRAFT')
 
-  // workflow actions offered on a row: archive a PUBLISHED article; an admin also "publish now" (DRAFT) and restore.
-  // Reviewing a PENDING article (publish / reject) happens on its review page.
-  const rowActions = (article) =>
-    workflowActions(area.role, article.status).filter((action) => ['archive', 'restore'].includes(action.key) || (action.key === 'publish' && article.status === 'DRAFT'))
-
+  const refresh = () => setReloadKey((key) => key + 1)
   const workflow = useWorkflowAction((updated, action) => {
-    setActionError(null)
-    setMessage(`"${updated.title}": ${WORKFLOW_ACTIONS[action].done}`)
-    setReloadKey((key) => key + 1)
+    setToast({ variant: 'success', text: t('news.list.workflowDone', { title: updated.title, message: t(WORKFLOW_ACTIONS[action].doneKey) }) })
+    refresh()
   })
 
   const handleDelete = async () => {
     setBusy(true)
-    setActionError(null)
-    setMessage(null)
     try {
       await newsService.deleteNews(toDelete.id)
-      setMessage(`"${toDelete.title}" deleted.`)
-      setReloadKey((key) => key + 1)
+      setToast({ variant: 'success', text: t('news.list.deleted', { title: toDelete.title }) })
+      refresh()
     } catch (caught) {
-      setActionError(caught)
+      setToast({ variant: 'danger', text: errorMessage(caught) })
     } finally {
       setBusy(false)
       setToDelete(null)
     }
   }
 
-  const hasFilters = Boolean(status || authorId || categoryId)
+  const actions = (article) => <ArticleActions article={article} area={area} canDelete={canDelete(article)} onWorkflow={workflow.start} onDelete={setToDelete} />
+  const showEmpty = result && result.items.length === 0 && page === 1
 
   return (
     <div>
-      <div className="d-flex justify-content-between align-items-center mb-3">
-        <h1 className="h4 mb-0">{area.title}</h1>
+      <div className="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-3">
+        <div>
+          <h1 className="h4 mb-1">{t(area.titleKey)}</h1>
+          <p className="text-muted small mb-0">{t(area.descriptionKey)}</p>
+        </div>
         {area.newPath && (
           <Button as={Link} to={area.newPath}>
-            Write an article
+            {t('news.list.create')}
           </Button>
         )}
       </div>
 
-      <Card body className="mb-3">
-        <Row className="g-2 align-items-end">
-          <Col sm={6} md={3}>
-            <Form.Label htmlFor="status-filter">Status</Form.Label>
-            <Form.Select id="status-filter" value={status} onChange={(event) => changeParams({ status: event.target.value })}>
-              <option value="">All</option>
-              {Object.values(NEWS_STATUS).map((item) => (
-                <option key={item.value} value={item.value}>
-                  {item.label}
-                </option>
-              ))}
-            </Form.Select>
-          </Col>
-          {staff && (
-            <>
-              <Col sm={6} md={3}>
-                <Form.Label htmlFor="author-filter">Author</Form.Label>
-                <Form.Select id="author-filter" value={authorId} onChange={(event) => changeParams({ authorId: event.target.value })}>
-                  <option value="">All authors</option>
-                  {choices.authors.map((author) => (
-                    <option key={author.id} value={author.id}>
-                      {author.label}
-                    </option>
-                  ))}
-                </Form.Select>
-              </Col>
-              <Col sm={6} md={3}>
-                <Form.Label htmlFor="category-filter">Category</Form.Label>
-                <Form.Select id="category-filter" value={categoryId} onChange={(event) => changeParams({ categoryId: event.target.value })}>
-                  <option value="">All categories</option>
-                  {choices.categories.map((category) => (
-                    <option key={category.id} value={category.id}>
-                      {category.name}
-                      {category.active ? '' : ' (inactive)'}
-                    </option>
-                  ))}
-                </Form.Select>
-              </Col>
-            </>
-          )}
-          {hasFilters && (
-            <Col xs="auto">
-              <Button variant="outline-secondary" onClick={() => setSearchParams(new URLSearchParams())}>
-                Clear
+      <ArticleStatusTabs active={status} counts={counts} onChange={(value) => changeParams({ status: value })} />
+
+      <Card className="article-card" role="tabpanel">
+        {staff && <ArticleToolbar authorId={authorId} categoryId={categoryId} choices={choices} onChange={changeParams} onClear={clearToolbar} />}
+
+        {loading && <ArticleSkeleton staff={staff} />}
+        {error && (
+          <div className="p-4 text-center">
+            <Alert variant="danger" className="d-inline-block mb-3">
+              {errorMessage(error)}
+            </Alert>
+            <div>
+              <Button variant="outline-primary" size="sm" onClick={refresh}>
+                {t('common.actions.retry')}
               </Button>
-            </Col>
-          )}
-        </Row>
+            </div>
+          </div>
+        )}
+        {showEmpty && <ArticleEmpty filtered={filtered} area={area} onClear={clearAll} />}
+
+        {result && result.items.length > 0 && (
+          <>
+            <div className="article-table-wrap d-none d-md-block">
+              <Table hover className="article-table align-middle mb-0">
+                <thead>
+                  <tr>
+                    <th>{t('news.list.columns.article')}</th>
+                    {staff && <th>{t('news.list.columns.author')}</th>}
+                    <th>{t('news.list.columns.status')}</th>
+                    <th>{t('news.list.columns.updated')}</th>
+                    <th className="text-end">{t('news.list.columns.actions')}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {result.items.map((article) => (
+                    <tr key={article.id}>
+                      <td>
+                        <ArticleTitleCell article={article} area={area} />
+                      </td>
+                      {staff && (
+                        <td>
+                          <AuthorCell name={article.authorName} />
+                        </td>
+                      )}
+                      <td>
+                        <StatusBadge status={article.status} />
+                      </td>
+                      <td>
+                        <UpdatedCell value={article.updatedAt} />
+                      </td>
+                      <td className="text-end text-nowrap">{actions(article)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
+            </div>
+
+            <ul className="article-cards list-unstyled mb-0 d-md-none">
+              {result.items.map((article) => (
+                <li key={article.id}>
+                  <ArticleTitleCell article={article} area={area} />
+                  <div className="d-flex flex-wrap align-items-center gap-2 mt-2 small">
+                    <StatusBadge status={article.status} />
+                    {staff && <AuthorCell name={article.authorName} />}
+                    <span className="text-muted">
+                      <UpdatedCell value={article.updatedAt} />
+                    </span>
+                    <span className="ms-auto">{actions(article)}</span>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </>
+        )}
+
+        {result && result.totalElements > 0 && (
+          <ArticleFooter result={result} size={size} onPage={(next) => changeParams({ page: next })} onSize={(value) => changeParams({ size: value === DEFAULT_SIZE ? '' : value })} />
+        )}
       </Card>
 
-      {message && <Alert variant="success">{message}</Alert>}
-      <ErrorAlert error={actionError} />
-      <ErrorAlert error={error} />
-      {loading && <PageSpinner />}
-      {!loading && result && (
-        <>
-          <Table responsive hover className="bg-white align-middle">
-            <thead>
-              <tr>
-                <th>Title</th>
-                {staff && <th>Author</th>}
-                <th>Category</th>
-                <th>Status</th>
-                <th>Updated</th>
-                <th className="text-end">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {result.items.length === 0 && (
-                <tr>
-                  <td colSpan={staff ? 6 : 5} className="text-center text-muted py-4">
-                    No articles found.
-                  </td>
-                </tr>
-              )}
-              {result.items.map((article) => (
-                <tr key={article.id}>
-                  <td>
-                    <Link to={area.editPath(article.id)}>{article.title}</Link>
-                    {article.rejectionReason && article.status === 'REJECTED' && (
-                      <div className="text-danger small">Rejected: {article.rejectionReason}</div>
-                    )}
-                  </td>
-                  {staff && <td>{article.authorName}</td>}
-                  <td>{article.categoryName}</td>
-                  <td>
-                    <StatusBadge status={article.status} />
-                  </td>
-                  <td className="text-nowrap">{article.updatedAt ? new Date(article.updatedAt).toLocaleString() : ''}</td>
-                  <td className="text-end text-nowrap">
-                    <Button as={Link} to={area.editPath(article.id)} size="sm" variant="outline-primary" className="me-1">
-                      {article.editable ? 'Edit' : 'View'}
-                    </Button>
-                    {staff && article.status === 'PENDING' && (
-                      <Button as={Link} to={area.reviewPath(article.id)} size="sm" variant="outline-warning" className="me-1">
-                        Review
-                      </Button>
-                    )}
-                    {rowActions(article).map((action) => (
-                      <Button key={action.key} size="sm" variant={action.variant} className="me-1" onClick={() => workflow.start(action.key, article)}>
-                        {action.label}
-                      </Button>
-                    ))}
-                    {canDelete(article) && (
-                      <Button size="sm" variant="outline-danger" onClick={() => setToDelete(article)}>
-                        Delete
-                      </Button>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </Table>
-          <div className="d-flex justify-content-between align-items-center">
-            <span className="text-muted small">
-              {result.totalElements} article(s), page {result.totalPages === 0 ? 0 : result.page} of {result.totalPages}
-            </span>
-            <Pagination page={result.page} totalPages={result.totalPages} onChange={(next) => changeParams({ page: next })} />
-          </div>
-        </>
-      )}
+      <ToastContainer position="bottom-end" className="p-3" style={{ zIndex: 2000 }}>
+        <Toast bg={toast?.variant ?? 'success'} show={Boolean(toast)} onClose={() => setToast(null)} delay={5000} autohide>
+          <Toast.Body className="text-white d-flex justify-content-between gap-3">
+            <span>{toast?.text}</span>
+            <button type="button" className="btn-close btn-close-white" aria-label={t('common.actions.close')} onClick={() => setToast(null)} />
+          </Toast.Body>
+        </Toast>
+      </ToastContainer>
 
       <WorkflowDialog
         key={`${workflow.pending?.action}-${workflow.pending?.article.id}`}

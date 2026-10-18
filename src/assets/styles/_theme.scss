@@ -1,0 +1,2939 @@
+// The look of the Laravel news site (news_laravel_pro/public/assets/css/style.css), ported to this project:
+//  - a navy sticky header with a red logo, white menu and a white search box
+//  - section titles: a red label with a slanted edge on a gray bar
+//  - a headline ticker, cards with rounded corners and shadow, a title over a dark gradient that grows on hover
+//  - a light gray footer, navy square pagination
+//  - the dashboards: the admin template of that project
+// Plain CSS with variables: it does not need the Bootstrap variables, so it can be loaded before Bootstrap.
+// Every colour is a variable with a light and a dark value; the mode comes from <html data-bs-theme> (utils/theme.js).
+// Contrast (WCAG AA: 4.5:1 for text, 3:1 for large text and graphics) was checked for each text/background pair below.
+// The primary and accent colours come from the system settings: SettingsProvider sets the --site-* variables on <html> when
+// a colour is not the built-in one (utils/sitePalette.js: the text colours on them are always readable). The value after
+// the comma of each var() is the built-in colour.
+:root {
+  --news-navy: var(--site-primary, #27306d);
+  --news-red: var(--site-accent, #da0000);
+  --news-on-navy: var(--site-on-primary, #fff);
+  --news-on-red: var(--site-on-accent, #fff);
+  --news-blue: #61a4bc;
+  --news-header-height: 80px;
+
+  // the public site
+  --news-gray: #f1f1f1;
+  --news-surface: #fff;
+  --news-heading: var(--site-primary-text, #27306d); // 12:1 on white
+  --news-link: var(--site-primary-text, #27306d);
+  --news-accent: var(--site-accent-text, #da0000); // 5.3:1 on white, 4.7:1 on the gray
+  --news-category: #2f7a93; // 4.8:1 on white
+  --news-brand: var(--site-brand, #ff6b6b); // the site name on the header, large text 4.3:1
+  --news-brand-hover: #ffa0a0;
+  --news-shadow: 0 2px 10px rgb(0 0 0 / 20%);
+
+  // the dashboards
+  --app-bg: #f4f6fa;
+  --app-surface: #fff;
+  --app-surface-2: #eef1f6; // inputs, progress track, row hover
+  --app-border: #dfe4ec;
+  --app-text: #3f4a5a; // 9:1 on the surface
+  --app-muted: #5b6676; // 5.8:1 on the surface, 5.2:1 on the page
+  --app-heading: #1c2430;
+  --app-topbar-bg: #fff;
+  --app-sidebar-bg: #fff;
+  --app-sidebar-text: #566274; // 6:1
+  --app-sidebar-active-text: var(--site-primary-text, #27306d);
+  --app-sidebar-active-bg: rgba(var(--site-primary-text-rgb, 39, 48, 109), 0.08);
+  --app-footer-bg: #eaedf3;
+  --app-primary: var(--site-btn-bg, #27306d);
+  --app-primary-text: var(--site-primary-text, #27306d);
+  --app-icon-bg: rgba(var(--site-primary-text-rgb, 39, 48, 109), 0.1);
+  --app-warn-bg: #fff6df;
+  --app-warn-border: #e0a800;
+  --app-warn-icon-bg: #ffe9b0;
+  --app-warn-icon: #7a5600; // 5.5:1 on the icon background
+  --app-chart-bar: var(--site-primary-text, #27306d);
+  --app-chart-2: #c2410c; // the second series of a chart: 5.2:1 on white
+  --app-wait-warn: #b45309; // waiting one day or more: 5.0:1 on white
+  --app-success: #1a7f37; // a trend that went up: 5.3:1 on the surface
+  --app-danger: #c62828; // a trend that went down: 5.6:1 on the surface
+  --app-status-draft: #6c757d; // the article status colours (Bootstrap secondary, warning, success, danger, dark)
+  --app-status-pending: #ffc107;
+  --app-status-published: #198754;
+  --app-status-rejected: #dc3545;
+  --app-status-archived: #343a40;
+  --app-chart-grid: #dfe4ec;
+  --app-chart-axis: #5b6676;
+  --app-tooltip-bg: #1c2430;
+  --app-tooltip-text: #fff;
+  --app-shadow: 0 0.5rem 1rem rgb(18 38 63 / 6%);
+}
+
+:root[data-bs-theme="dark"] {
+  --news-gray: #2b3244;
+  --news-surface: #252b3b;
+  --news-heading: #eef0fa; // 12:1 on the surface
+  --news-link: #9db4ff; // 7:1 on the surface
+  --news-accent: var(--site-accent-text, #ff8a8a); // 6.2:1 on the surface
+  --news-category: #7cc0da; // 7:1 on the surface
+  --news-shadow: 0 2px 10px rgb(0 0 0 / 50%);
+
+  --app-bg: #1d222e;
+  --app-surface: #252b3b;
+  --app-surface-2: #2b3244;
+  --app-border: #343c52;
+  --app-text: #b4bdcd; // 7.5:1 on the surface
+  --app-muted: #98a3b8; // 5.5:1 on the surface, 6.2:1 on the page
+  --app-heading: #eff2f7;
+  --app-topbar-bg: #252b3b;
+  --app-sidebar-bg: #252b3b;
+  --app-sidebar-text: #9ba6ba; // 5.7:1
+  --app-sidebar-active-text: #e3edf5;
+  --app-sidebar-active-bg: rgba(var(--site-primary-text-rgb, 88, 182, 247), 0.12);
+  --app-footer-bg: #212734;
+  --app-primary: var(--site-btn-bg, #0a73b5); // buttons and badges: white text 5.1:1
+  --app-primary-text: var(--site-primary-text, #58b6f7); // links, icons, bars on dark: 6.4:1 on the surface
+  --app-icon-bg: rgba(var(--site-primary-text-rgb, 88, 182, 247), 0.15);
+  --app-warn-bg: #3a3220;
+  --app-warn-border: #c99a2e;
+  --app-warn-icon-bg: #54441d;
+  --app-warn-icon: #ffd27a; // 6.6:1 on the icon background
+  --app-chart-bar: var(--site-primary-text, #58b6f7);
+  --app-chart-2: #f6ad55; // 8:1 on the surface
+  --app-wait-warn: #fbbf24; // 9:1 on the surface
+  --app-success: #5fd08a; // 8:1 on the surface
+  --app-danger: #ff8a8a; // 6.4:1 on the surface
+  --app-status-draft: #94a0b3;
+  --app-status-pending: #ffc107;
+  --app-status-published: #3fbf7f;
+  --app-status-rejected: #ff6b7a;
+  --app-status-archived: #cbd5e1;
+  --app-chart-grid: #343c52;
+  --app-chart-axis: #98a3b8;
+  --app-tooltip-bg: #eff2f7;
+  --app-tooltip-text: #1c2430;
+  --app-shadow: none;
+
+  // Bootstrap's primary is the navy: unreadable as text or as a button on a dark page, so it becomes the blue
+  --bs-primary: #58b6f7;
+  --bs-primary-rgb: 88, 182, 247;
+  --bs-link-color: #9db4ff;
+  --bs-link-color-rgb: 157, 180, 255;
+  --bs-link-hover-color: #c4d2ff;
+  --bs-link-hover-color-rgb: 196, 210, 255;
+
+  .btn-primary {
+    --bs-btn-bg: #0a73b5;
+    --bs-btn-border-color: #0a73b5;
+    --bs-btn-hover-bg: #0c82cc;
+    --bs-btn-hover-border-color: #0c82cc;
+    --bs-btn-active-bg: #0b6aa7;
+    --bs-btn-active-border-color: #0b6aa7;
+    --bs-btn-disabled-bg: #0a73b5;
+    --bs-btn-disabled-border-color: #0a73b5;
+  }
+
+  .btn-outline-primary {
+    --bs-btn-color: #58b6f7;
+    --bs-btn-border-color: #58b6f7;
+    --bs-btn-hover-color: #0f1520;
+    --bs-btn-hover-bg: #58b6f7;
+    --bs-btn-hover-border-color: #58b6f7;
+    --bs-btn-active-color: #0f1520;
+    --bs-btn-active-bg: #58b6f7;
+    --bs-btn-active-border-color: #58b6f7;
+    --bs-btn-disabled-color: #58b6f7;
+    --bs-btn-disabled-border-color: #58b6f7;
+  }
+
+  // white text on a badge needs the darker blue (a bar or progress keeps the light one)
+  .badge.bg-primary,
+  .badge.text-bg-primary {
+    background-color: #0a73b5 !important;
+    color: #fff !important;
+  }
+
+  // the "dark" status badge would vanish on a dark card
+  .badge.bg-dark,
+  .badge.text-bg-dark {
+    background-color: #3d4660 !important;
+    color: #fff !important;
+  }
+}
+
+// ---------------------------------------------------------------- header
+
+.news-header {
+  position: sticky;
+  top: 0;
+  z-index: 1030;
+  min-height: var(--news-header-height);
+  background: var(--news-navy);
+  color: var(--news-on-navy);
+
+  // The text on the header is always the colour the Settings palette picked for the header colour (white or near-black,
+  // whichever reads better: at least 4.5:1, see utils/sitePalette.js). The active link is bold and underlined, so it
+  // does not depend on a colour.
+  .navbar-brand {
+    color: var(--news-on-navy);
+    font-size: 1.9rem;
+    font-weight: 700;
+
+    &:hover,
+    &:focus {
+      color: var(--news-on-navy);
+      text-decoration: underline;
+      text-decoration-thickness: 2px;
+      text-underline-offset: 0.2em;
+    }
+  }
+
+  .navbar-nav .nav-link {
+    color: var(--news-on-navy);
+    font-size: 1.15rem;
+    margin: 0 0.4rem;
+    text-underline-offset: 0.35em;
+    text-decoration-thickness: 2px;
+
+    &:hover,
+    &:focus {
+      color: var(--news-on-navy);
+      text-decoration: underline;
+    }
+
+    &.active {
+      color: var(--news-on-navy);
+      font-weight: 700;
+      text-decoration: underline;
+    }
+  }
+
+  .dropdown-menu {
+    background: var(--news-navy);
+    border: 0;
+    box-shadow: var(--news-shadow);
+  }
+
+  .dropdown-item {
+    color: var(--news-on-navy);
+    font-size: 1.1rem;
+
+    &:hover,
+    &:focus {
+      background: transparent;
+      color: var(--news-on-navy);
+      text-decoration: underline;
+    }
+
+    &.active {
+      background: transparent;
+      color: var(--news-on-navy);
+      font-weight: 700;
+    }
+  }
+
+  .news-search {
+    .form-control {
+      height: 35px;
+      border: 0;
+      border-radius: 5px 0 0 5px;
+      background: #fff;
+      color: #212529;
+      box-shadow: none;
+
+      &::placeholder {
+        color: #6c757d;
+      }
+    }
+
+    .btn {
+      height: 35px;
+      display: inline-flex;
+      align-items: center;
+      border: 0;
+      border-radius: 0 5px 5px 0;
+      background: #fff;
+      color: var(--site-accent-on-white, #da0000);
+      margin-left: 0 !important;
+    }
+  }
+
+  .btn-outline-light:hover {
+    color: var(--news-navy);
+  }
+}
+
+// ---------------------------------------------------------------- footer
+
+.news-footer {
+  background: var(--news-gray);
+  padding: 50px 0;
+
+  .footer-logo {
+    color: var(--news-accent);
+    font-size: 1.6rem;
+    font-weight: 700;
+    text-shadow: 1px 1px 1px rgb(55 33 47 / 40%);
+  }
+
+  .footer-links a {
+    color: var(--news-link);
+    font-weight: 500;
+    text-decoration: none;
+
+    &:hover {
+      color: var(--news-accent);
+    }
+  }
+}
+
+// ---------------------------------------------------------------- section title
+
+// <SectionTitle>: a red label, slanted on its right edge, on a gray bar
+.section-title {
+  display: flex;
+  align-items: stretch;
+  margin: 0 0 1.25rem;
+  min-height: 45px;
+
+  &__label {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    margin: 0 -18px 0 0;
+    padding: 0.35rem 2.6rem 0.35rem 1.4rem;
+    background: var(--news-red);
+    color: var(--news-on-red);
+    font-size: 1.15rem;
+    font-weight: 700;
+    clip-path: polygon(0 0, 100% 0, calc(100% - 18px) 100%, 0 100%);
+  }
+
+  &__bar {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0 1rem 0 2rem;
+    background: var(--news-gray);
+    min-width: 0;
+
+    a {
+      color: var(--news-link);
+      font-weight: 500;
+      white-space: nowrap;
+
+      &:hover {
+        color: var(--news-accent);
+      }
+    }
+  }
+}
+
+// the plain gray, centered title used above the related news
+.section-title-box {
+  margin-bottom: 1.25rem;
+  padding: 0.6rem 1rem;
+  border-radius: 10px;
+  background: var(--news-gray);
+  color: var(--news-heading);
+  font-size: 1.15rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+// ---------------------------------------------------------------- headline ticker
+
+.news-ticker {
+  display: flex;
+  margin: 0 0 1.5rem;
+  min-height: 45px;
+  overflow: hidden;
+
+  &__label {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    margin-right: -18px;
+    padding: 0.35rem 2.6rem 0.35rem 1.4rem;
+    background: var(--news-red);
+    color: var(--news-on-red);
+    font-weight: 700;
+    clip-path: polygon(0 0, 100% 0, calc(100% - 18px) 100%, 0 100%);
+  }
+
+  &__window {
+    position: relative;
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    background: var(--news-gray);
+    padding-left: 22px;
+  }
+
+  &__track {
+    display: inline-flex;
+    align-items: center;
+    height: 100%;
+    gap: 2rem;
+    padding-left: 100%;
+    white-space: nowrap;
+    animation: news-ticker 45s linear infinite;
+
+    &:hover {
+      animation-play-state: paused;
+    }
+
+    a {
+      color: var(--news-link);
+
+      &:hover {
+        color: var(--news-accent);
+      }
+    }
+  }
+}
+
+@keyframes news-ticker {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+// no moving text for people who asked their system for less motion: the headlines scroll by hand instead
+@media (prefers-reduced-motion: reduce) {
+  .news-ticker__window {
+    overflow-x: auto;
+  }
+
+  .news-ticker__track {
+    animation: none;
+    padding-left: 0;
+  }
+}
+
+// ---------------------------------------------------------------- cards (the "figure" of the Laravel site)
+
+.news-figure {
+  position: relative;
+  overflow: hidden;
+  border-radius: 10px;
+  background: var(--news-surface);
+  box-shadow: var(--news-shadow);
+
+  &__thumb {
+    position: relative;
+    overflow: hidden;
+
+    img {
+      transition: transform 0.3s;
+    }
+  }
+
+  &:hover &__thumb img {
+    transform: scale(1.09) rotate(0.5deg);
+  }
+
+  &__detail {
+    padding: 15px;
+  }
+
+  &__title {
+    color: var(--news-heading);
+    font-size: 1.25rem;
+    font-weight: 700;
+
+    a {
+      color: inherit;
+
+      &:hover {
+        color: var(--news-accent);
+      }
+    }
+  }
+
+  &__category {
+    color: var(--news-category);
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+
+    &:hover {
+      color: var(--news-accent);
+    }
+  }
+
+  &__date {
+    color: var(--news-accent);
+  }
+
+  // the title lies over the bottom of the picture, on a dark gradient that grows on hover
+  &--overlay &__overlay {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    padding: 2.6rem 1rem 0.8rem;
+    background: linear-gradient(to bottom, transparent, rgb(0 0 0 / 30%), rgb(0 0 0 / 80%));
+    color: #f8f9fa;
+    transition: padding 0.3s;
+  }
+
+  &--overlay:hover &__overlay {
+    padding-top: 4.2rem;
+  }
+
+  &--overlay &__overlay a {
+    color: #f8f9fa;
+  }
+
+  &--overlay &__overlay-title {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 700;
+    line-height: 1.6;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    overflow: hidden;
+  }
+
+  &--overlay &__overlay-meta {
+    margin-top: 0.15rem;
+    color: rgb(255 255 255 / 75%);
+    font-size: 0.8rem;
+  }
+
+  &--featured &__overlay-title {
+    font-size: 1.6rem;
+  }
+}
+
+// the "article" card of the detail page
+.news-main {
+  padding: 20px;
+  border-radius: 10px;
+  background: var(--news-surface);
+  box-shadow: var(--news-shadow);
+
+  .news-main__title {
+    color: var(--news-heading);
+    font-size: 1.7rem;
+    font-weight: 700;
+  }
+
+  .news-main__date {
+    color: var(--news-accent);
+  }
+}
+
+// ---------------------------------------------------------------- pagination: navy squares
+
+.pagination {
+  gap: 4px;
+
+  .page-link {
+    border: 0;
+    border-radius: 0 !important;
+    background: var(--news-navy);
+    color: var(--news-on-navy);
+    padding: 0.55rem 0.95rem;
+
+    &:hover {
+      background: color-mix(in srgb, var(--news-navy) 85%, white);
+      color: var(--news-on-navy);
+    }
+
+    &:focus {
+      box-shadow: 0 0 0 0.2rem rgb(39 48 109 / 30%);
+    }
+  }
+
+  .page-item.active .page-link {
+    background: var(--news-red);
+    color: var(--news-on-red);
+  }
+
+  .page-item.disabled .page-link {
+    background: #9aa0c3;
+    color: #fff;
+  }
+}
+
+// ---------------------------------------------------------------- dashboards
+// The admin template of the Laravel project (Upcube, news_laravel_pro/public/backend): a fixed top bar, a fixed 240px
+// sidebar, a page and cards in the --app-* colours (light and dark, see the top of this file).
+
+.bg-surface {
+  background-color: var(--app-surface) !important;
+}
+
+.dashboard-shell {
+  --dash-topbar-height: 70px;
+  --dash-sidebar-width: 240px;
+
+  --bs-body-bg: var(--app-bg);
+  --bs-body-color: var(--app-text);
+  --bs-secondary-color: var(--app-muted);
+  --bs-tertiary-bg: var(--app-surface-2);
+  --bs-border-color: var(--app-border);
+  --bs-heading-color: var(--app-heading);
+
+  min-height: 100vh;
+  background: var(--app-bg);
+  color: var(--app-text);
+
+  .text-muted,
+  .text-body-secondary {
+    color: var(--app-muted) !important;
+  }
+
+  .form-control,
+  .form-select {
+    background-color: var(--app-surface-2);
+    border-color: var(--app-border);
+    color: var(--app-heading);
+
+    &:focus {
+      border-color: var(--bs-primary);
+      box-shadow: 0 0 0 0.2rem rgba(var(--bs-primary-rgb), 0.2);
+    }
+  }
+
+  // ---- top bar
+  .dashboard-topbar {
+    position: fixed;
+    top: 0;
+    right: 0;
+    left: 0;
+    z-index: 1030;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: var(--dash-topbar-height);
+    padding: 0 0.75rem 0 0;
+    background: var(--app-topbar-bg);
+    border-bottom: 1px solid var(--app-border);
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      width: var(--dash-sidebar-width);
+      padding: 0 1.5rem;
+      color: var(--app-heading);
+      font-size: 1.15rem;
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    .btn-link,
+    .dropdown-toggle.btn-link {
+      color: var(--app-text);
+    }
+  }
+
+  .dropdown-menu {
+    --bs-dropdown-bg: var(--app-surface);
+    --bs-dropdown-border-color: var(--app-border);
+    --bs-dropdown-color: var(--app-text);
+    --bs-dropdown-link-color: var(--app-text);
+    --bs-dropdown-link-hover-bg: var(--app-surface-2);
+    --bs-dropdown-link-hover-color: var(--app-heading);
+    --bs-dropdown-divider-bg: var(--app-border);
+    --bs-dropdown-link-active-bg: var(--app-primary);
+    --bs-dropdown-link-active-color: #fff;
+  }
+
+  // ---- sidebar
+  .dashboard-sidebar {
+    position: fixed;
+    top: var(--dash-topbar-height);
+    bottom: 0;
+    left: 0;
+    z-index: 1020;
+    width: var(--dash-sidebar-width);
+    overflow-y: auto;
+    padding: 0.5rem 0 1.5rem;
+    background: var(--app-sidebar-bg);
+    border-right: 1px solid var(--app-border);
+
+    @media (max-width: 767.98px) {
+      width: 100%;
+    }
+
+    .menu-title {
+      padding: 0.9rem 1.5rem 0.35rem;
+      color: var(--app-muted);
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .nav-link {
+      display: flex;
+      align-items: center;
+      position: relative;
+      padding: 0.625rem 1.5rem;
+      color: var(--app-sidebar-text);
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: color 0.2s, background-color 0.2s;
+
+      &:hover {
+        color: var(--app-heading);
+      }
+
+      &.active {
+        background: var(--app-sidebar-active-bg);
+        color: var(--app-sidebar-active-text);
+
+        svg {
+          color: var(--app-primary-text);
+        }
+
+        &::before {
+          content: "";
+          position: absolute;
+          top: 0;
+          bottom: 0;
+          left: 0;
+          width: 3px;
+          background: var(--app-primary-text);
+        }
+      }
+    }
+  }
+
+  // ---- page
+  .dashboard-main {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    padding-top: var(--dash-topbar-height);
+
+    @media (min-width: 768px) {
+      margin-left: var(--dash-sidebar-width);
+    }
+  }
+
+  .dashboard-content {
+    flex: 1;
+    padding: 1.5rem 1rem;
+
+    @media (min-width: 768px) {
+      padding: 1.5rem;
+    }
+  }
+
+  .dashboard-footer {
+    padding: 1.25rem 1.5rem;
+    background: var(--app-footer-bg);
+    color: var(--app-muted);
+    font-size: 0.85rem;
+  }
+
+  .card {
+    --bs-card-bg: var(--app-surface);
+    --bs-card-border-color: var(--app-border);
+    --bs-card-cap-bg: transparent;
+    --bs-card-color: var(--app-text);
+    box-shadow: var(--app-shadow);
+  }
+
+  .card-header {
+    color: var(--app-heading);
+  }
+
+  .table {
+    --bs-table-bg: transparent;
+    --bs-table-color: var(--app-text);
+    --bs-table-border-color: var(--app-border);
+    --bs-table-hover-bg: var(--app-surface-2);
+    --bs-table-hover-color: var(--app-heading);
+  }
+
+  .table > thead {
+    color: var(--app-heading);
+  }
+
+  .progress {
+    background: var(--app-surface-2);
+  }
+
+  h1,
+  .h1,
+  h2,
+  .h2,
+  h3,
+  .h3,
+  h4,
+  .h4,
+  h5,
+  .h5,
+  h6,
+  .h6,
+  .display-6 {
+    color: var(--app-heading);
+  }
+
+  // summary cards
+  .stat-icon {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    background: var(--app-icon-bg);
+    color: var(--app-primary-text);
+    font-size: 1.3rem;
+  }
+
+  .stat-card--highlight {
+    --bs-card-bg: var(--app-warn-bg);
+    --bs-card-border-color: var(--app-warn-border);
+    border-left-width: 4px;
+
+    .stat-icon {
+      background: var(--app-warn-icon-bg);
+      color: var(--app-warn-icon);
+    }
+  }
+
+  // charts (ColumnChart): the colours come from the theme variables, so they follow the mode without any script
+  .chart-grid {
+    stroke: var(--app-chart-grid);
+  }
+
+  .chart-axis {
+    stroke: var(--app-chart-axis);
+    stroke-opacity: 0.6;
+  }
+
+  .chart-label {
+    fill: var(--app-chart-axis);
+  }
+
+  .chart-bar {
+    fill: var(--app-chart-bar);
+  }
+
+  .chart-hover {
+    fill: var(--app-chart-axis);
+    fill-opacity: 0.12;
+  }
+
+  .chart-tooltip {
+    background: var(--app-tooltip-bg);
+    color: var(--app-tooltip-text);
+  }
+
+  // ---- the overview dashboards (admin, editor, author)
+  .min-w-0 {
+    min-width: 0;
+  }
+
+  .stat-icon--sm {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    font-size: 1.05rem;
+  }
+
+  .kpi-card {
+    .kpi-value {
+      color: var(--app-heading);
+      font-size: 1.65rem;
+    }
+
+    &--link {
+      transition: border-color 0.2s, transform 0.2s;
+
+      &:hover {
+        border-color: var(--app-primary-text);
+      }
+    }
+  }
+
+  .kpi-trend {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.25rem;
+
+    &--up {
+      color: var(--app-success);
+    }
+
+    &--down {
+      color: var(--app-danger);
+    }
+
+    &--flat {
+      color: var(--app-muted);
+    }
+
+    svg {
+      font-size: 1.25rem;
+    }
+  }
+
+  // needs attention
+  .attention-item {
+    padding: 0.55rem 0.5rem;
+    border-radius: 8px;
+    color: var(--app-text);
+    text-decoration: none;
+
+    &:hover {
+      background: var(--app-surface-2);
+      color: var(--app-heading);
+    }
+
+    &--open .stat-icon {
+      background: var(--app-warn-icon-bg);
+      color: var(--app-warn-icon);
+    }
+
+    &--none {
+      opacity: 0.7;
+    }
+  }
+
+  // the two series of the views chart
+  .chart-surface:focus-visible {
+    outline: 2px solid var(--app-primary-text);
+    outline-offset: 2px;
+  }
+
+  .chart-area--a {
+    fill: var(--app-chart-bar);
+    fill-opacity: 0.16;
+  }
+
+  .chart-line {
+    stroke-width: 2;
+    stroke-linejoin: round;
+
+    &--a {
+      stroke: var(--app-chart-bar);
+    }
+
+    &--b {
+      stroke: var(--app-chart-2);
+    }
+  }
+
+  .chart-dot {
+    stroke: var(--app-surface);
+    stroke-width: 1.5;
+
+    &--a {
+      fill: var(--app-chart-bar);
+    }
+
+    &--b {
+      fill: var(--app-chart-2);
+    }
+  }
+
+  .chart-label--a {
+    fill: var(--app-chart-bar);
+  }
+
+  .chart-label--b {
+    fill: var(--app-chart-2);
+  }
+
+  .chart-cursor {
+    stroke: var(--app-chart-axis);
+    stroke-dasharray: 3 3;
+  }
+
+  .legend-dot {
+    display: inline-block;
+    width: 0.65rem;
+    height: 0.65rem;
+    border-radius: 50%;
+
+    &--a {
+      background: var(--app-chart-bar);
+    }
+
+    &--b {
+      background: var(--app-chart-2);
+    }
+  }
+
+  // donut and its legend
+  .donut {
+    max-width: 180px;
+  }
+
+  .donut-track {
+    stroke: var(--app-surface-2);
+  }
+
+  .legend-row {
+    padding: 0.2rem 0;
+    color: var(--app-text);
+    text-decoration: none;
+
+    &:hover {
+      color: var(--app-heading);
+      text-decoration: underline;
+    }
+  }
+
+  .legend-swatch {
+    display: inline-block;
+    flex-shrink: 0;
+    width: 0.75rem;
+    height: 0.75rem;
+    border-radius: 3px;
+  }
+
+  // recent activity
+  .timeline {
+    margin-left: 0.4rem;
+    padding-left: 1rem;
+    border-left: 2px solid var(--app-border);
+
+    li {
+      position: relative;
+      padding-bottom: 0.85rem;
+
+      &:last-child {
+        padding-bottom: 0;
+      }
+
+      &::before {
+        content: "";
+        position: absolute;
+        top: 0.3rem;
+        left: calc(-1rem - 1px - 0.3rem);
+        width: 0.6rem;
+        height: 0.6rem;
+        border-radius: 50%;
+        background: var(--app-primary-text);
+        box-shadow: 0 0 0 3px var(--app-surface);
+      }
+    }
+  }
+
+  // top articles
+  .top-row {
+    padding: 0.6rem 0;
+
+    & + & {
+      border-top: 1px solid var(--app-border);
+    }
+  }
+
+  .top-rank {
+    width: 1.25rem;
+    text-align: center;
+  }
+
+  .top-thumb {
+    flex-shrink: 0;
+    width: 48px;
+    height: 48px;
+    border-radius: 8px;
+    object-fit: cover;
+    background: var(--app-surface-2);
+
+    &--empty {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--app-muted);
+      font-size: 1.2rem;
+    }
+  }
+
+  // ---- the article list (admin, editor, author)
+  .article-tabs {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    border-bottom: 1px solid var(--app-border);
+    --bs-nav-underline-link-active-color: var(--app-heading);
+    --bs-nav-underline-border-width: 2px;
+    --bs-nav-link-color: var(--app-muted);
+    --bs-nav-link-hover-color: var(--app-heading);
+
+    .nav-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      white-space: nowrap;
+
+      &.active {
+        border-bottom-color: var(--app-primary-text);
+      }
+    }
+  }
+
+  .article-tab-count {
+    background: var(--app-surface-2);
+    color: var(--app-muted);
+    font-weight: 600;
+
+    .active > & {
+      background: var(--app-icon-bg);
+      color: var(--app-primary-text);
+    }
+  }
+
+  .article-card {
+    overflow: hidden;
+  }
+
+  .article-toolbar {
+    border-bottom: 1px solid var(--app-border);
+
+    .w-auto-md {
+      @media (min-width: 768px) {
+        width: auto;
+        min-width: 11rem;
+      }
+    }
+  }
+
+  // the table scrolls inside the card (both ways), so the header can stay on top
+  .article-table-wrap {
+    max-height: 70vh;
+    overflow: auto;
+  }
+
+  .article-table {
+    min-width: 640px;
+
+    thead th {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      padding: 0.7rem 1rem;
+      background: var(--app-surface);
+      box-shadow: inset 0 -1px 0 var(--app-border);
+      color: var(--app-muted);
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    td {
+      padding: 0.75rem 1rem;
+    }
+  }
+
+  .article-title {
+    color: var(--app-heading);
+    font-weight: 700;
+    text-decoration: none;
+
+    &:hover {
+      color: var(--app-primary-text);
+      text-decoration: underline;
+    }
+  }
+
+  .article-reason {
+    max-width: 22rem;
+  }
+
+  .article-thumb {
+    display: inline-block;
+    flex-shrink: 0;
+    width: 64px;
+    aspect-ratio: 16 / 9;
+    border-radius: 6px;
+    object-fit: cover;
+    background: var(--app-surface-2);
+
+    &--empty {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--app-muted);
+    }
+  }
+
+  .article-avatar {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--app-icon-bg);
+    color: var(--app-primary-text);
+    font-size: 0.8rem;
+    font-weight: 600;
+  }
+
+  .icon-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border-color: transparent;
+    background: transparent;
+    color: var(--app-muted);
+
+    &:hover,
+    &:focus-visible,
+    &.show {
+      background: var(--app-surface-2);
+      color: var(--app-heading);
+    }
+  }
+
+  .article-more::after {
+    display: none;
+  }
+
+  .article-cards li {
+    padding: 0.9rem 1rem;
+
+    & + li {
+      border-top: 1px solid var(--app-border);
+    }
+  }
+
+  .article-skeleton-row + .article-skeleton-row {
+    border-top: 1px solid var(--app-border);
+  }
+
+  // ---- categories and tags
+  .taxonomy-description {
+    max-width: 26rem;
+  }
+
+  .taxonomy-description-cell {
+    max-width: 26rem;
+  }
+
+  // an inactive category is a little faded (the switch and the buttons stay as they are)
+  .is-inactive {
+    .taxonomy-name,
+    .taxonomy-description-cell {
+      opacity: 0.6;
+    }
+  }
+
+  .category-delete-reason {
+    max-width: 16rem;
+    white-space: normal;
+  }
+
+  // ---- comment moderation (a feed)
+  .comment-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.9rem 1rem;
+
+    & + & {
+      border-top: 1px solid var(--app-border);
+    }
+
+    &:hover {
+      background: var(--app-surface-2);
+    }
+
+    &.is-selected {
+      background: var(--app-icon-bg);
+    }
+
+    // a hidden comment is faded (the name, the badge and the buttons stay readable)
+    &.is-hidden .comment-body,
+    &.is-hidden .comment-row__avatar {
+      opacity: 0.55;
+    }
+
+    &__check {
+      min-height: 0;
+      margin: 0.2rem 0 0;
+      padding: 0;
+    }
+
+    &__avatar {
+      margin-top: 0.1rem;
+    }
+
+    &__name {
+      padding: 0;
+      border: 0;
+      background: none;
+      color: var(--app-heading);
+      font-weight: 700;
+
+      &:hover,
+      &:focus-visible {
+        color: var(--app-primary-text);
+        text-decoration: underline;
+      }
+    }
+
+    &__actions {
+      display: flex;
+      flex-shrink: 0;
+      align-items: center;
+      gap: 0.25rem;
+      margin-left: auto;
+    }
+  }
+
+  @media (max-width: 767.98px) {
+    .comment-row {
+      flex-wrap: wrap;
+
+      &__main {
+        flex: 1 1 calc(100% - 4.5rem);
+      }
+
+      &__actions {
+        width: 100%;
+        justify-content: flex-end;
+      }
+    }
+  }
+
+  // plain text: line breaks kept, three lines unless "Show more"
+  .comment-body {
+    overflow-wrap: anywhere;
+    white-space: pre-line;
+
+    &.is-clamped {
+      display: -webkit-box;
+      overflow: hidden;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 3;
+      line-clamp: 3;
+    }
+  }
+
+  .comment-bar {
+    border-bottom: 1px solid var(--app-border);
+    background: var(--app-surface-2);
+  }
+
+  .comment-skeleton-row + .comment-skeleton-row {
+    border-top: 1px solid var(--app-border);
+  }
+
+  .filter-chip {
+    max-width: 100%;
+    padding: 0.45rem 0.6rem;
+    background: var(--app-icon-bg);
+    color: var(--app-primary-text);
+    font-size: 0.85rem;
+    font-weight: 500;
+    white-space: normal;
+    text-align: start;
+  }
+
+  .article-picker-wrap {
+    width: 100%;
+    max-width: 24rem;
+  }
+
+  .article-picker__icon {
+    position: absolute;
+    top: 50%;
+    left: 0.65rem;
+    transform: translateY(-50%);
+    color: var(--app-muted);
+    pointer-events: none;
+  }
+
+  .article-picker__input {
+    padding-left: 2rem;
+  }
+
+  // ---- the review queue
+  .menu-badge {
+    background: var(--app-warn-icon-bg);
+    color: var(--app-warn-icon);
+    font-size: 0.72rem;
+    font-weight: 700;
+  }
+
+  .review-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1rem;
+
+    & + & {
+      border-top: 1px solid var(--app-border);
+    }
+
+    &:hover {
+      background: var(--app-surface-2);
+    }
+  }
+
+  .review-thumb .article-thumb {
+    width: 140px;
+  }
+
+  .review-title {
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--app-heading);
+    font-size: 1.02rem;
+    font-weight: 700;
+    text-align: start;
+
+    &:hover,
+    &:focus-visible {
+      color: var(--app-primary-text);
+      text-decoration: underline;
+    }
+  }
+
+  .review-summary {
+    display: -webkit-box;
+    overflow: hidden;
+    margin-top: 0.15rem;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+  }
+
+  .review-side {
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    align-items: flex-end;
+    gap: 0.6rem;
+    margin-left: auto;
+  }
+
+  @media (max-width: 767.98px) {
+    .review-row {
+      flex-wrap: wrap;
+    }
+
+    .review-thumb .article-thumb {
+      width: 96px;
+    }
+
+    .review-main {
+      flex: 1 1 calc(100% - 112px);
+    }
+
+    .review-side {
+      flex-direction: row;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      margin-left: 0;
+    }
+  }
+
+  // how long an article waits: grey, orange from 1 day, red from 3 days (the icon changes too)
+  .waiting {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.85rem;
+    white-space: nowrap;
+
+    &--normal {
+      color: var(--app-muted);
+    }
+
+    &--warn {
+      color: var(--app-wait-warn);
+      font-weight: 600;
+    }
+
+    &--danger {
+      color: var(--app-danger);
+      font-weight: 600;
+    }
+  }
+
+  // the quick review panel: wide on a desktop, the whole screen on a phone
+  .review-panel {
+    --bs-offcanvas-width: min(100vw, 860px);
+    --bs-offcanvas-bg: var(--app-surface);
+    --bs-offcanvas-color: var(--app-text);
+    --bs-offcanvas-border-color: var(--app-border);
+    --bs-offcanvas-padding-y: 1rem;
+    --bs-offcanvas-padding-x: 1.25rem;
+
+    .offcanvas-header {
+      border-bottom: 1px solid var(--app-border);
+    }
+
+    &__footer {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      padding: 0.85rem 1.25rem calc(0.85rem + env(safe-area-inset-bottom));
+      border-top: 1px solid var(--app-border);
+      background: var(--app-surface);
+    }
+  }
+
+  // ---- the article page (create / edit)
+  .editor-header {
+    position: sticky;
+    top: var(--dash-topbar-height);
+    z-index: 1010;
+    margin: -1.5rem -1rem 1rem;
+    padding: 0.75rem 1rem;
+    background: var(--app-bg);
+    border-bottom: 1px solid var(--app-border);
+
+    @media (min-width: 768px) {
+      margin: -1.5rem -1.5rem 1rem;
+      padding: 0.75rem 1.5rem;
+    }
+
+    .breadcrumb {
+      --bs-breadcrumb-divider-color: var(--app-muted);
+      --bs-breadcrumb-item-active-color: var(--app-muted);
+    }
+  }
+
+  .save-state {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    color: var(--app-muted);
+
+    &--dirty {
+      color: var(--app-warn-icon);
+    }
+
+    &__dot {
+      width: 0.5rem;
+      height: 0.5rem;
+      border-radius: 50%;
+      background: var(--app-warn-border);
+    }
+  }
+
+  // below 768px the buttons are a bar at the bottom of the screen
+  .editor-bottom-bar {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 1015;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    padding: 0.6rem 1rem calc(0.6rem + env(safe-area-inset-bottom));
+    background: var(--app-surface);
+    border-top: 1px solid var(--app-border);
+  }
+
+  @media (max-width: 767.98px) {
+    .editor-page {
+      padding-bottom: 4.5rem;
+    }
+
+    .editor-toasts {
+      bottom: 3.5rem;
+    }
+  }
+
+  .editor-notice {
+    font-size: 0.9rem;
+  }
+
+  // the main and the side column. Below 992px the two columns dissolve and every card has its own `order`
+  // (title, summary, content, publishing, organize, thumbnail, images, comments, history); from 992px they are
+  // two columns, about 8/12 and 4/12.
+  .editor-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .editor-col {
+    display: contents;
+  }
+
+  @media (min-width: 992px) {
+    .editor-layout {
+      flex-direction: row;
+      align-items: flex-start;
+    }
+
+    .editor-col {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      min-width: 0;
+
+      &--main {
+        flex: 0 0 calc(66.667% - 0.5rem);
+      }
+
+      &--side {
+        flex: 1 1 0;
+      }
+    }
+  }
+
+  .editor-field {
+    scroll-margin-top: calc(var(--dash-topbar-height) + var(--editor-header-h, 5.5rem) + 1rem);
+
+    .form-control,
+    .form-select {
+      scroll-margin-top: calc(var(--dash-topbar-height) + var(--editor-header-h, 5.5rem) + 1rem);
+    }
+  }
+
+  .char-counter {
+    color: var(--app-muted);
+
+    &--warn {
+      color: var(--app-warn-icon);
+      font-weight: 600;
+    }
+  }
+
+  // the editor: a taller writing area and a toolbar that stays under the sticky header
+  .editor-card {
+    .rich-editor {
+      background: var(--app-surface);
+      border-color: var(--app-border) !important;
+
+      > div:first-child {
+        position: sticky;
+        top: calc(var(--dash-topbar-height) + var(--editor-header-h, 5.5rem));
+        z-index: 5;
+        background: var(--app-surface);
+        border-radius: 0.375rem 0.375rem 0 0;
+      }
+
+      .ProseMirror {
+        min-height: 420px;
+        padding: 1rem;
+      }
+    }
+  }
+
+  // images and thumbnail
+  .drop-zone {
+    padding: 1.25rem 1rem;
+    border: 2px dashed var(--app-border);
+    border-radius: 10px;
+    color: var(--app-text);
+    cursor: pointer;
+    transition: border-color 0.15s, background-color 0.15s;
+
+    &:hover,
+    &:focus-visible,
+    &.is-over {
+      border-color: var(--app-primary-text);
+      background: var(--app-icon-bg);
+      outline: none;
+    }
+
+    &.is-disabled {
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+
+    &__icon {
+      display: block;
+      margin: 0 auto 0.4rem;
+      color: var(--app-primary-text);
+      font-size: 1.5rem;
+    }
+
+    &__browse {
+      color: var(--app-primary-text);
+      font-weight: 600;
+      text-decoration: underline;
+    }
+  }
+
+  .image-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+    gap: 1rem;
+  }
+
+  .image-tile__thumb,
+  .thumb-preview {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    border-radius: 8px;
+    background: var(--app-surface-2);
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+
+  .thumb-preview__busy {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgb(0 0 0 / 35%);
+    color: #fff;
+  }
+
+  // tags
+  .tag-picker__box {
+    min-height: calc(1.5em + 0.75rem + 2px);
+    cursor: text;
+  }
+
+  .tag-chip {
+    background: var(--app-icon-bg);
+    color: var(--app-primary-text);
+    font-weight: 500;
+    font-size: 0.85rem;
+  }
+
+  .tag-chip__remove {
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    font-size: 1.1rem;
+    line-height: 1;
+    cursor: pointer;
+  }
+
+  .tag-picker__input {
+    min-width: 8rem;
+    background: transparent;
+  }
+
+  .tag-picker__list {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    left: 0;
+    z-index: 20;
+    max-height: 14rem;
+    margin-top: 0.25rem;
+    overflow-y: auto;
+    border: 1px solid var(--app-border);
+    border-radius: 8px;
+    background: var(--app-surface);
+  }
+
+  .tag-picker__option {
+    cursor: pointer;
+
+    &.is-active {
+      background: var(--app-surface-2);
+      color: var(--app-heading);
+    }
+  }
+}
+
+// ---------------------------------------------------------------- Khmer
+// Khmer text is longer than English and its marks are taller: let buttons, badges, menus and table headers wrap
+// instead of overflowing, and give lines more room so the marks are not clipped.
+html[lang="km"] {
+  body {
+    line-height: 1.75;
+  }
+
+  .btn,
+  .badge,
+  .dropdown-item,
+  .nav-link,
+  .page-link {
+    white-space: normal;
+    overflow-wrap: break-word;
+  }
+
+  .badge {
+    line-height: 1.6;
+    text-align: left;
+  }
+
+  .btn {
+    line-height: 1.6;
+  }
+
+  .dropdown-menu {
+    max-width: min(22rem, 90vw);
+  }
+
+  .table > thead th {
+    overflow-wrap: break-word;
+    vertical-align: middle;
+  }
+
+  // a toolbar of buttons wraps to the next line rather than pushing the page wider
+  .btn-toolbar,
+  .btn-group {
+    flex-wrap: wrap;
+  }
+
+  .section-title__label,
+  .news-ticker__label {
+    line-height: 1.6;
+  }
+}
+
+// ---------------------------------------------------------------- site settings (logo, colours, footer)
+
+// the logo of the settings: any proportions, never wider than a fixed box
+.site-logo {
+  width: auto;
+  max-width: 180px;
+  object-fit: contain;
+}
+
+.news-footer {
+  .footer-social a,
+  .footer-contact a {
+    color: var(--news-link);
+    text-decoration: none;
+
+    &:hover {
+      color: var(--news-accent);
+    }
+  }
+
+  .footer-contact li {
+    margin-bottom: 0.25rem;
+  }
+
+  .footer-address {
+    white-space: pre-line; // the address keeps its line breaks
+  }
+
+  .footer-copyright {
+    border-top: 1px solid var(--bs-border-color);
+    color: var(--bs-secondary-color);
+  }
+}
+
+// ---------------------------------------------------------------- the auth pages (log in, register, verify, forgot, reset)
+.auth-shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: var(--app-bg);
+  color: var(--app-text);
+}
+
+.auth-header {
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--app-border);
+  background: var(--app-topbar-bg);
+
+  &__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    max-width: 1140px;
+    height: 56px;
+    margin: 0 auto;
+    padding: 0 1rem;
+  }
+
+  &__brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-width: 0;
+    color: var(--app-heading);
+    font-size: 1.05rem;
+    font-weight: 700;
+    text-decoration: none;
+
+    span {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    &:hover span {
+      text-decoration: underline;
+    }
+  }
+}
+
+// the page sits in the middle of what is left between the header and the footer; a form that is taller than that makes
+// the page taller (it scrolls), nothing is cut off
+.auth-main {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.auth-column {
+  width: 100%;
+  max-width: 400px;
+
+  &--wide {
+    max-width: 560px;
+  }
+}
+
+.auth-head {
+  margin-bottom: 0.9rem;
+  text-align: center;
+}
+
+.auth-logo {
+  display: block;
+  width: auto;
+  max-width: 120px;
+  margin: 0 auto 0.5rem;
+  background: transparent;
+}
+
+.auth-title {
+  margin: 0 0 0.2rem;
+  color: var(--app-heading);
+  font-size: 1.35rem;
+  font-weight: 700;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.auth-description {
+  margin: 0;
+  color: var(--app-muted);
+  font-size: 0.9rem;
+  overflow-wrap: anywhere;
+}
+
+.auth-card {
+  padding: 1.25rem;
+  border: 1px solid var(--app-border);
+  border-radius: 0.5rem;
+  background: var(--app-surface);
+
+  // tighter fields: 12px between them, inputs and buttons at least 40px high
+  .mb-3 {
+    margin-bottom: 0.75rem !important;
+  }
+
+  .form-control,
+  .btn {
+    min-height: 2.5rem;
+  }
+
+  .form-label {
+    margin-bottom: 0.25rem;
+    font-size: 0.9rem;
+  }
+
+  .form-text,
+  .invalid-feedback {
+    margin-top: 0.2rem;
+    font-size: 0.8rem;
+  }
+
+  // slim alerts at the top of the card
+  .alert {
+    margin-bottom: 0.75rem;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+  }
+
+  // on a phone the card blends into the page
+  @media (max-width: 575.98px) {
+    padding: 0;
+    border: 0;
+    background: transparent;
+  }
+}
+
+// a short screen (a laptop 720px high, a phone in portrait): the logo above the title goes (the header has it), the
+// spacing gets tighter, so the forms still fit without scrolling
+@media (max-height: 800px) {
+  .auth-main {
+    padding-block: 0.5rem;
+  }
+
+  .auth-logo {
+    display: none;
+  }
+
+  .auth-head {
+    margin-bottom: 0.6rem;
+  }
+
+  .auth-card {
+    padding-block: 1rem;
+  }
+}
+
+.auth-secondary {
+  margin: 0.75rem 0 0;
+  color: var(--app-muted);
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+// the password strength and the rule on one small line under the two password fields
+.password-hint {
+  margin-bottom: 0.5rem;
+}
+
+.password-meter--thin {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 0.15rem;
+
+  .strength {
+    flex: 1;
+  }
+}
+
+.strength--thin .strength__bar {
+  height: 4px;
+}
+
+.password-rules--inline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 1rem;
+  font-size: 0.8rem;
+}
+
+.auth-caps {
+  color: var(--app-wait-warn);
+}
+
+.auth-footer {
+  display: flex;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0 1.25rem;
+  min-height: 44px;
+  padding: 0.35rem 1rem;
+  border-top: 1px solid var(--app-border);
+  color: var(--app-muted);
+  font-size: 0.8rem;
+  text-align: center;
+
+  a {
+    color: var(--app-muted);
+  }
+}
+
+// A custom primary colour (setting primary_color): the Bootstrap buttons and badges are compiled with the built-in navy,
+// so they get the colour through their own variables. The built-in colour sets nothing, so it keeps the rules above.
+:root[data-site-primary] {
+  .btn-primary {
+    --bs-btn-bg: var(--site-btn-bg);
+    --bs-btn-border-color: var(--site-btn-bg);
+    --bs-btn-color: var(--site-on-btn);
+    --bs-btn-hover-bg: var(--site-btn-hover);
+    --bs-btn-hover-border-color: var(--site-btn-hover);
+    --bs-btn-hover-color: var(--site-on-btn);
+    --bs-btn-active-bg: var(--site-btn-active);
+    --bs-btn-active-border-color: var(--site-btn-active);
+    --bs-btn-active-color: var(--site-on-btn);
+    --bs-btn-disabled-bg: var(--site-btn-bg);
+    --bs-btn-disabled-border-color: var(--site-btn-bg);
+    --bs-btn-disabled-color: var(--site-on-btn);
+  }
+
+  .btn-outline-primary {
+    --bs-btn-color: var(--site-primary-text);
+    --bs-btn-border-color: var(--site-primary-text);
+    --bs-btn-hover-bg: var(--site-btn-bg);
+    --bs-btn-hover-border-color: var(--site-btn-bg);
+    --bs-btn-hover-color: var(--site-on-btn);
+    --bs-btn-active-bg: var(--site-btn-bg);
+    --bs-btn-active-border-color: var(--site-btn-bg);
+    --bs-btn-active-color: var(--site-on-btn);
+    --bs-btn-disabled-color: var(--site-primary-text);
+    --bs-btn-disabled-border-color: var(--site-primary-text);
+  }
+
+  .badge.bg-primary,
+  .badge.text-bg-primary {
+    background-color: var(--site-btn-bg) !important;
+    color: var(--site-on-btn) !important;
+  }
+
+  .form-control:focus,
+  .form-select:focus {
+    border-color: var(--site-primary-text);
+    box-shadow: 0 0 0 0.2rem rgba(var(--site-primary-text-rgb), 0.25);
+  }
+}
+
+// A custom accent colour: the red "Log in" button of the header
+:root[data-site-accent] .news-header .btn-danger {
+  --bs-btn-bg: var(--site-accent);
+  --bs-btn-border-color: var(--site-accent);
+  --bs-btn-color: var(--site-on-accent);
+  --bs-btn-hover-bg: color-mix(in srgb, var(--site-accent) 85%, black);
+  --bs-btn-hover-border-color: color-mix(in srgb, var(--site-accent) 85%, black);
+  --bs-btn-hover-color: var(--site-on-accent);
+}
+
+// the preview of a site image on the settings page: a plain background, a dark one for the dark logo
+.settings-image-preview {
+  background: var(--bs-tertiary-bg);
+
+  &.is-dark {
+    background: #1d222e;
+  }
+}
+
+// ---------------------------------------------------------------- users
+// Roles are calm tints with an icon, never red: Admin the primary colour, Editor blue, Author teal, Reader grey.
+.role-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  white-space: nowrap;
+
+  &--ADMIN {
+    background: var(--app-icon-bg);
+    color: var(--app-primary-text);
+  }
+
+  &--EDITOR {
+    background: rgb(14 165 233 / 14%);
+    color: #0369a1; // 5.5:1 on the tint
+
+    :root[data-bs-theme="dark"] & {
+      color: #7dd3fc;
+    }
+  }
+
+  &--AUTHOR {
+    background: rgb(20 184 166 / 14%);
+    color: #0f766e; // 5.3:1 on the tint
+
+    :root[data-bs-theme="dark"] & {
+      color: #5eead4;
+    }
+  }
+
+  &--READER {
+    background: var(--app-surface-2);
+    color: var(--app-muted);
+  }
+}
+
+// ---------------------------------------------------------------- roles
+.role-card__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 0.75rem;
+  font-size: 1.25rem;
+}
+
+// the permission table: the header and the permission column stay while the table scrolls inside the card
+.dashboard-shell .roles-table {
+  min-width: 560px;
+
+  thead th:first-child {
+    left: 0;
+    z-index: 3;
+    text-align: start;
+  }
+
+  th.roles-permission,
+  .roles-group th {
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    font-weight: 500;
+    text-align: start;
+    text-transform: none;
+  }
+
+  th.roles-permission {
+    min-width: 14rem;
+    background: var(--app-surface);
+    color: var(--app-heading);
+    box-shadow: inset -1px 0 0 var(--app-border);
+  }
+
+  .roles-group th {
+    padding: 0.5rem 1rem;
+    background: var(--app-surface-2);
+    color: var(--app-muted);
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+
+  .perm-label {
+    cursor: help;
+  }
+
+  .perm-code code {
+    color: var(--app-muted);
+    font-size: 0.75rem;
+  }
+
+  .perm-unused {
+    background: var(--app-surface-2);
+    border: 1px solid var(--app-border);
+    color: var(--app-muted);
+    font-weight: 500;
+  }
+
+  .perm-yes {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+    color: var(--app-success);
+
+    &.is-full svg {
+      opacity: 0.6;
+    }
+  }
+
+  .perm-full {
+    color: var(--app-muted);
+    white-space: nowrap;
+  }
+
+  .perm-no {
+    color: var(--app-muted);
+  }
+}
+
+// ---------------------------------------------------------------- the news list (list, category, tag, search)
+
+// a picture box without a picture: a light tint of the primary colour with the logo
+.news-thumb-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--app-icon-bg);
+  color: var(--app-primary-text);
+  font-size: 2.5rem;
+  font-weight: 700;
+
+  &__logo {
+    max-width: 40%;
+    max-height: 45%;
+    opacity: 0.85;
+  }
+}
+
+// category chips and removable filters: buttons that look like pills
+.chip-row {
+  display: flex;
+  gap: 0.5rem;
+  padding-bottom: 0.4rem;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  flex-shrink: 0;
+  padding: 0.3rem 0.85rem;
+  border: 1px solid var(--app-border);
+  border-radius: 999px;
+  background: var(--news-surface);
+  color: var(--news-heading);
+  font-size: 0.9rem;
+  font-weight: 500;
+  line-height: 1.4;
+  text-decoration: none;
+  white-space: nowrap;
+
+  &:hover {
+    border-color: var(--app-primary-text);
+    color: var(--app-primary-text);
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--app-primary-text);
+    outline-offset: 2px;
+  }
+
+  &[aria-current] {
+    border-color: var(--app-primary);
+    background: var(--app-primary);
+    color: var(--site-on-btn, #fff);
+  }
+
+  &--small {
+    padding: 0.15rem 0.65rem;
+    font-size: 0.85rem;
+  }
+
+  &--active-filter {
+    background: var(--app-icon-bg);
+    border-color: transparent;
+    color: var(--app-primary-text);
+    cursor: pointer;
+  }
+}
+
+.news-count-badge {
+  min-width: 1.25rem;
+  padding: 0 0.35rem;
+  border-radius: 999px;
+  background: var(--app-primary);
+  color: var(--site-on-btn, #fff);
+  font-size: 0.75rem;
+  line-height: 1.25rem;
+}
+
+// the shared SearchBox, styled here because its own styles belong to the dashboard
+.news-toolbar {
+  .article-picker-wrap {
+    width: 100%;
+  }
+
+  .article-picker__icon {
+    position: absolute;
+    top: 50%;
+    left: 0.65rem;
+    transform: translateY(-50%);
+    color: var(--app-muted);
+    pointer-events: none;
+  }
+
+  .article-picker__input {
+    padding-left: 2rem;
+  }
+
+  form {
+    min-width: 12rem;
+  }
+}
+
+.news-filter-panel {
+  margin-bottom: 1rem;
+  padding: 1rem;
+  border: 1px solid var(--app-border);
+  border-radius: 0.6rem;
+  background: var(--news-surface);
+}
+
+.news-rows {
+  display: flex;
+  flex-direction: column;
+}
+
+// the article rows: picture on the left (about 280px), text on the right; picture on top on a phone
+.news-row {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.25rem 0;
+  border-bottom: 1px solid var(--app-border);
+
+  &:first-child {
+    padding-top: 0;
+  }
+
+  @media (min-width: 576px) {
+    flex-direction: row;
+  }
+
+  &__thumb {
+    display: block;
+    flex-shrink: 0;
+    overflow: hidden;
+    border-radius: 0.6rem;
+
+    @media (min-width: 576px) {
+      width: 280px;
+    }
+
+    img {
+      transition: transform 0.3s;
+    }
+
+    &:hover img {
+      transform: scale(1.05);
+    }
+  }
+
+  &__body {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 0.35rem;
+    min-width: 0;
+  }
+
+  &__category {
+    align-self: flex-start;
+    color: var(--news-link);
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  &__title {
+    margin: 0;
+    font-size: 1.2rem;
+    font-weight: 700;
+
+    a {
+      color: var(--news-heading);
+      text-decoration: none;
+
+      &:hover {
+        color: var(--news-accent);
+        text-decoration: underline;
+      }
+    }
+  }
+
+  &__summary {
+    margin: 0;
+    color: var(--app-text);
+  }
+
+  &__meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.25rem 1rem;
+    margin-top: auto;
+  }
+}
+
+// the page title with the number of articles on the right
+.news-page-title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.25rem 1rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--app-border);
+
+  h1 {
+    margin: 0;
+    color: var(--news-heading);
+    font-size: 1.75rem;
+    font-weight: 700;
+  }
+
+  &__count {
+    color: var(--bs-secondary-color);
+    font-size: 0.95rem;
+    font-weight: 600;
+  }
+}
+
+// the sidebar
+.news-side {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.news-side-block {
+  padding: 1rem;
+  border: 1px solid var(--app-border);
+  border-radius: 0.6rem;
+  background: var(--news-surface);
+
+  &__title {
+    margin: 0 0 0.75rem;
+    color: var(--news-heading);
+    font-size: 1.05rem;
+    font-weight: 700;
+  }
+}
+
+.news-side-top {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+
+  li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--app-border);
+
+    &:first-child {
+      padding-top: 0;
+    }
+
+    &:last-child {
+      padding-bottom: 0;
+      border-bottom: 0;
+    }
+  }
+
+  &__rank {
+    flex: 0 0 24px;
+    width: 24px;
+    color: var(--app-primary-text);
+    font-size: 1.2rem;
+    font-weight: 700;
+    line-height: 1.2;
+    text-align: center;
+  }
+
+  // a fixed 80 x 56 box: the picture or the branded placeholder fills it, whatever its size
+  &__thumb {
+    position: relative;
+    flex: 0 0 80px;
+    width: 80px;
+    height: 56px;
+    overflow: hidden;
+    border-radius: 0.4rem;
+
+    > * {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    img {
+      object-fit: cover;
+    }
+
+    .news-thumb-placeholder {
+      font-size: 1.25rem;
+    }
+
+    .news-thumb-placeholder__logo {
+      width: auto;
+      height: auto;
+      max-width: 50%;
+      max-height: 55%;
+      position: static;
+      object-fit: contain;
+    }
+  }
+
+  // the text takes what is left and may shrink, so a long title wraps inside the card
+  &__text {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  &__title {
+    display: -webkit-box;
+    overflow: hidden;
+    overflow-wrap: break-word; // not "anywhere": that lets a narrow column break a word letter by letter
+    color: var(--news-heading);
+    font-size: 0.95rem;
+    font-weight: 600;
+    line-height: 1.4;
+    text-decoration: none;
+
+    &:hover {
+      color: var(--news-accent);
+      text-decoration: underline;
+    }
+  }
+
+  &__views {
+    margin-top: 0.15rem;
+    color: var(--bs-secondary-color);
+    font-size: 0.8rem;
+  }
+}
+
+.news-side-links a {
+  display: block;
+  padding: 0.35rem 0;
+  border-bottom: 1px solid var(--app-border);
+  color: var(--news-link);
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+
+  &.is-active {
+    font-weight: 700;
+  }
+}
+
+.news-side-links li:last-child a {
+  border-bottom: 0;
+}
+
+// ---------------------------------------------------------------- my profile (dashboard and public site)
+.profile-page {
+  --profile-sticky-top: 1rem;
+
+  &--dashboard {
+    --profile-sticky-top: calc(var(--dash-topbar-height, 70px) + 1rem);
+  }
+
+  &--public {
+    --profile-sticky-top: calc(var(--news-header-height, 80px) + 1rem);
+
+    // the tabs of the dashboard lists, for the public layout
+    .article-tabs {
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      border-bottom: 1px solid var(--app-border);
+      --bs-nav-underline-link-active-color: var(--app-heading);
+      --bs-nav-underline-border-width: 2px;
+      --bs-nav-link-color: var(--app-muted);
+      --bs-nav-link-hover-color: var(--app-heading);
+
+      .nav-link {
+        white-space: nowrap;
+
+        &.active {
+          border-bottom-color: var(--app-primary-text);
+        }
+      }
+    }
+  }
+
+  .profile-card,
+  .card {
+    --bs-card-bg: var(--app-surface);
+    --bs-card-border-color: var(--app-border);
+    --bs-card-color: var(--app-text);
+  }
+
+  @media (min-width: 992px) {
+    .profile-sticky {
+      position: sticky;
+      top: var(--profile-sticky-top);
+    }
+  }
+}
+
+// the photo with the camera button over its corner: shown on hover and focus, always on a touch screen
+.profile-avatar {
+  position: relative;
+  width: 128px;
+  height: 128px;
+
+  .user-avatar {
+    width: 128px;
+    height: 128px;
+    font-size: 3rem;
+  }
+
+  &__menu {
+    position: absolute;
+    right: -4px;
+    bottom: -4px;
+  }
+
+  &__button.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    padding: 0;
+    border: 2px solid var(--app-surface);
+    border-radius: 50%;
+    background: var(--app-primary);
+    color: #fff;
+    opacity: 0;
+    transition: opacity 0.15s;
+
+    &::after {
+      display: none;
+    }
+  }
+
+  &:hover &__button.btn,
+  &:focus-within &__button.btn,
+  &__button.btn.show {
+    opacity: 1;
+  }
+
+  @media (hover: none) {
+    &__button.btn {
+      opacity: 1;
+    }
+  }
+}
+
+.profile-photo-preview {
+  border: 1px solid var(--app-border);
+  background: var(--app-surface-2);
+}
+
+.profile-details li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--app-border);
+}
+
+.profile-details__icon {
+  flex-shrink: 0;
+  margin-top: 0.2rem;
+  color: var(--app-muted);
+}
+
+.profile-verified {
+  color: var(--app-success);
+}
+
+.profile-unverified {
+  color: var(--app-wait-warn);
+}
+
+// language and colour mode: cards with a hidden radio (keyboard and screen readers use the radio)
+.pref-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+  gap: 0.75rem;
+  max-width: 32rem;
+}
+
+.pref-card {
+  display: block;
+  margin: 0;
+  cursor: pointer;
+
+  &__body {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.8rem 1rem;
+    border: 1px solid var(--app-border);
+    border-radius: 0.6rem;
+    background: var(--app-surface);
+    color: var(--app-text);
+    font-weight: 600;
+    transition: border-color 0.15s, background 0.15s;
+  }
+
+  &:hover &__body {
+    border-color: var(--app-primary-text);
+  }
+
+  input:checked + &__body {
+    border-color: var(--app-primary-text);
+    background: var(--app-icon-bg);
+    color: var(--app-primary-text);
+  }
+
+  input:focus-visible + &__body {
+    outline: 2px solid var(--app-primary-text);
+    outline-offset: 2px;
+  }
+}
+
+.you-badge {
+  background: var(--app-surface-2);
+  color: var(--app-muted);
+  border: 1px solid var(--app-border);
+  font-weight: 600;
+}
+
+// the first letter of a user without a photo, on one of six tints chosen by the user's id
+.user-avatar {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+@each $index, $tint, $light, $dark in (0, rgb(37 99 235 / 14%), #1d4ed8, #93c5fd), (1, rgb(20 184 166 / 14%), #0f766e, #5eead4), (2, rgb(217 119 6 / 16%), #92400e, #fcd34d),
+  (3, rgb(147 51 234 / 14%), #7e22ce, #d8b4fe), (4, rgb(219 39 119 / 14%), #be185d, #f9a8d4), (5, rgb(2 132 199 / 14%), #0369a1, #7dd3fc)
+{
+  .user-avatar--#{$index} {
+    background: $tint;
+    color: $light;
+
+    :root[data-bs-theme="dark"] & {
+      color: $dark;
+    }
+  }
+}
+
+.dashboard-shell {
+  .user-row {
+    cursor: pointer;
+
+    &.is-inactive .user-avatar,
+    &.is-inactive .user-name {
+      opacity: 0.6;
+    }
+  }
+
+  .user-name {
+    color: var(--app-heading);
+    font-weight: 400;
+    text-decoration: none;
+
+    &:hover,
+    &:focus-visible {
+      color: var(--app-primary-text);
+      text-decoration: underline;
+    }
+  }
+
+  .user-sub {
+    max-width: 22rem;
+  }
+}
+
+// ---------------------------------------------------------------- add user: passwords and roles
+// (top level: the password fields are also in a dialog, which is outside the dashboard)
+.strength {
+  display: flex;
+  gap: 4px;
+
+  &__bar {
+    flex: 1;
+    height: 6px;
+    border-radius: 3px;
+    background: var(--app-surface-2, #e9ecef);
+  }
+
+  &[data-level="1"] .is-on {
+    background: var(--app-danger);
+  }
+
+  &[data-level="2"] .is-on {
+    background: var(--app-wait-warn);
+  }
+
+  &[data-level="3"] .is-on {
+    background: var(--app-chart-bar);
+  }
+
+  &[data-level="4"] .is-on {
+    background: var(--app-success);
+  }
+}
+
+.password-rules li {
+  color: var(--app-muted);
+
+  &.is-done {
+    color: var(--app-success);
+  }
+}
+
+.match-ok {
+  color: var(--app-success);
+  font-weight: 600;
+}
+
+.match-bad {
+  color: var(--app-danger);
+  font-weight: 600;
+}
+
+.role-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--app-border);
+  border-radius: 10px;
+  background: var(--app-surface);
+  color: var(--app-text);
+  cursor: pointer;
+  transition: border-color 0.15s, background-color 0.15s;
+
+  &:hover {
+    border-color: var(--app-primary-text);
+  }
+
+  &:focus-within {
+    outline: 2px solid var(--app-primary-text);
+    outline-offset: 2px;
+  }
+
+  &.is-selected {
+    border-color: var(--app-primary-text);
+    background: var(--app-icon-bg);
+  }
+
+  &__icon {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: var(--app-icon-bg);
+    color: var(--app-primary-text);
+  }
+}
+
+// the buttons at the bottom of a form: right-aligned, always within reach
+.form-footer-bar {
+  position: sticky;
+  bottom: 0;
+  z-index: 5;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  padding: 0.75rem 0;
+  background: var(--app-bg);
+  border-top: 1px solid var(--app-border);
+}

@@ -22,3 +22,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Local environment files (VITE_API_URL etc.)
+.env
+.env.*
+!.env.example

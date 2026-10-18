@@ -1,27 +1,29 @@
+import { useTranslation } from 'react-i18next'
 import FormField from './FormField'
 import { slugify } from '../../utils/slug'
 
 // Slug input with a live preview. Empty means "generate from the name" (the backend adds -2, -3 ... if needed).
 export default function SlugField({ id, name, slug, onChange, error, editing }) {
+  const { t } = useTranslation()
   const preview = slugify(name)
   let help
   if (slug) {
-    help = 'This slug is used as it is.'
+    help = t('common.slugField.asIs')
   } else if (preview) {
-    help = `Generated from the name: ${preview}`
+    help = t('common.slugField.generated', { slug: preview })
   } else if (name.trim()) {
-    help = 'This name has no Latin letters, so enter a slug yourself (letters a-z, digits and hyphens).'
+    help = t('common.slugField.noLatin')
   } else {
-    help = 'Leave empty to generate it from the name.'
+    help = t('common.slugField.empty')
   }
   if (editing) {
-    help += ' Renaming does not change the slug; changing it breaks existing links.'
+    help += ` ${t('common.slugField.editingWarning')}`
   }
 
   return (
     <FormField
       id={id}
-      label={editing ? 'Slug' : 'Slug (optional)'}
+      label={editing ? t('common.slugField.label') : t('common.slugField.labelOptional')}
       value={slug}
       onChange={onChange}
       error={error}

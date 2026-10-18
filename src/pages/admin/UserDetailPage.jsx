@@ -1,45 +1,21 @@
 import { useEffect, useState } from 'react'
-import { Alert, Badge, Button, Card, Col, Form, Row } from 'react-bootstrap'
+import { Badge, Breadcrumb, Button, Col, Form, Row, Toast, ToastContainer } from 'react-bootstrap'
+import { Trans, useTranslation } from 'react-i18next'
 import { Link, useLocation, useParams } from 'react-router-dom'
 import ConfirmDialog from '../../components/common/ConfirmDialog'
 import ErrorAlert from '../../components/common/ErrorAlert'
 import PageSpinner from '../../components/common/PageSpinner'
-import FormField from '../../components/form/FormField'
-import { ROLE_VARIANT, ROLES } from '../../constants/roles'
+import { RoleBadge, UserPhoto, UserStatus } from '../../components/common/UserParts'
+import FormCard from '../../components/form/FormCard'
+import ResetPasswordDialog from '../../components/form/ResetPasswordDialog'
+import { ROLES } from '../../constants/roles'
 import { ROUTES } from '../../constants/routes'
 import { useAuth } from '../../hooks/useAuth'
 import * as userService from '../../services/userService'
-import { hasErrors, rules } from '../../utils/validators'
-
-function ResetPasswordDialog({ show, username, busy, onConfirm, onCancel }) {
-  const [form, setForm] = useState({ password: '', confirm: '' })
-  const [errors, setErrors] = useState({})
-
-  const update = (field) => (event) => setForm((current) => ({ ...current, [field]: event.target.value }))
-
-  const submit = () => {
-    const found = {
-      password: rules.password(form.password),
-      confirm: rules.confirm(form.password, form.confirm),
-    }
-    setErrors(found)
-    if (!hasErrors(found)) {
-      onConfirm(form)
-    }
-  }
-
-  return (
-    <ConfirmDialog show={show} title="Reset password" confirmLabel="Reset password" confirmVariant="danger" busy={busy} onConfirm={submit} onCancel={onCancel}>
-      <p>
-        Set a new password for <strong>{username}</strong>. Their refresh tokens are revoked, so they have to log in again.
-      </p>
-      <FormField id="reset-password" label="New password" type="password" value={form.password} onChange={update('password')} error={errors.password} help="At least 8 characters" autoComplete="new-password" />
-      <FormField id="reset-confirm" label="Confirm new password" type="password" value={form.confirm} onChange={update('confirm')} error={errors.confirm} autoComplete="new-password" />
-    </ConfirmDialog>
-  )
-}
+import { userName } from '../../utils/userName'
 
 export default function UserDetailPage() {
+  const { t } = useTranslation()
   const { id } = useParams()
   const { state } = useLocation()
   const { user: me } = useAuth()
@@ -51,7 +27,7 @@ export default function UserDetailPage() {
   const user = loaded.user
   const loadError = loaded.error
   const [actionError, setActionError] = useState(null)
-  const [message, setMessage] = useState(state?.message ?? null)
+  const [message, setMessage] = useState(state?.messageKey ?? null)
   const [dialog, setDialog] = useState(null) // 'status' | 'role' | 'password' | null
   const [busy, setBusy] = useState(false)
 
@@ -74,7 +50,7 @@ export default function UserDetailPage() {
   }, [id])
 
   // runs one admin action; backend errors (including the self-protection rules) are shown as they come
-  const run = async (action, successMessage) => {
+  const run = async (action, successKey) => {
     setBusy(true)
     setActionError(null)
     setMessage(null)
@@ -84,7 +60,7 @@ export default function UserDetailPage() {
         setLoaded((previous) => ({ ...previous, user: updated }))
         setRole(updated.role)
       }
-      setMessage(successMessage)
+      setMessage(successKey)
     } catch (error) {
       setActionError(error)
     } finally {
@@ -100,7 +76,7 @@ export default function UserDetailPage() {
     return (
       <div>
         <ErrorAlert error={loadError} />
-        <Link to={ROUTES.ADMIN_USERS}>Back to users</Link>
+        <Link to={ROUTES.ADMIN_USERS}>{t('users.detail.backToUsers')}</Link>
       </div>
     )
   }
@@ -109,128 +85,151 @@ export default function UserDetailPage() {
   const roleChanged = role !== user.role
 
   return (
-    <div style={{ maxWidth: 860 }}>
-      <div className="mb-3">
-        <Link to={ROUTES.ADMIN_USERS}>&larr; Back to users</Link>
+    <div>
+      <Breadcrumb listProps={{ className: 'mb-2 small' }}>
+        <Breadcrumb.Item linkAs={Link} linkProps={{ to: ROUTES.ADMIN_USERS }}>
+          {t('users.list.title')}
+        </Breadcrumb.Item>
+        <Breadcrumb.Item active>{userName(user)}</Breadcrumb.Item>
+      </Breadcrumb>
+      <div className="d-flex flex-wrap align-items-center gap-3 mb-3">
+        <UserPhoto user={user} size={56} />
+        <div className="min-w-0">
+          <h1 className="h4 mb-1 d-flex flex-wrap align-items-center gap-2">
+            {userName(user)}
+            {isSelf && (
+              <Badge bg="" className="you-badge">
+                {t('users.detail.you')}
+              </Badge>
+            )}
+          </h1>
+          <div className="d-flex flex-wrap align-items-center gap-2 small">
+            <RoleBadge role={user.role} />
+            <UserStatus user={user} />
+            <span className="text-muted">@{user.username}</span>
+          </div>
+        </div>
       </div>
-      <h1 className="h4 mb-3">
-        {user.username} {isSelf && <Badge bg="dark">You</Badge>}
-      </h1>
-      {message && <Alert variant="success">{message}</Alert>}
       <ErrorAlert error={actionError} />
 
       <Row className="g-3">
         <Col md={6}>
-          <Card body>
-            <h2 className="h6 mb-3">Information</h2>
+          <FormCard title={t('users.detail.information')}>
             <dl className="row mb-0">
               <dt className="col-sm-4">ID</dt>
               <dd className="col-sm-8">{user.id}</dd>
-              <dt className="col-sm-4">Username</dt>
+              <dt className="col-sm-4">{t('users.fields.username')}</dt>
               <dd className="col-sm-8">{user.username}</dd>
-              <dt className="col-sm-4">Full name</dt>
+              <dt className="col-sm-4">{t('users.fields.fullName')}</dt>
               <dd className="col-sm-8">{user.fullName || '-'}</dd>
-              <dt className="col-sm-4">Email</dt>
+              <dt className="col-sm-4">{t('users.fields.email')}</dt>
               <dd className="col-sm-8">{user.email}</dd>
-              <dt className="col-sm-4">Phone</dt>
+              <dt className="col-sm-4">{t('users.fields.phone')}</dt>
               <dd className="col-sm-8">{user.phone || '-'}</dd>
-              <dt className="col-sm-4">Address</dt>
+              <dt className="col-sm-4">{t('users.fields.address')}</dt>
               <dd className="col-sm-8">{user.address || '-'}</dd>
-              <dt className="col-sm-4">Role</dt>
+              <dt className="col-sm-4">{t('users.fields.role')}</dt>
               <dd className="col-sm-8">
-                <Badge bg={ROLE_VARIANT[user.role] ?? 'secondary'}>{user.role}</Badge>
+                <RoleBadge role={user.role} />
               </dd>
-              <dt className="col-sm-4">Status</dt>
-              <dd className="col-sm-8">{user.active ? <Badge bg="success">Active</Badge> : <Badge bg="secondary">Inactive</Badge>}</dd>
-              <dt className="col-sm-4">Email</dt>
-              <dd className="col-sm-8">{user.emailVerified ? <Badge bg="success">Verified</Badge> : <Badge bg="warning" text="dark">Not verified</Badge>}</dd>
+              <dt className="col-sm-4">{t('users.fields.status')}</dt>
+              <dd className="col-sm-8">
+                <UserStatus user={user} />
+              </dd>
             </dl>
-          </Card>
+          </FormCard>
         </Col>
 
         <Col md={6}>
-          <Card body className="mb-3">
-            <h2 className="h6 mb-3">Status</h2>
+          <FormCard title={t('users.fields.status')} className="mb-3">
             {user.active ? (
               <>
                 <Button variant="outline-danger" disabled={isSelf || busy} onClick={() => setDialog('status')}>
-                  Deactivate user
+                  {t('users.detail.deactivate')}
                 </Button>
-                {isSelf && <div className="form-text">You cannot deactivate your own account.</div>}
+                {isSelf && <div className="form-text">{t('users.detail.cannotDeactivateSelf')}</div>}
               </>
             ) : (
               <Button variant="outline-success" disabled={busy} onClick={() => setDialog('status')}>
-                Activate user
+                {t('users.detail.activate')}
               </Button>
             )}
-          </Card>
+          </FormCard>
 
-          <Card body className="mb-3">
-            <h2 className="h6 mb-3">Role</h2>
-            <Form.Select aria-label="Role" value={role} onChange={(event) => setRole(event.target.value)} disabled={isSelf || busy}>
+          <FormCard title={t('users.fields.role')} className="mb-3">
+            <Form.Select aria-label={t('users.fields.role')} value={role} onChange={(event) => setRole(event.target.value)} disabled={isSelf || busy}>
               {Object.values(ROLES).map((name) => (
                 <option key={name} value={name}>
-                  {name}
+                  {t(`common.roles.${name}`)}
                 </option>
               ))}
             </Form.Select>
             {isSelf ? (
-              <div className="form-text">You cannot remove your own ADMIN role.</div>
+              <div className="form-text">{t('users.detail.cannotChangeSelf')}</div>
             ) : (
-              <div className="form-text">A user has exactly one role; choosing another replaces it.</div>
+              <div className="form-text">{t('users.detail.oneRole')}</div>
             )}
             <Button className="mt-2" disabled={isSelf || !roleChanged || busy} onClick={() => setDialog('role')}>
-              Change role
+              {t('users.detail.changeRole')}
             </Button>
-          </Card>
+          </FormCard>
 
-          <Card body>
-            <h2 className="h6 mb-3">Password</h2>
+          <FormCard title={t('users.fields.password')}>
             <Button variant="outline-secondary" disabled={busy} onClick={() => setDialog('password')}>
-              Reset password
+              {t('users.detail.resetPassword')}
             </Button>
-          </Card>
+          </FormCard>
         </Col>
       </Row>
 
       <ConfirmDialog
         show={dialog === 'status'}
-        title={user.active ? 'Deactivate user' : 'Activate user'}
-        confirmLabel={user.active ? 'Deactivate' : 'Activate'}
+        title={user.active ? t('users.detail.deactivate') : t('users.detail.activate')}
+        confirmLabel={user.active ? t('users.detail.deactivateShort') : t('users.detail.activateShort')}
         confirmVariant={user.active ? 'danger' : 'success'}
         busy={busy}
         onCancel={() => setDialog(null)}
         onConfirm={() =>
           user.active
-            ? run(() => userService.deactivateUser(user.id), 'User deactivated.')
-            : run(() => userService.activateUser(user.id), 'User activated.')
+            ? run(() => userService.deactivateUser(user.id), 'users.detail.deactivated')
+            : run(() => userService.activateUser(user.id), 'users.detail.activated')
         }
       >
-        {user.active
-          ? `${user.username} will no longer be able to use the site, and their sessions are ended.`
-          : `${user.username} will be able to log in again.`}
+        {user.active ? t('users.detail.deactivateText', { username: user.username }) : t('users.detail.activateText', { username: user.username })}
       </ConfirmDialog>
 
       <ConfirmDialog
         show={dialog === 'role'}
-        title="Change role"
-        confirmLabel="Change role"
+        title={t('users.detail.changeRole')}
+        confirmLabel={t('users.detail.changeRole')}
         busy={busy}
         onCancel={() => setDialog(null)}
-        onConfirm={() => run(() => userService.changeUserRole(user.id, role), 'Role changed.')}
+        onConfirm={() => run(() => userService.changeUserRole(user.id, role), 'users.detail.roleChanged')}
       >
-        Change the role of <strong>{user.username}</strong> from <strong>{user.role}</strong> to <strong>{role}</strong>?
+        <Trans
+          i18nKey="users.detail.changeRoleText"
+          values={{ username: user.username, from: t(`common.roles.${user.role}`, { defaultValue: user.role }), to: t(`common.roles.${role}`, { defaultValue: role }) }}
+          components={{ 1: <strong />, 2: <strong />, 3: <strong /> }}
+        />
       </ConfirmDialog>
 
       {dialog === 'password' && (
         <ResetPasswordDialog
-          show
           username={user.username}
           busy={busy}
           onCancel={() => setDialog(null)}
-          onConfirm={(form) => run(() => userService.resetUserPassword(user.id, form), 'Password reset.')}
+          onConfirm={(form) => run(() => userService.resetUserPassword(user.id, form), 'users.detail.passwordReset')}
         />
       )}
+    
+      <ToastContainer position="bottom-end" className="p-3" style={{ zIndex: 2000 }}>
+        <Toast bg="success" show={Boolean(message)} onClose={() => setMessage(null)} delay={5000} autohide>
+          <Toast.Body className="text-white d-flex justify-content-between gap-3">
+            <span>{message ? t(message) : ''}</span>
+            <button type="button" className="btn-close btn-close-white" aria-label={t('common.actions.close')} onClick={() => setMessage(null)} />
+          </Toast.Body>
+        </Toast>
+      </ToastContainer>
     </div>
   )
 }
