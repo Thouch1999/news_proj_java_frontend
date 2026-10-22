@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import ConfirmDialog from '../common/ConfirmDialog'
 import UserAvatar from '../common/UserAvatar'
-import { RoleBadge } from '../common/UserParts'
+import { RoleBadge, SuperAdminBadge } from '../common/UserParts'
 import { ROUTES } from '../../constants/routes'
 import * as userService from '../../services/userService'
 import { errorMessage } from '../../utils/errorMessage'
@@ -85,7 +85,10 @@ export default function ProfileCard({ user, onSaved, notify }) {
 
         <h2 className="h5 mb-1">{name}</h2>
         <div className="text-muted mb-2">@{user.username}</div>
-        <RoleBadge role={user.role} />
+        <div className="d-flex flex-wrap justify-content-center gap-2">
+          <RoleBadge role={user.role} />
+          {user.superAdmin && <SuperAdminBadge />}
+        </div>
 
         <ul className="list-unstyled text-start small mt-4 mb-0 profile-details">
           <li>

@@ -1,22 +1,24 @@
 import { useEffect, useState } from 'react'
 import { Alert, Breadcrumb, Button, Col, Form, Row, Spinner, Toast, ToastContainer } from 'react-bootstrap'
-import { InfoCircle } from 'react-bootstrap-icons'
-import { useTranslation } from 'react-i18next'
+import { ExclamationTriangle, InfoCircle } from 'react-bootstrap-icons'
+import { Trans, useTranslation } from 'react-i18next'
 import { Link, useNavigate } from 'react-router-dom'
 import ConfirmDialog from '../../components/common/ConfirmDialog'
 import FormCard from '../../components/form/FormCard'
 import FormField from '../../components/form/FormField'
 import PasswordFields from '../../components/form/PasswordFields'
 import RoleCards from '../../components/form/RoleCards'
-import { CREATABLE_ROLES } from '../../constants/roles'
+import { ROLES } from '../../constants/roles'
 import { adminUserPath, ROUTES } from '../../constants/routes'
+import { useAuth } from '../../hooks/useAuth'
+import { useRoleChoices } from '../../hooks/useRoleChoices'
 import * as userService from '../../services/userService'
 import { errorMessage } from '../../utils/errorMessage'
 import { blankToNull, hasErrors, rules } from '../../utils/validators'
 
 // The fields a message can belong to, in the order of the page (the page scrolls to the first one with an error)
 const FIELD_ORDER = ['username', 'email', 'fullName', 'phone', 'address', 'password', 'confirm']
-const EMPTY = { username: '', email: '', fullName: '', phone: '', address: '', role: CREATABLE_ROLES[0], password: '', confirm: '' }
+const EMPTY = { username: '', email: '', fullName: '', phone: '', address: '', role: ROLES.AUTHOR, password: '', confirm: '' }
 
 // The checks of the backend (AppUserAddRequest), one per field
 function check(form) {
@@ -40,6 +42,10 @@ export default function UserCreatePage() {
   const [apiError, setApiError] = useState(null)
   const [submitting, setSubmitting] = useState(false)
   const [leaving, setLeaving] = useState(false)
+  const [confirmAdmin, setConfirmAdmin] = useState(false) // "Create a new admin?"
+  const { user: me } = useAuth()
+  // only the super admin creates admins: the others see Editor, Author and Reader
+  const roles = useRoleChoices().filter((role) => role !== ROLES.ADMIN || me?.superAdmin)
   const [toast, setToast] = useState(null)
   const [focusField, setFocusField] = useState(null)
 
@@ -66,7 +72,7 @@ export default function UserCreatePage() {
     element?.focus({ preventScroll: true })
   }, [focusField])
 
-  const handleSubmit = async (event) => {
+  const handleSubmit = (event) => {
     event.preventDefault()
     if (submitting) return
     setSubmitted(true)
@@ -76,6 +82,15 @@ export default function UserCreatePage() {
       setFocusField((current) => ({ name: first, nonce: (current?.nonce ?? 0) + 1 }))
       return
     }
+    // an admin can do everything: ask once more before one is created
+    if (form.role === ROLES.ADMIN) {
+      setConfirmAdmin(true)
+      return
+    }
+    save()
+  }
+
+  const save = async () => {
     setSubmitting(true)
     try {
       const created = await userService.createUser({
@@ -90,6 +105,7 @@ export default function UserCreatePage() {
       })
       navigate(created?.id ? adminUserPath(created.id) : ROUTES.ADMIN_USERS, { state: { messageKey: 'users.create.created' } })
     } catch (error) {
+      setConfirmAdmin(false)
       // field errors go under their fields; "email already registered" belongs to the email; the rest stays in the alert
       let fields = Object.fromEntries(Object.entries(error?.details ?? {}).filter(([field]) => FIELD_ORDER.includes(field)))
       if (Object.keys(fields).length === 0 && error?.code === 409) {
@@ -140,6 +156,18 @@ export default function UserCreatePage() {
               </FormCard>,
             )}
             {slot(
+              2,
+              <FormCard title={t('users.fields.role')}>
+                <RoleCards roles={roles} value={form.role} onChange={(role) => setForm((current) => ({ ...current, role }))} />
+                {form.role === ROLES.ADMIN && (
+                  <Alert variant="warning" className="d-flex align-items-start gap-2 mt-3 mb-0" role="alert">
+                    <ExclamationTriangle aria-hidden="true" className="flex-shrink-0 mt-1" />
+                    <div className="small">{t('users.create.adminWarning')}</div>
+                  </Alert>
+                )}
+              </FormCard>,
+            )}
+            {slot(
               3,
               <FormCard title={t('users.create.profile')}>
                 <Row className="g-3">
@@ -172,12 +200,6 @@ export default function UserCreatePage() {
 
           <div className="editor-col editor-col--side">
             {slot(
-              2,
-              <FormCard title={t('users.fields.role')}>
-                <RoleCards roles={CREATABLE_ROLES} value={form.role} onChange={(role) => setForm((current) => ({ ...current, role }))} />
-              </FormCard>,
-            )}
-            {slot(
               5,
               <Alert variant="info" className="d-flex align-items-start gap-2 mb-0">
                 <InfoCircle aria-hidden="true" className="flex-shrink-0 mt-1" />
@@ -197,6 +219,21 @@ export default function UserCreatePage() {
           </Button>
         </div>
       </Form>
+
+      <ConfirmDialog
+        show={confirmAdmin}
+        title={t('users.create.adminTitle')}
+        confirmLabel={t('users.create.adminConfirm')}
+        confirmVariant="danger"
+        busy={submitting}
+        onCancel={() => setConfirmAdmin(false)}
+        onConfirm={save}
+      >
+        <p className="mb-2">
+          <Trans i18nKey="users.create.adminText" values={{ username: form.username.trim() }} components={{ 1: <strong /> }} />
+        </p>
+        <p className="text-muted small mb-0">{t('users.create.adminWarning')}</p>
+      </ConfirmDialog>
 
       <ConfirmDialog show={leaving} title={t('users.create.discardTitle')} confirmLabel={t('users.create.discard')} confirmVariant="danger" onCancel={() => setLeaving(false)} onConfirm={() => navigate(ROUTES.ADMIN_USERS)}>
         {t('users.create.discardText')}

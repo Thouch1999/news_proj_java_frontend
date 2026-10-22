@@ -7,7 +7,8 @@ export const ROLES = {
   READER: 'READER',
 }
 
-// Roles an admin may give when creating an account (the backend only accepts these two)
-export const CREATABLE_ROLES = [ROLES.AUTHOR, ROLES.EDITOR]
+// The roles in the order they are offered (Add user page): an admin may create an account with any of the four. The page
+// asks the roles endpoint which exist and falls back to this list when the request fails.
+export const ROLE_ORDER = [ROLES.ADMIN, ROLES.EDITOR, ROLES.AUTHOR, ROLES.READER]
 
 export const ROLE_ICON = { ADMIN: ShieldCheck, EDITOR: ClipboardCheck, AUTHOR: Pencil, READER: Person }

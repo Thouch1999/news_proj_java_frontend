@@ -9,7 +9,8 @@ import { useRemoteData } from '../../hooks/useRemoteData'
 import * as reportService from '../../services/reportService'
 import DashboardHeader from './DashboardHeader'
 import { KpiCard } from './DashboardParts'
-import { CategoryBars, NeedsAttention, RecentActivity, StatusDonut, TopArticles, ViewsPublishedChart } from './DashboardWidgets'
+import ActivityFeedCard from '../activity/ActivityFeedCard'
+import { CategoryBars, NeedsAttention, StatusDonut, TopArticles, ViewsPublishedChart } from './DashboardWidgets'
 
 // The editor and admin dashboard. `area` comes from constants/articleAreas.js (it says where the review queue, the
 // comments and the article list are). The date range of the header drives the trends, the chart and the top articles;
@@ -74,7 +75,7 @@ export default function StaffDashboard({ area }) {
           <CategoryBars />
         </Col>
         <Col xl={4}>
-          <RecentActivity area={area} />
+          <ActivityFeedCard area={area} />
         </Col>
       </Row>
       <TopArticles range={range} />

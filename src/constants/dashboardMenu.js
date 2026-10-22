@@ -1,4 +1,4 @@
-import { Chat, FileText, Gear, Grid, ListCheck, People, Pencil, Folder, Tag, Shield } from 'react-bootstrap-icons'
+import { Chat, ClockHistory, FileText, Gear, Grid, ListCheck, People, Pencil, Folder, Tag, Shield } from 'react-bootstrap-icons'
 import { ROLES } from './roles'
 import { ROUTES } from './routes'
 
@@ -17,6 +17,7 @@ export const DASHBOARD_MENU = [
   { labelKey: 'dashboard.menu.items.users', to: ROUTES.ADMIN_USERS, roles: [ROLES.ADMIN], icon: People, group: 'users' },
   { labelKey: 'dashboard.menu.items.roles', to: ROUTES.ADMIN_ROLES, roles: [ROLES.ADMIN], icon: Shield, group: 'users' },
   { labelKey: 'dashboard.menu.items.settings', to: ROUTES.ADMIN_SETTINGS, roles: [ROLES.ADMIN], icon: Gear, group: 'system' },
+  { labelKey: 'dashboard.menu.items.activityLog', to: ROUTES.ADMIN_ACTIVITY_LOG, roles: [ROLES.ADMIN], icon: ClockHistory, group: 'system' },
   { labelKey: 'dashboard.menu.items.dashboard', to: ROUTES.EDITOR, roles: [ROLES.EDITOR], end: true, icon: Grid, group: 'overview' },
   { labelKey: 'dashboard.menu.items.reviewQueue', to: ROUTES.EDITOR_REVIEW, roles: [ROLES.EDITOR], icon: ListCheck, group: 'content', badge: 'review' },
   { labelKey: 'dashboard.menu.items.allArticles', to: ROUTES.EDITOR_NEWS, roles: [ROLES.EDITOR], icon: FileText, group: 'content' },

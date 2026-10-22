@@ -2,7 +2,7 @@ import httpClient from './httpClient'
 
 const USERS = '/api/v1/users'
 
-// Own profile: { id, username, fullName, email, phone, address, avatar, active, emailVerified, role }
+// Own profile: { id, username, fullName, email, phone, address, avatar, active, emailVerified, role, superAdmin }
 export function getMe() {
   return httpClient.get(`${USERS}/me`)
 }
@@ -42,7 +42,7 @@ export function getUser(id) {
   return httpClient.get(`${USERS}/${id}`)
 }
 
-// data: { username, fullName, email, address, phone, password, confirm, role } with role AUTHOR or EDITOR
+// data: { username, fullName, email, address, phone, password, confirm, role }; the ADMIN role only for the super admin
 export function createUser(data) {
   return httpClient.post(USERS, data)
 }
@@ -62,4 +62,10 @@ export function changeUserRole(id, role) {
 
 export function resetUserPassword(id, { password, confirm }) {
   return httpClient.put(`${USERS}/${id}/password`, { password, confirm })
+}
+
+// Super admin only: moves the super admin mark to another active, email-verified admin. data: { userId, password } with the
+// current password of the super admin. Returns the new super admin.
+export function transferSuperAdmin({ userId, password }) {
+  return httpClient.post(`${USERS}/super-admin/transfer`, { userId, password })
 }

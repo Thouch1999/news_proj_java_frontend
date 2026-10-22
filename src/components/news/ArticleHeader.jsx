@@ -66,7 +66,7 @@ export default function ArticleHeader({ article }) {
         </div>
         <div className="article-meta__actions">
           <BookmarkButton newsId={article.id} title={article.title} variant="full" />
-          <ShareActions title={article.title} />
+          <ShareActions title={article.title} slug={article.slug} />
         </div>
       </div>
     </header>

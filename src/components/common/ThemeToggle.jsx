@@ -19,7 +19,7 @@ export default function ThemeToggle({ variant = 'outline-secondary' }) {
   return (
     <Dropdown align="end">
       <OverlayTrigger placement="bottom" overlay={<Tooltip id="theme-tooltip">{t('common.theme.label', { name: label })}</Tooltip>}>
-        <Dropdown.Toggle variant={variant} size="sm" className="theme-toggle" aria-label={t('common.theme.label', { name: label })}>
+        <Dropdown.Toggle variant={variant} size="sm" className="theme-toggle header-control" aria-label={t('common.theme.label', { name: label })}>
           <Icon aria-hidden="true" />
         </Dropdown.Toggle>
       </OverlayTrigger>

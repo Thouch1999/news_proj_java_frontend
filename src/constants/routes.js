@@ -11,6 +11,8 @@ export const ROUTES = {
   PROFILE: '/profile',
   DASHBOARD_PROFILE: '/dashboard/profile',
   BOOKMARKS: '/bookmarks',
+  NOTIFICATIONS: '/notifications',
+  DASHBOARD_NOTIFICATIONS: '/dashboard/notifications',
   FORBIDDEN: '/403',
   AUTHOR: '/author',
   AUTHOR_ARTICLES: '/author/articles',
@@ -26,6 +28,7 @@ export const ROUTES = {
   ADMIN_CATEGORIES: '/admin/categories',
   ADMIN_TAGS: '/admin/tags',
   ADMIN_SETTINGS: '/admin/settings',
+  ADMIN_ACTIVITY_LOG: '/admin/activity-log',
   ADMIN_NEWS: '/admin/news',
   ADMIN_REVIEW: '/admin/review',
   ADMIN_COMMENTS: '/admin/comments',
@@ -34,6 +37,13 @@ export const ROUTES = {
 
 // public site (slugs are plain a-z, digits and hyphens)
 export const newsPath = (slug) => `/news/${slug}`
+
+// The public address of the site, the one that is shared (VITE_PUBLIC_SITE_URL, for example https://ponleunews.com).
+// Without it the address of the open page is used, which is right when the site is opened on its public address.
+export const PUBLIC_SITE_URL = (import.meta.env.VITE_PUBLIC_SITE_URL || window.location.origin).replace(/\/+$/, '')
+
+// The canonical address of an article: what the share buttons share (never the /preview address of the backend)
+export const publicNewsUrl = (slug) => `${PUBLIC_SITE_URL}${newsPath(encodeURIComponent(slug))}`
 
 export const categoryPath = (slug) => `/category/${slug}`
 

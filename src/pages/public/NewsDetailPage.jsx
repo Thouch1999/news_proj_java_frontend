@@ -75,7 +75,7 @@ function Article({ article }) {
             </div>
           )}
           <div className="article-share mt-4">
-            <ShareActions title={article.title} variant="row" />
+            <ShareActions title={article.title} slug={article.slug} variant="row" />
           </div>
         </article>
 

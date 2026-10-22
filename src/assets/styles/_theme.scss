@@ -2159,6 +2159,37 @@ html[lang="km"] {
   }
 }
 
+// The super admin: a crown on a soft gold tint, readable on light and dark surfaces.
+.super-admin-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  background: rgb(217 164 6 / 16%);
+  color: #7a5600; // 6.1:1 on the tint over a white surface
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.4;
+  white-space: nowrap;
+  vertical-align: middle;
+
+  :root[data-bs-theme="dark"] & {
+    background: rgb(250 204 21 / 16%);
+    color: #fcd34d; // 9:1 on the dark surface
+  }
+
+  svg {
+    width: 0.95em;
+    height: 0.95em;
+    flex: none;
+  }
+
+  &--compact {
+    padding: 0.2rem;
+  }
+}
+
 // ---------------------------------------------------------------- roles
 .role-card__icon {
   display: inline-flex;
@@ -2936,4 +2967,780 @@ html[lang="km"] {
   padding: 0.75rem 0;
   background: var(--app-bg);
   border-top: 1px solid var(--app-border);
+}
+
+// ---- the header controls (language, theme, notifications, user menu): one group, same height, radius and states.
+// `.btn.header-control` is more specific than Bootstrap's button rules, which come later in the bundle.
+.btn.header-control {
+  --hc-hover-bg: var(--app-surface-2);
+  --hc-hover-color: var(--app-heading);
+  --bs-btn-hover-bg: var(--hc-hover-bg);
+  --bs-btn-hover-color: var(--hc-hover-color);
+  --bs-btn-active-bg: var(--hc-hover-bg);
+  --bs-btn-active-color: var(--hc-hover-color);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  height: 38px;
+  min-width: 38px;
+  padding: 0 0.75rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  line-height: 1;
+  white-space: nowrap;
+
+  &:hover,
+  &:focus-visible,
+  &.show,
+  &:active {
+    background-color: var(--hc-hover-bg);
+    color: var(--hc-hover-color);
+  }
+}
+
+// on the coloured public header: a light or dark veil, by the header colour
+.news-header .btn.header-control {
+  --hc-hover-bg: rgb(255 255 255 / 16%);
+  --hc-hover-color: var(--news-on-navy);
+}
+
+.news-header[data-bs-theme="light"] .btn.header-control {
+  --hc-hover-bg: rgb(0 0 0 / 8%);
+}
+
+// the bell: icon only (no caret), the badge in the top-right corner, outside the icon
+.btn.header-control.notif-toggle {
+  position: relative;
+  width: 38px;
+  padding: 0;
+  font-size: 1.05rem;
+}
+
+.dropdown-toggle.notif-toggle::after {
+  display: none;
+}
+
+.notif-badge {
+  position: absolute;
+  top: -7px;
+  right: -7px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: #c62828; // white text 5.6:1 in both modes
+  color: #fff;
+  font-size: 0.68rem;
+  font-weight: 700;
+  line-height: 18px;
+  text-align: center;
+  pointer-events: none;
+}
+
+// Dashboard top bar on small screens: the logo and the menu button stay, the names go
+@media (max-width: 767.98px) {
+  .dashboard-topbar .brand {
+    width: auto;
+    padding: 0 0.5rem 0 1rem;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .dashboard-topbar {
+    .brand-name,
+    .language-switch span {
+      display: none;
+    }
+  }
+
+  .news-header .navbar-brand {
+    min-width: 0;
+    max-width: calc(100% - 4.5rem);
+    margin-right: 0.5rem;
+    overflow: hidden;
+    font-size: 1.35rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+// ---- the notifications panel and page
+.dropdown-menu.notif-panel {
+  --bs-dropdown-bg: var(--app-surface);
+  --bs-dropdown-color: var(--app-text);
+  --bs-dropdown-border-color: var(--app-border);
+  width: 380px;
+  max-width: calc(100vw - 16px);
+  padding: 0;
+  overflow: visible;
+  background: var(--app-surface);
+  color: var(--app-text);
+  border: 1px solid var(--app-border);
+  border-radius: 12px;
+  box-shadow: 0 0.75rem 2rem rgb(0 0 0 / 18%);
+  text-align: start;
+
+  &.show {
+    display: flex;
+    flex-direction: column;
+    max-height: 80vh;
+  }
+}
+
+// a phone: the whole width with 8px at the sides, under the header
+@media (max-width: 575.98px) {
+  .dropdown-menu.notif-panel {
+    position: fixed !important;
+    inset: 80px 8px auto 8px !important;
+    width: auto;
+    max-width: none;
+    transform: none !important;
+  }
+}
+
+// the header, the tabs and the footer stay; only the list scrolls
+.notif-head {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 48px;
+  padding: 12px 16px;
+}
+
+.notif-title {
+  margin: 0;
+  color: var(--app-heading);
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.notif-link {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--app-primary-text); // 6:1 or more on the surface in both modes
+  font-size: 0.85rem;
+  text-decoration: none;
+
+  &:hover,
+  &:focus-visible {
+    color: var(--app-primary-text);
+    text-decoration: underline;
+  }
+}
+
+.nav.notif-tabs {
+  flex: none;
+  flex-wrap: nowrap;
+  gap: 20px;
+  padding: 0 16px;
+  border-bottom: 1px solid var(--app-border);
+  --bs-nav-link-color: var(--app-muted);
+  --bs-nav-link-hover-color: var(--app-heading);
+  --bs-nav-underline-link-active-color: var(--app-heading);
+  --bs-nav-underline-border-width: 2px;
+
+  .nav-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 0;
+    font-size: 0.9rem;
+    white-space: nowrap;
+
+    &.active {
+      border-bottom-color: var(--app-primary-text);
+      font-weight: 600;
+    }
+  }
+}
+
+.notif-tab-count {
+  min-width: 20px;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: var(--app-icon-bg);
+  color: var(--app-primary-text);
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1.4;
+  text-align: center;
+}
+
+.notif-scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  max-height: 420px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+@media (max-width: 575.98px) {
+  .notif-scroll {
+    max-height: none;
+  }
+}
+
+.notif-foot {
+  flex: none;
+  padding: 10px 16px;
+  border-top: 1px solid var(--app-border);
+  text-align: center;
+}
+
+.notif-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 160px;
+  padding: 16px;
+  color: var(--app-muted);
+  text-align: center;
+
+  p {
+    margin: 0;
+  }
+
+  svg {
+    margin-bottom: 8px;
+  }
+
+  &__title {
+    color: var(--app-heading);
+    font-weight: 600;
+  }
+
+  &__hint {
+    font-size: 0.85rem;
+  }
+}
+
+.notif-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.notif-item {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 12px 16px;
+
+  & + & {
+    border-top: 1px solid var(--app-border);
+  }
+
+  &:hover {
+    background: var(--app-surface-2);
+  }
+
+  // unread: a light tint of the primary colour, a bold text and a dot
+  &.is-unread {
+    background: var(--app-icon-bg);
+
+    .notif-text {
+      font-weight: 600;
+    }
+  }
+}
+
+.notif-main {
+  display: flex;
+  flex: 1;
+  align-items: flex-start;
+  gap: 12px;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  text-align: start;
+  text-decoration: none;
+
+  &:focus-visible {
+    outline: 2px solid var(--app-primary-text);
+    outline-offset: 3px;
+    border-radius: 6px;
+  }
+}
+
+.notif-body {
+  display: block;
+  flex: 1;
+  min-width: 0;
+}
+
+.notif-icon {
+  display: grid;
+  flex: 0 0 36px;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  font-size: 1rem;
+
+  &--info {
+    background: var(--app-icon-bg);
+    color: var(--app-primary-text);
+  }
+
+  &--success {
+    background: rgba(26, 127, 55, 0.14);
+    color: var(--app-success);
+  }
+
+  &--danger {
+    background: rgba(198, 40, 40, 0.14);
+    color: var(--app-danger);
+  }
+
+  &--warning {
+    background: var(--app-warn-icon-bg);
+    color: var(--app-warn-icon);
+  }
+
+  &--neutral {
+    background: var(--app-surface-2);
+    color: var(--app-muted);
+  }
+}
+
+.notif-text,
+.notif-detail {
+  display: -webkit-box;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  -webkit-box-orient: vertical;
+}
+
+.notif-text {
+  color: var(--app-heading);
+  font-size: 0.9rem;
+  line-height: 1.4;
+  -webkit-line-clamp: 3;
+}
+
+.notif-detail {
+  margin-top: 2px;
+  color: var(--app-muted);
+  font-size: 0.82rem;
+  line-height: 1.4;
+  -webkit-line-clamp: 2;
+}
+
+.notif-time {
+  display: block;
+  margin-top: 2px;
+  color: var(--app-muted);
+  font-size: 0.78rem;
+}
+
+.notif-side {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 4px;
+  margin-right: -6px;
+}
+
+.notif-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--app-primary-text);
+}
+
+.btn.notif-more {
+  padding: 2px 6px;
+  border: 0;
+  color: var(--app-muted);
+  line-height: 1;
+
+  &::after {
+    display: none;
+  }
+
+  &:hover,
+  &:focus-visible,
+  &.show {
+    color: var(--app-heading);
+  }
+}
+
+// the menu of an item inside the panel: the same surface as the panel, also on the coloured public header
+.notif-panel .dropdown-menu,
+.news-header .notif-panel .dropdown-menu {
+  --bs-dropdown-bg: var(--app-surface);
+  --bs-dropdown-border-color: var(--app-border);
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
+  box-shadow: 0 0.5rem 1.5rem rgb(0 0 0 / 18%);
+}
+
+.notif-panel .dropdown-item,
+.news-header .notif-panel .dropdown-item {
+  color: var(--app-text);
+  font-size: 0.9rem;
+  text-decoration: none;
+
+  &:hover,
+  &:focus {
+    background: var(--app-surface-2);
+    color: var(--app-heading);
+    text-decoration: none;
+  }
+
+  &.text-danger {
+    color: var(--app-danger) !important;
+  }
+}
+
+// the page: the day headings
+.notif-day {
+  margin: 0;
+  padding: 8px 16px;
+  background: var(--app-surface-2);
+  border-top: 1px solid var(--app-border);
+  color: var(--app-muted);
+  font-size: 0.8rem;
+  font-weight: 700;
+
+  section:first-of-type > & {
+    border-top: 0;
+  }
+}
+
+// the toast "You have a new notification": a neutral surface (the other toasts are coloured)
+.notif-toast {
+  background: var(--app-surface, #fff);
+  color: var(--app-text, #3f4a5a);
+  border: 1px solid var(--app-border, #dfe4ec);
+  box-shadow: 0 0.5rem 1.5rem rgb(0 0 0 / 22%);
+}
+
+// ---- the activity log (page, cards on the article and user pages, panel, dashboard card) ----
+
+.activity-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.activity-item {
+  position: relative;
+
+  & + & {
+    border-top: 1px solid var(--app-border);
+  }
+
+  &:hover {
+    background: var(--app-surface-2);
+  }
+
+  &.is-selected {
+    background: var(--app-icon-bg);
+  }
+
+  &--skeleton {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+  }
+}
+
+// the whole row is one button that opens the panel
+.activity-main {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 16px;
+  border: 0;
+  background: none;
+  color: inherit;
+  text-align: start;
+
+  &:focus-visible {
+    outline: 2px solid var(--app-primary-text);
+    outline-offset: -2px;
+  }
+}
+
+// the person, with the kind of action as a small badge at the corner
+.activity-lead {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+}
+
+.user-avatar--none {
+  background: var(--app-surface-2);
+  color: var(--app-muted);
+  font-size: 1.25rem;
+}
+
+.activity-lead__kind.activity-kind {
+  position: absolute;
+  inset-block-end: -4px;
+  inset-inline-end: -4px;
+  width: 20px;
+  height: 20px;
+  font-size: 0.7rem;
+  box-shadow: 0 0 0 2px var(--app-surface);
+}
+
+// the colour of a kind of action: create green, edit blue, publish primary, red for a reject / delete / failed sign-in, grey
+.activity-kind {
+  display: inline-grid;
+  flex: 0 0 28px;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  font-size: 0.9rem;
+
+  &--create {
+    background: rgba(26, 127, 55, 0.14);
+    color: var(--app-success);
+  }
+
+  &--edit {
+    background: rgb(37 99 235 / 14%);
+    color: #1d4ed8;
+
+    :root[data-bs-theme="dark"] & {
+      color: #93c5fd;
+    }
+  }
+
+  &--publish {
+    background: var(--app-icon-bg);
+    color: var(--app-primary-text);
+  }
+
+  &--danger {
+    background: rgba(198, 40, 40, 0.14);
+    color: var(--app-danger);
+  }
+
+  &--other {
+    background: var(--app-surface-2);
+    color: var(--app-muted);
+  }
+}
+
+.activity-body {
+  display: block;
+  flex: 1;
+  min-width: 0;
+}
+
+.activity-text {
+  display: block;
+  overflow-wrap: anywhere;
+  color: var(--app-heading);
+  font-size: 0.9rem;
+  line-height: 1.45;
+
+  strong {
+    font-weight: 700;
+  }
+}
+
+.activity-target {
+  font-weight: 700;
+}
+
+.activity-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-top: 2px;
+  color: var(--app-muted);
+  font-size: 0.78rem;
+}
+
+.activity-time {
+  color: inherit;
+}
+
+.activity-ip {
+  font-variant-numeric: tabular-nums;
+}
+
+.activity-toolbar {
+  border-bottom: 1px solid var(--app-border);
+}
+
+// a "Deleted" badge in the panel
+.activity-deleted.badge {
+  background: rgba(198, 40, 40, 0.14);
+  color: var(--app-danger);
+  font-weight: 600;
+}
+
+.activity-card {
+  .activity-main {
+    padding: 10px 14px;
+  }
+}
+
+// the card on the dashboard: the icon and the sentence, the time under it
+.activity-feed {
+  li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 6px 0;
+    color: var(--app-text);
+    font-size: 0.85rem;
+
+    & + li {
+      border-top: 1px solid var(--app-border);
+    }
+  }
+
+  .activity-time {
+    color: var(--app-muted);
+    font-size: 0.78rem;
+  }
+
+  .activity-target {
+    overflow-wrap: anywhere;
+  }
+}
+
+// the side panel: the same surface as the review panel, narrower
+.dashboard-shell .activity-panel {
+  --bs-offcanvas-width: min(100vw, 520px);
+  --bs-offcanvas-bg: var(--app-surface);
+  --bs-offcanvas-color: var(--app-text);
+  --bs-offcanvas-border-color: var(--app-border);
+  --bs-offcanvas-padding-y: 1rem;
+  --bs-offcanvas-padding-x: 1.25rem;
+
+  .offcanvas-header {
+    border-bottom: 1px solid var(--app-border);
+  }
+
+  .activity-panel__sentence {
+    color: var(--app-muted);
+    font-size: 0.9rem;
+    overflow-wrap: anywhere;
+
+    strong {
+      color: var(--app-heading);
+    }
+  }
+}
+
+.activity-facts {
+  margin: 0;
+}
+
+.activity-fact {
+  padding: 10px 0;
+
+  & + & {
+    border-top: 1px solid var(--app-border);
+  }
+
+  dt {
+    margin-bottom: 4px;
+    color: var(--app-muted);
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+  }
+
+  dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
+}
+
+.activity-agent {
+  word-break: break-all;
+}
+
+.activity-changes {
+  --bs-table-bg: transparent;
+  --bs-table-color: var(--app-text);
+  --bs-table-border-color: var(--app-border);
+
+  th {
+    color: var(--app-heading);
+    font-weight: 600;
+  }
+
+  thead th {
+    color: var(--app-muted);
+    font-size: 0.78rem;
+    font-weight: 600;
+  }
+
+  .activity-before {
+    color: var(--app-danger);
+    overflow-wrap: anywhere;
+  }
+
+  .activity-after {
+    color: var(--app-success);
+    overflow-wrap: anywhere;
+  }
+}
+
+// the role cards of the Add user page: 2 x 2 from 768px, one column below; the icon has the colour of the role badge
+.role-cards {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.5rem;
+
+  @media (min-width: 768px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.role-card__icon {
+  &--ADMIN {
+    background: var(--app-icon-bg);
+    color: var(--app-primary-text);
+  }
+
+  &--EDITOR {
+    background: rgb(14 165 233 / 14%);
+    color: #0369a1;
+
+    :root[data-bs-theme="dark"] & {
+      color: #7dd3fc;
+    }
+  }
+
+  &--AUTHOR {
+    background: rgb(20 184 166 / 14%);
+    color: #0f766e;
+
+    :root[data-bs-theme="dark"] & {
+      color: #5eead4;
+    }
+  }
+
+  &--READER {
+    background: var(--app-surface-2);
+    color: var(--app-muted);
+  }
+}
+
+// the role in "created the account of X as Admin": bold, and in the primary colour for an admin
+.activity-role--admin {
+  color: var(--app-primary-text);
 }

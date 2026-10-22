@@ -4,7 +4,9 @@ import { Badge, Dropdown, Nav } from 'react-bootstrap'
 import { useTranslation } from 'react-i18next'
 import { BoxArrowRight, BoxArrowUpRight, List, Person } from 'react-bootstrap-icons'
 import LanguageSwitch from '../components/common/LanguageSwitch'
+import NotificationBell from '../components/notifications/NotificationBell'
 import UserAvatar from '../components/common/UserAvatar'
+import { SuperAdminBadge } from '../components/common/UserParts'
 import ThemeToggle from '../components/common/ThemeToggle'
 import { DASHBOARD_MENU, MENU_GROUPS } from '../constants/dashboardMenu'
 import { ROLES } from '../constants/roles'
@@ -33,7 +35,7 @@ function DashboardShell() {
         <div className="d-flex align-items-center">
           <Link to={ROUTES.HOME} className="brand">
             <img src={logoSrc} alt="" height="32" className="site-logo" />
-            <span>{dashboardName}</span>
+            <span className="brand-name">{dashboardName}</span>
           </Link>
           <button type="button" className="btn btn-link p-1 d-md-none" aria-label={t('dashboard.layout.toggleMenu')} aria-expanded={menuOpen} onClick={() => setMenuOpen((open) => !open)}>
             <List size={26} />
@@ -42,12 +44,19 @@ function DashboardShell() {
         <div className="d-flex align-items-center gap-2">
         <LanguageSwitch />
         <ThemeToggle />
+        <NotificationBell />
         <Dropdown align="end">
-          <Dropdown.Toggle variant="link" size="sm" className="d-flex align-items-center gap-2 text-decoration-none">
-            <UserAvatar src={user?.avatar} name={name} size={32} />
+          <Dropdown.Toggle variant="outline-secondary" size="sm" className="header-control d-flex align-items-center gap-2">
+            <UserAvatar src={user?.avatar} name={name} size={26} />
             <span className="d-none d-sm-inline">{name}</span>
+            {user?.superAdmin && <SuperAdminBadge compact />}
           </Dropdown.Toggle>
           <Dropdown.Menu>
+            {user?.superAdmin && (
+              <Dropdown.ItemText>
+                <SuperAdminBadge />
+              </Dropdown.ItemText>
+            )}
             <Dropdown.Item as={Link} to={ROUTES.DASHBOARD_PROFILE}>
               <Person className="me-2" />
               {t('dashboard.layout.myProfile')}

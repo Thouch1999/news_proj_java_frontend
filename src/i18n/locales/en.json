@@ -1,4 +1,198 @@
 {
+  "activity": {
+    "title": "Activity log",
+    "intro": "Who did what, and when. Entries cannot be changed.",
+    "openDetails": "Open the details of this entry",
+    "system": "System",
+    "unknownTarget": "(unknown)",
+    "fallback": "{{actor}}: {{action}}",
+    "days": {
+      "today": "Today",
+      "yesterday": "Yesterday"
+    },
+    "summary_one": "{{formatted}} entry",
+    "summary_other": "{{formatted}} entries",
+    "export": {
+      "button": "Export CSV",
+      "working": "Exporting...",
+      "hint": "Downloads the entries that match the filters (up to 10,000 rows)",
+      "done": "The CSV file was downloaded.",
+      "failed": "The file could not be exported."
+    },
+    "toolbar": {
+      "search": "Search article or user",
+      "searchLabel": "Search the activity log",
+      "person": "Person",
+      "allPeople": "All people",
+      "personFallback": "User #{{id}}",
+      "action": "Type of action",
+      "allActions": "All actions",
+      "allOfGroup": "All {{group}}",
+      "range": "Date range",
+      "targetChip": "{{type}} #{{id}}",
+      "removeTarget": "Remove this filter"
+    },
+    "groups": {
+      "articles": "Articles",
+      "comments": "Comments",
+      "users": "Users",
+      "categoriesTags": "Categories and tags",
+      "settings": "Settings",
+      "signIn": "Sign-in"
+    },
+    "ranges": {
+      "all": "Any time",
+      "today": "Today",
+      "7d": "Last 7 days",
+      "30d": "Last 30 days",
+      "custom": "Custom"
+    },
+    "empty": {
+      "none": "Nothing has been recorded yet.",
+      "filtered": "No entries match these filters."
+    },
+    "actions": {
+      "NEWS_CREATED": "Article created",
+      "NEWS_UPDATED": "Article edited",
+      "NEWS_SUBMITTED": "Article submitted for review",
+      "NEWS_PUBLISHED": "Article published",
+      "NEWS_REJECTED": "Article rejected",
+      "NEWS_ARCHIVED": "Article archived",
+      "NEWS_RESTORED": "Article restored",
+      "NEWS_DELETED": "Article deleted",
+      "COMMENTS_TOGGLED": "Comments turned on or off",
+      "COMMENT_HIDDEN": "Comment hidden",
+      "COMMENT_SHOWN": "Comment shown",
+      "COMMENT_DELETED": "Comment deleted",
+      "USER_CREATED": "Account created",
+      "USER_ACTIVATED": "Account activated",
+      "USER_DEACTIVATED": "Account deactivated",
+      "USER_ROLES_CHANGED": "Roles changed",
+      "USER_PASSWORD_RESET": "Password reset by an admin",
+      "SUPER_ADMIN_TRANSFERRED": "Super admin transferred",
+      "CATEGORY_CREATED": "Category created",
+      "CATEGORY_UPDATED": "Category edited",
+      "CATEGORY_DELETED": "Category deleted",
+      "TAG_CREATED": "Tag created",
+      "TAG_UPDATED": "Tag edited",
+      "TAG_DELETED": "Tag deleted",
+      "SETTINGS_UPDATED": "Settings changed",
+      "LOGIN_SUCCESS": "Signed in",
+      "LOGIN_FAILED": "Failed sign-in",
+      "PASSWORD_CHANGED": "Password changed"
+    },
+    "targets": {
+      "NEWS": "Article",
+      "COMMENT": "Comment",
+      "USER": "User",
+      "CATEGORY": "Category",
+      "TAG": "Tag",
+      "SETTINGS": "Settings",
+      "AUTH": "Sign-in"
+    },
+    "sentence": {
+      "NEWS_CREATED": "<1>{{actor}}</1> created the article <2>“{{target}}”</2>",
+      "NEWS_UPDATED": "<1>{{actor}}</1> edited the article <2>“{{target}}”</2>",
+      "NEWS_SUBMITTED": "<1>{{actor}}</1> submitted the article <2>“{{target}}”</2> for review",
+      "NEWS_PUBLISHED": "<1>{{actor}}</1> published the article <2>“{{target}}”</2>",
+      "NEWS_REJECTED": "<1>{{actor}}</1> rejected the article <2>“{{target}}”</2>",
+      "NEWS_ARCHIVED": "<1>{{actor}}</1> archived the article <2>“{{target}}”</2>",
+      "NEWS_RESTORED": "<1>{{actor}}</1> restored the article <2>“{{target}}”</2>",
+      "NEWS_DELETED": "<1>{{actor}}</1> deleted the article <2>“{{target}}”</2>",
+      "COMMENTS_TOGGLED": "<1>{{actor}}</1> changed the comments of the article <2>“{{target}}”</2>",
+      "COMMENTS_TOGGLED_on": "<1>{{actor}}</1> turned comments on for the article <2>“{{target}}”</2>",
+      "COMMENTS_TOGGLED_off": "<1>{{actor}}</1> turned comments off for the article <2>“{{target}}”</2>",
+      "COMMENT_HIDDEN": "<1>{{actor}}</1> hid a comment on <2>“{{target}}”</2>",
+      "COMMENT_SHOWN": "<1>{{actor}}</1> showed a hidden comment on <2>“{{target}}”</2>",
+      "COMMENT_DELETED": "<1>{{actor}}</1> deleted a comment on <2>“{{target}}”</2>",
+      "USER_CREATED": "<1>{{actor}}</1> created the account of <2>{{target}}</2>",
+      "USER_CREATED_role": "<1>{{actor}}</1> created the account of <2>{{target}}</2> as <3>{{role}}</3>",
+      "USER_ACTIVATED": "<1>{{actor}}</1> activated the account of <2>{{target}}</2>",
+      "USER_DEACTIVATED": "<1>{{actor}}</1> deactivated the account of <2>{{target}}</2>",
+      "USER_ROLES_CHANGED": "<1>{{actor}}</1> changed the roles of <2>{{target}}</2>",
+      "USER_ROLES_CHANGED_roles": "<1>{{actor}}</1> changed the roles of <2>{{target}}</2>: {{from}} → {{to}}",
+      "USER_PASSWORD_RESET": "<1>{{actor}}</1> reset the password of <2>{{target}}</2>",
+      "SUPER_ADMIN_TRANSFERRED": "<1>{{actor}}</1> transferred the super admin role to <2>{{target}}</2>",
+      "CATEGORY_CREATED": "<1>{{actor}}</1> created the category <2>“{{target}}”</2>",
+      "CATEGORY_UPDATED": "<1>{{actor}}</1> edited the category <2>“{{target}}”</2>",
+      "CATEGORY_DELETED": "<1>{{actor}}</1> deleted the category <2>“{{target}}”</2>",
+      "TAG_CREATED": "<1>{{actor}}</1> created the tag <2>“{{target}}”</2>",
+      "TAG_UPDATED": "<1>{{actor}}</1> edited the tag <2>“{{target}}”</2>",
+      "TAG_DELETED": "<1>{{actor}}</1> deleted the tag <2>“{{target}}”</2>",
+      "SETTINGS_UPDATED": "<1>{{actor}}</1> changed the <2>{{target}}</2> settings",
+      "LOGIN_SUCCESS": "<1>{{actor}}</1> signed in",
+      "LOGIN_FAILED": "Failed sign-in for <2>{{target}}</2>",
+      "PASSWORD_CHANGED": "<1>{{actor}}</1> changed their password",
+      "PASSWORD_CHANGED_reset": "<1>{{actor}}</1> reset their password"
+    },
+    "settingGroups": {
+      "general": "General",
+      "branding": "Branding",
+      "website": "Website",
+      "seo": "SEO",
+      "content": "Content"
+    },
+    "fields": {
+      "title": "Title",
+      "summary": "Summary",
+      "category": "Category",
+      "commentsEnabled": "Comments",
+      "tags": "Tags",
+      "content": "Content",
+      "name": "Name",
+      "description": "Description",
+      "slug": "Slug",
+      "active": "Active",
+      "status": "Status",
+      "reason": "Reason",
+      "role": "Role",
+      "roles": "Roles",
+      "method": "Method"
+    },
+    "values": {
+      "on": "On",
+      "off": "Off",
+      "yes": "Yes",
+      "no": "No",
+      "changed": "Changed (the text itself is not kept)",
+      "changedHidden": "Changed (the value is not kept)"
+    },
+    "reasons": {
+      "invalidCredentials": "Wrong email or password",
+      "accountDisabled": "The account is deactivated",
+      "emailNotVerified": "The email is not verified",
+      "invalidOtp": "Wrong verification code"
+    },
+    "methods": {
+      "change": "Changed by the user",
+      "reset": "Reset with a verification code"
+    },
+    "panel": {
+      "who": "Who",
+      "roleAtTime": "Role at that time",
+      "when": "When",
+      "ip": "IP address",
+      "browser": "Browser",
+      "target": "Target",
+      "deleted": "Deleted",
+      "open": "Open",
+      "viewUser": "View user",
+      "changes": "What changed",
+      "field": "Field",
+      "before": "Before",
+      "after": "After",
+      "to": "to",
+      "entry": "Entry",
+      "nobody": "Nobody was signed in",
+      "noChanges": "No details were recorded for this action."
+    },
+    "card": {
+      "title": "Activity",
+      "empty": "Nothing has been recorded yet.",
+      "viewAll": "View all {{formatted}} entries",
+      "seeAll": "View all"
+    }
+  },
   "auth": {
     "backToLogin": "Back to log in",
     "capsLock": "Caps Lock is on",
@@ -237,6 +431,7 @@
         "users": "Users"
       },
       "items": {
+        "activityLog": "Activity log",
         "allArticles": "All articles",
         "categories": "Categories",
         "comments": "Comments",
@@ -402,6 +597,7 @@
       "saveChanges": "Save changes",
       "tabs": {
         "password": "Password",
+        "ownership": "Ownership",
         "preferences": "Preferences",
         "profile": "Profile"
       },
@@ -710,6 +906,12 @@
       "CONFIRM_PASSWORD_NOT_MATCH": "Confirm password not match",
       "CONFLICT": "Resource conflict",
       "CURRENT_PASSWORD_INCORRECT": "Current password is incorrect",
+      "SUPER_ADMIN_ONLY": "Only the super admin can do this",
+      "SUPER_ADMIN_CANNOT_BE_DEACTIVATED": "The super admin cannot be deactivated",
+      "SUPER_ADMIN_PASSWORD_PROTECTED": "The password of the super admin cannot be reset by someone else",
+      "SUPER_ADMIN_ROLE_PROTECTED": "The roles of the super admin cannot be changed",
+      "LAST_ADMIN_REQUIRED": "The system must keep at least one active admin",
+      "SUPER_ADMIN_TRANSFER_INVALID_TARGET": "The new super admin must be another active admin with a verified email",
       "DATABASE_ERROR": "Database error occurred",
       "DUPLICATE_RESOURCE": "Resource already exists",
       "EMAIL_ALREADY_EXISTS": "Email already registered",
@@ -1136,6 +1338,50 @@
       "title": "Workflow"
     }
   },
+  "notifications": {
+    "bellLabel": "Notifications, {{unread}} unread",
+    "days": {
+      "today": "Today",
+      "week": "Earlier this week",
+      "yesterday": "Yesterday"
+    },
+    "deleted": "Notification deleted.",
+    "empty": {
+      "all": "No notifications yet.",
+      "unread": "You're all caught up",
+      "hint": "New notifications will appear here."
+    },
+    "fallback": "You have a notification",
+    "intro": "What happened to your articles, comments and account.",
+    "markAllRead": "Mark all as read",
+    "markRead": "Mark as read",
+    "messages": {
+      "ARTICLE_ARCHIVED": "Your article “{{newsTitle}}” was archived",
+      "ARTICLE_PUBLISHED": "Your article “{{newsTitle}}” was published",
+      "ARTICLE_REJECTED": "Your article “{{newsTitle}}” was rejected",
+      "ARTICLE_SUBMITTED": "{{actorName}} submitted “{{newsTitle}}” for review",
+      "COMMENT_HIDDEN": "Your comment on “{{newsTitle}}” was hidden",
+      "NEW_COMMENT": "{{actorName}} commented on “{{newsTitle}}”",
+      "NEW_COMMENT_group": "{{count}} new comments on “{{newsTitle}}”",
+      "NEW_USER": "{{actorName}} registered as a new user",
+      "ROLES_CHANGED": "Your role is now {{roles}}"
+    },
+    "moreActions": "More actions",
+    "newToast": "You have a new notification",
+    "previousRoles": "Before: {{roles}}",
+    "reason": "Reason: {{reason}}",
+    "someone": "Someone",
+    "summary": "{{count}} notifications",
+    "tabs": {
+      "all": "All",
+      "label": "Show notifications",
+      "unread": "Unread"
+    },
+    "title": "Notifications",
+    "undo": "Undo",
+    "unread": "Unread",
+    "viewAll": "View all notifications"
+  },
   "public": {
     "active": {
       "clearAll": "Clear all",
@@ -1282,6 +1528,29 @@
     }
   },
   "users": {
+    "superAdmin": {
+      "badge": "Super admin",
+      "cannotDeactivate": "The super admin cannot be deactivated",
+      "cannotChangeRole": "The super admin's role cannot be changed",
+      "cannotResetPassword": "The super admin's password cannot be reset by someone else; they change it in their own profile",
+      "onlySuperAdmin": "Only the super admin can manage admins",
+      "adminRoleHint": "Only the super admin can give the Admin role",
+      "transfer": {
+        "title": "Transfer super admin",
+        "intro": "The super admin is the owner of the system: the only one who can create admins, change the Admin role and deactivate or reset other admins. You can hand this over to another active admin with a verified email.",
+        "select": "New super admin",
+        "placeholder": "Choose an admin",
+        "loading": "Loading admins...",
+        "none": "There is no other active admin with a verified email. Create or verify one first.",
+        "password": "Your current password",
+        "button": "Transfer super admin",
+        "confirmTitle": "Transfer super admin",
+        "confirmText": "You will become a normal admin. This cannot be undone by you.",
+        "confirmTo": "New super admin: {{name}}",
+        "confirmButton": "Yes, transfer",
+        "done": "Super admin transferred to {{name}}. You are now a normal admin."
+      }
+    },
     "create": {
       "account": "Account",
       "created": "User added.",
@@ -1290,14 +1559,20 @@
       "discardText": "What you typed is lost.",
       "discardTitle": "Discard this user?",
       "info": "The account is active and the email is verified right away. Share the password with the user safely.",
-      "intro": "Create an account for a new author or editor.",
+      "intro": "Create an account for a new team member or reader.",
       "profile": "Profile",
       "roles": {
-        "AUTHOR": "Writes articles and submits them for review.",
-        "EDITOR": "Reviews, publishes and archives articles."
+        "ADMIN": "Full control of the whole system",
+        "EDITOR": "Reviews, publishes and archives articles",
+        "AUTHOR": "Writes articles and submits them for review",
+        "READER": "Reads, comments and bookmarks articles"
       },
       "submit": "Add user",
-      "title": "Add user"
+      "title": "Add user",
+      "adminWarning": "Admins can manage users, settings and delete any article. Only give this role to people you fully trust.",
+      "adminTitle": "Create a new admin?",
+      "adminText": "<1>{{username}}</1> will be able to manage users and settings, and to delete any article.",
+      "adminConfirm": "Create admin"
     },
     "detail": {
       "activate": "Activate user",

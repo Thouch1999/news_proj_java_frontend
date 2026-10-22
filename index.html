@@ -22,6 +22,21 @@
       })()
     </script>
     <title>News Portal</title>
+    <!--
+      Default meta tags: what a page that has no link-preview route of its own shows (everything but an article, a category
+      and the home page, see deploy/nginx/ponleu-news.conf). Once the page is open the app replaces them with the site settings.
+      %VITE_PUBLIC_SITE_URL% is the public address of the site (see .env.example); a share image must be an absolute address.
+      Replace public/share-default.png with the real default image (PNG or JPG, 1200x630).
+    -->
+    <meta name="description" content="The latest and most read news, with categories, search and comments." />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="News Portal" />
+    <meta property="og:title" content="News Portal" />
+    <meta property="og:description" content="The latest and most read news, with categories, search and comments." />
+    <meta property="og:image" content="%VITE_PUBLIC_SITE_URL%/share-default.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
   </head>
   <body>
     <div id="root"></div>

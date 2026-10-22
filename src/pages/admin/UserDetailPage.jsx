@@ -3,9 +3,10 @@ import { Badge, Breadcrumb, Button, Col, Form, Row, Toast, ToastContainer } from
 import { Trans, useTranslation } from 'react-i18next'
 import { Link, useLocation, useParams } from 'react-router-dom'
 import ConfirmDialog from '../../components/common/ConfirmDialog'
+import ActivityHistoryCard from '../../components/activity/ActivityHistoryCard'
 import ErrorAlert from '../../components/common/ErrorAlert'
 import PageSpinner from '../../components/common/PageSpinner'
-import { RoleBadge, UserPhoto, UserStatus } from '../../components/common/UserParts'
+import { ReasonTip, RoleBadge, SuperAdminBadge, UserPhoto, UserStatus } from '../../components/common/UserParts'
 import FormCard from '../../components/form/FormCard'
 import ResetPasswordDialog from '../../components/form/ResetPasswordDialog'
 import { ROLES } from '../../constants/roles'
@@ -13,6 +14,7 @@ import { ROUTES } from '../../constants/routes'
 import { useAuth } from '../../hooks/useAuth'
 import * as userService from '../../services/userService'
 import { userName } from '../../utils/userName'
+import { guardsFor } from '../../utils/userGuards'
 
 export default function UserDetailPage() {
   const { t } = useTranslation()
@@ -83,6 +85,7 @@ export default function UserDetailPage() {
 
   const isSelf = me?.id === user.id
   const roleChanged = role !== user.role
+  const guards = guardsFor(t, user, isSelf, me)
 
   return (
     <div>
@@ -97,6 +100,7 @@ export default function UserDetailPage() {
         <div className="min-w-0">
           <h1 className="h4 mb-1 d-flex flex-wrap align-items-center gap-2">
             {userName(user)}
+            {user.superAdmin && <SuperAdminBadge />}
             {isSelf && (
               <Badge bg="" className="you-badge">
                 {t('users.detail.you')}
@@ -144,10 +148,12 @@ export default function UserDetailPage() {
           <FormCard title={t('users.fields.status')} className="mb-3">
             {user.active ? (
               <>
-                <Button variant="outline-danger" disabled={isSelf || busy} onClick={() => setDialog('status')}>
-                  {t('users.detail.deactivate')}
-                </Button>
-                {isSelf && <div className="form-text">{t('users.detail.cannotDeactivateSelf')}</div>}
+                <ReasonTip reason={guards.deactivate} id="deactivate-reason">
+                  <Button variant="outline-danger" disabled={Boolean(guards.deactivate) || busy} onClick={() => setDialog('status')}>
+                    {t('users.detail.deactivate')}
+                  </Button>
+                </ReasonTip>
+                {guards.deactivate && <div className="form-text">{guards.deactivate}</div>}
               </>
             ) : (
               <Button variant="outline-success" disabled={busy} onClick={() => setDialog('status')}>
@@ -157,30 +163,35 @@ export default function UserDetailPage() {
           </FormCard>
 
           <FormCard title={t('users.fields.role')} className="mb-3">
-            <Form.Select aria-label={t('users.fields.role')} value={role} onChange={(event) => setRole(event.target.value)} disabled={isSelf || busy}>
+            <Form.Select aria-label={t('users.fields.role')} value={role} onChange={(event) => setRole(event.target.value)} disabled={Boolean(guards.role) || busy}>
               {Object.values(ROLES).map((name) => (
-                <option key={name} value={name}>
+                <option key={name} value={name} disabled={name === ROLES.ADMIN && !me?.superAdmin && user.role !== ROLES.ADMIN}>
                   {t(`common.roles.${name}`)}
+                  {name === ROLES.ADMIN && !me?.superAdmin && user.role !== ROLES.ADMIN ? ` (${t('users.superAdmin.adminRoleHint')})` : ''}
                 </option>
               ))}
             </Form.Select>
-            {isSelf ? (
-              <div className="form-text">{t('users.detail.cannotChangeSelf')}</div>
-            ) : (
-              <div className="form-text">{t('users.detail.oneRole')}</div>
-            )}
-            <Button className="mt-2" disabled={isSelf || !roleChanged || busy} onClick={() => setDialog('role')}>
+            <div className="form-text">{guards.role ?? t('users.detail.oneRole')}</div>
+            <Button className="mt-2" disabled={Boolean(guards.role) || !roleChanged || busy} onClick={() => setDialog('role')}>
               {t('users.detail.changeRole')}
             </Button>
           </FormCard>
 
           <FormCard title={t('users.fields.password')}>
-            <Button variant="outline-secondary" disabled={busy} onClick={() => setDialog('password')}>
-              {t('users.detail.resetPassword')}
-            </Button>
+            <ReasonTip reason={guards.password} id="password-reason">
+              <Button variant="outline-secondary" disabled={Boolean(guards.password) || busy} onClick={() => setDialog('password')}>
+                {t('users.detail.resetPassword')}
+              </Button>
+            </ReasonTip>
+            {guards.password && <div className="form-text">{guards.password}</div>}
           </FormCard>
         </Col>
       </Row>
+
+      {/* what was done to this account (created, role, password reset ...) and its sign-ins */}
+      <div className="mt-3">
+        <ActivityHistoryCard types={['USER', 'AUTH']} id={user.id} refreshKey={`${user.role}|${user.active}`} />
+      </div>
 
       <ConfirmDialog
         show={dialog === 'status'}

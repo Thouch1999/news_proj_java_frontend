@@ -8,12 +8,15 @@ import { StatusTabs } from '../news/ArticleListParts'
 import { useAuth } from '../../hooks/useAuth'
 import { usePageMeta } from '../../hooks/usePageMeta'
 import { useUnsavedChangesWarning } from '../../hooks/useUnsavedChangesWarning'
+import OwnershipPane from './OwnershipPane'
 import PasswordChangeForm from './PasswordChangeForm'
 import PreferencesPane from './PreferencesPane'
 import ProfileCard from './ProfileCard'
 import ProfileDetailsForm from './ProfileDetailsForm'
 
 const TABS = ['profile', 'password', 'preferences']
+// only the super admin has the tab where the ownership is handed over
+const OWNER_TABS = [...TABS, 'ownership']
 
 // "My profile" for the dashboard (`area="dashboard"`) and the public site (`area="public"`): the profile card on the
 // left and the tabs on the right (one column on a phone, the card first). The active tab is in the URL (?tab=password).
@@ -21,10 +24,11 @@ const TABS = ['profile', 'password', 'preferences']
 export default function ProfileView({ area = 'dashboard' }) {
   const { t } = useTranslation()
   usePageMeta(t('dashboard.profile.title'))
-  const { user, updateUser } = useAuth()
+  const { user, updateUser, refreshUser } = useAuth()
   const [searchParams, setSearchParams] = useSearchParams()
   const asked = searchParams.get('tab')
-  const tab = TABS.includes(asked) ? asked : 'profile'
+  const tabNames = user.superAdmin ? OWNER_TABS : TABS
+  const tab = tabNames.includes(asked) ? asked : 'profile'
   const [dirty, setDirty] = useState(false)
   const [leaveTo, setLeaveTo] = useState(null) // the tab waiting for "Discard"
   const [toast, setToast] = useState(null)
@@ -45,7 +49,7 @@ export default function ProfileView({ area = 'dashboard' }) {
   }
 
   const isPublic = area === 'public'
-  const tabs = TABS.map((value) => ({ value, label: t(`dashboard.profile.tabs.${value}`) }))
+  const tabs = tabNames.map((value) => ({ value, label: t(`dashboard.profile.tabs.${value}`) }))
 
   return (
     <div className={`profile-page profile-page--${area}`}>
@@ -72,6 +76,7 @@ export default function ProfileView({ area = 'dashboard' }) {
                 {tab === 'profile' && <ProfileDetailsForm key="profile" user={user} onSaved={updateUser} onDirtyChange={markDirty} notify={notify} />}
                 {tab === 'password' && <PasswordChangeForm key="password" onDirtyChange={markDirty} notify={notify} />}
                 {tab === 'preferences' && <PreferencesPane key="preferences" />}
+                {tab === 'ownership' && <OwnershipPane key="ownership" user={user} refreshUser={refreshUser} notify={notify} />}
               </div>
             </Card.Body>
           </Card>

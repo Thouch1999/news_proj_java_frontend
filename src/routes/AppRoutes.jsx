@@ -5,8 +5,11 @@ import AuthLayout from '../layouts/AuthLayout'
 import DashboardLayout from '../layouts/DashboardLayout'
 import PublicLayout from '../layouts/PublicLayout'
 import BookmarksPage from '../pages/account/BookmarksPage'
+import DashboardNotificationsPage from '../pages/account/DashboardNotificationsPage'
 import DashboardProfilePage from '../pages/account/DashboardProfilePage'
+import NotificationsPage from '../pages/account/NotificationsPage'
 import ProfilePage from '../pages/account/ProfilePage'
+import ActivityLogPage from '../pages/admin/ActivityLogPage'
 import AdminHomePage from '../pages/admin/AdminHomePage'
 import CategoriesPage from '../pages/admin/CategoriesPage'
 import TagsPage from '../pages/admin/TagsPage'
@@ -58,6 +61,7 @@ export default function AppRoutes() {
         <Route element={<RequireAuth />}>
           <Route path={ROUTES.PROFILE} element={<ProfilePage />} />
           <Route path={ROUTES.BOOKMARKS} element={<BookmarksPage />} />
+          <Route path={ROUTES.NOTIFICATIONS} element={<NotificationsPage />} />
         </Route>
         <Route path="*" element={<NotFoundPage />} />
       </Route>
@@ -74,6 +78,7 @@ export default function AppRoutes() {
       <Route element={<RequireAuth roles={[ROLES.ADMIN, ROLES.EDITOR, ROLES.AUTHOR]} />}>
         <Route element={<DashboardLayout />}>
           <Route path={ROUTES.DASHBOARD_PROFILE} element={<DashboardProfilePage />} />
+          <Route path={ROUTES.DASHBOARD_NOTIFICATIONS} element={<DashboardNotificationsPage />} />
         </Route>
       </Route>
       <Route element={<RequireAuth roles={[ROLES.AUTHOR]} />}>
@@ -110,6 +115,7 @@ export default function AppRoutes() {
           <Route path="categories" element={<CategoriesPage />} />
           <Route path="tags" element={<TagsPage />} />
           <Route path="settings" element={<SettingsPage />} />
+          <Route path="activity-log" element={<ActivityLogPage />} />
         </Route>
       </Route>
     </Routes>

@@ -160,6 +160,7 @@ export default function UsersPage() {
     <UserActions
       user={user}
       isSelf={me?.id === user.id}
+      viewer={me}
       onToggleActive={toggleActive}
       onResetPassword={(row) => setDialog({ type: 'password', user: row })}
       onEditRole={(row) => {
@@ -290,6 +291,7 @@ export default function UsersPage() {
         <RoleDialog
           user={target}
           isSelf={me?.id === target.id}
+          viewer={me}
           selected={chosenRole}
           busy={busy}
           onSelect={setChosenRole}

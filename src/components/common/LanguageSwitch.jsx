@@ -13,7 +13,7 @@ export default function LanguageSwitch({ variant = 'outline-secondary' }) {
 
   return (
     <Dropdown align="end">
-      <Dropdown.Toggle variant={variant} size="sm" className="language-switch d-flex align-items-center gap-1" aria-label={t('common.language.label', { name: NAMES[current] })}>
+      <Dropdown.Toggle variant={variant} size="sm" className="language-switch header-control d-flex align-items-center gap-1" aria-label={t('common.language.label', { name: NAMES[current] })}>
         <Translate aria-hidden="true" />
         <span>{NAMES[current]}</span>
       </Dropdown.Toggle>

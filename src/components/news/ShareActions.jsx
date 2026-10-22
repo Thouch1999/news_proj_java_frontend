@@ -2,9 +2,7 @@ import { useEffect, useState } from 'react'
 import { Button, Dropdown, Toast, ToastContainer } from 'react-bootstrap'
 import { Facebook, Link45deg, Send, Share } from 'react-bootstrap-icons'
 import { useTranslation } from 'react-i18next'
-
-// The link people share: the address of the open article without any #fragment
-const articleUrl = () => window.location.href.split('#')[0]
+import { publicNewsUrl } from '../../constants/routes'
 
 async function copyText(text) {
   try {
@@ -33,10 +31,13 @@ async function copyText(text) {
 // On a phone (a touch screen) that has the Web Share API the button opens the phone's own share sheet
 const canShareNatively = () => typeof navigator.share === 'function' && window.matchMedia('(pointer: coarse)').matches
 
-// Facebook, Telegram and "Copy link" for the open article. `variant="menu"` is a "Share" dropdown (the article header);
+// Facebook, Telegram and "Copy link" for an article, always with its canonical address (VITE_PUBLIC_SITE_URL + /news/slug),
+// so the shared link is the same on every device and Facebook, Telegram ... show the link preview of the backend for it.
+// `variant="menu"` is a "Share" dropdown (the article header);
 // `variant="row"` shows the three as buttons (after the text). Share links open in a new tab; "Copy link" shows a toast.
-export default function ShareActions({ title, variant = 'menu' }) {
+export default function ShareActions({ title, slug, variant = 'menu' }) {
   const { t } = useTranslation()
+  const articleUrl = () => publicNewsUrl(slug)
   const [copied, setCopied] = useState(null) // true: copied, false: could not copy
 
   useEffect(() => {

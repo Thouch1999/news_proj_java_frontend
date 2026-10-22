@@ -5,6 +5,8 @@ import { Button, Col, Container, Dropdown, Form, Nav, NavDropdown, Navbar, Row }
 import { BoxArrowRight, Envelope, Facebook, GeoAlt, Search, Telegram, Telephone, Tiktok, Youtube } from 'react-bootstrap-icons'
 import LanguageSwitch from '../components/common/LanguageSwitch'
 import UserAvatar from '../components/common/UserAvatar'
+import { SuperAdminBadge } from '../components/common/UserParts'
+import NotificationBell from '../components/notifications/NotificationBell'
 import ThemeToggle from '../components/common/ThemeToggle'
 import { categoryPath, HOME_BY_ROLE, ROUTES } from '../constants/routes'
 import { useActiveCategories } from '../hooks/useActiveCategories'
@@ -91,13 +93,24 @@ export default function PublicLayout() {
             <div className="me-lg-2 my-2 my-lg-0">
               <ThemeToggle variant={headerButton} />
             </div>
+            {isAuthenticated && (
+              <div className="me-lg-2 my-2 my-lg-0">
+                <NotificationBell variant={headerButton} />
+              </div>
+            )}
             {isAuthenticated ? (
               <Dropdown align="end">
-                <Dropdown.Toggle variant={headerButton} className="d-flex align-items-center gap-2">
+                <Dropdown.Toggle variant={headerButton} size="sm" className="header-control d-flex align-items-center gap-2">
                   <UserAvatar src={user?.avatar} name={displayName} size={24} />
                   <span>{displayName}</span>
+                  {user?.superAdmin && <SuperAdminBadge compact />}
                 </Dropdown.Toggle>
                 <Dropdown.Menu>
+                  {user?.superAdmin && (
+                    <Dropdown.ItemText>
+                      <SuperAdminBadge />
+                    </Dropdown.ItemText>
+                  )}
                   {dashboardPath !== ROUTES.HOME && (
                     <Dropdown.Item as={Link} to={dashboardPath}>
                       {t('public.header.dashboard')}

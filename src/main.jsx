@@ -5,6 +5,7 @@ import './assets/styles/main.scss'
 import './i18n'
 import AuthProvider from './context/AuthProvider'
 import BookmarkProvider from './context/BookmarkProvider'
+import NotificationProvider from './context/NotificationProvider'
 import SettingsProvider from './context/SettingsProvider'
 import AppRoutes from './routes/AppRoutes'
 
@@ -17,7 +18,9 @@ const router = createBrowserRouter([
       <SettingsProvider>
         <AuthProvider>
           <BookmarkProvider>
-            <AppRoutes />
+            <NotificationProvider>
+              <AppRoutes />
+            </NotificationProvider>
           </BookmarkProvider>
         </AuthProvider>
       </SettingsProvider>

@@ -22,6 +22,7 @@ import ArticleEditorHeader, { ArticleNotice } from './ArticleEditorHeader'
 import { ContentField, SummaryField, TitleField } from './ArticleFields'
 import { ImagesCard, ThumbnailCard } from './ArticleMedia'
 import ArticlePreviewModal from './ArticlePreviewModal'
+import ActivityHistoryCard from '../activity/ActivityHistoryCard'
 import { CommentsFormCard, HistoryCard, OrganizeCard, PublishingCard } from './ArticleSideCards'
 import CommentsToggleCard from './CommentsToggleCard'
 import DeleteArticleDialog from './DeleteArticleDialog'
@@ -305,6 +306,8 @@ function ArticleForm({ area, initial, categories, tags }) {
               ? slot(8, <CommentsToggleCard area={area} article={article} onChange={handleCommentsChange} />)
               : !readOnly && slot(8, <CommentsFormCard checked={form.commentsEnabled} onChange={(value) => change('commentsEnabled', value)} />)}
             {article && slot(9, <HistoryCard history={history} />)}
+            {/* the activity log of this article (who edited, published, deleted ...): the admin only */}
+            {article && area.admin && slot(10, <ActivityHistoryCard types={['NEWS']} id={article.id} refreshKey={article.updatedAt} />)}
           </div>
         </div>
       </Form>
