@@ -5,7 +5,7 @@ import i18n from '../i18n'
 import * as authService from '../services/authService'
 import { setUnauthorizedHandler } from '../services/httpClient'
 import * as userService from '../services/userService'
-import { clearToken, getToken, setToken } from '../utils/tokenStorage'
+import { clearToken, getToken, setRefreshToken, setToken } from '../utils/tokenStorage'
 import { AuthContext } from './AuthContext'
 
 export default function AuthProvider({ children }) {
@@ -53,6 +53,9 @@ export default function AuthProvider({ children }) {
   // call with the login result ({ token: { access }, user }) once a login step succeeds
   const setSession = useCallback((loginResult) => {
     setToken(loginResult.token.access)
+    if (loginResult.token.refresh) {
+      setRefreshToken(loginResult.token.refresh)
+    }
     setUser(loginResult.user)
     setIsLoading(false)
   }, [])
