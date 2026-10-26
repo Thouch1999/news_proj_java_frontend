@@ -116,10 +116,10 @@ export function ArticleTitleCell({ article, area }) {
     <div className="d-flex align-items-center gap-3">
       <ArticleThumb src={article.thumbnail} />
       <div className="min-w-0">
-        <Link to={area.editPath(article.id)} className="article-title news-title">
+        <Link to={area.editPath(article.id)} className="article-title news-title" title={article.title}>
           {article.title}
         </Link>
-        <div className="text-muted small">{article.categoryName}</div>
+        <div className="text-muted article-category">{article.categoryName}</div>
         {article.status === 'REJECTED' && article.rejectionReason && (
           <div className="text-danger small text-truncate article-reason" title={article.rejectionReason}>
             {t('news.list.rejected', { reason: article.rejectionReason })}

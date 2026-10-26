@@ -1128,24 +1128,36 @@
       color: var(--app-muted);
       font-size: 0.8rem;
       font-weight: 600;
-      text-transform: uppercase;
       white-space: nowrap;
     }
 
     td {
       padding: 0.75rem 1rem;
+      vertical-align: middle;
     }
   }
 
+  // the title in a list row: body size, two lines at most (the full title is in the tooltip)
   .article-title {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    overflow: hidden;
     color: var(--app-heading);
-    font-weight: 700;
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.5;
     text-decoration: none;
 
     &:hover {
       color: var(--app-primary-text);
       text-decoration: underline;
     }
+  }
+
+  .article-category {
+    font-size: 0.875rem;
   }
 
   .article-reason {
@@ -1155,8 +1167,8 @@
   .article-thumb {
     display: inline-block;
     flex-shrink: 0;
-    width: 64px;
-    aspect-ratio: 16 / 9;
+    width: 96px;
+    aspect-ratio: 16 / 9; // 96 × 54; the review list overrides only the width
     border-radius: 6px;
     object-fit: cover;
     background: var(--app-surface-2);

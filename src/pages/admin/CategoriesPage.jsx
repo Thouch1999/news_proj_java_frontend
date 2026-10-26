@@ -18,6 +18,9 @@ const STATUSES = ['', 'active', 'inactive']
 // The articles of one category in "All articles"
 const articlesOf = (category) => `${ROUTES.ADMIN_NEWS}?categoryId=${category.id}`
 
+// a stable object (not a new one on every render), so the menu is positioned on the first click
+const MENU_POPPER = { strategy: 'fixed' }
+
 // "Shown on website": a switch. It changes only when the backend has answered (a spinner while it saves), so a failure
 // leaves it where it was. Hiding asks first (see the page).
 function ShownSwitch({ category, busy, onToggle }) {
@@ -44,7 +47,7 @@ function CategoryActions({ category, onEdit, onDelete }) {
         <Dropdown.Toggle size="sm" variant="light" className="icon-btn article-more" aria-label={t('news.list.actions.more')} title={t('news.list.actions.more')}>
           <ThreeDots aria-hidden="true" />
         </Dropdown.Toggle>
-        <Dropdown.Menu popperConfig={{ strategy: 'fixed' }}>
+        <Dropdown.Menu popperConfig={MENU_POPPER}>
           {category.active && (
             <Dropdown.Item as={Link} to={categoryPath(category.slug)} target="_blank" rel="noopener noreferrer">
               {t('news.list.actions.viewOnSite')}

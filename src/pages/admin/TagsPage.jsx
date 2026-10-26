@@ -14,6 +14,9 @@ import { errorMessage } from '../../utils/errorMessage'
 // Edit (an icon button) and the "..." menu: View on site (the public page of the tag, with its published articles) and
 // Delete. The tag list does not say how many articles use a tag, so there is no count and no "View articles" in the
 // admin list: the backend has no article filter by tag there.
+// a stable object (not a new one on every render), so the menu is positioned on the first click
+const MENU_POPPER = { strategy: 'fixed' }
+
 function TagActions({ tag, onEdit, onDelete }) {
   const { t } = useTranslation()
   return (
@@ -25,7 +28,7 @@ function TagActions({ tag, onEdit, onDelete }) {
         <Dropdown.Toggle size="sm" variant="light" className="icon-btn article-more" aria-label={t('news.list.actions.more')} title={t('news.list.actions.more')}>
           <ThreeDots aria-hidden="true" />
         </Dropdown.Toggle>
-        <Dropdown.Menu popperConfig={{ strategy: 'fixed' }}>
+        <Dropdown.Menu popperConfig={MENU_POPPER}>
           <Dropdown.Item as={Link} to={tagPath(tag.slug)} target="_blank" rel="noopener noreferrer">
             {t('news.list.actions.viewOnSite')}
           </Dropdown.Item>
