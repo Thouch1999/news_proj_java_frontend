@@ -1,4 +1,5 @@
 import { ACTIVITY_ACTIONS, RANGE_PRESETS } from '../constants/activity'
+import { formatDateTime } from './dates'
 import { truncate } from './notifications'
 
 const MAX_TARGET = 80
@@ -48,6 +49,15 @@ export function sentenceOf(t, entry) {
   const values = { actor: actorOf(t, entry), target: targetOf(t, entry) }
   let key = entry.action
   switch (entry.action) {
+    case 'NEWS_PUBLISHED': {
+      // the job that publishes a scheduled article has no person behind it ("System"); the detail view also knows who scheduled it
+      if (!entry.actorName) {
+        const scheduler = /^scheduled by (.+)$/.exec(details.note ?? '')?.[1]
+        key = scheduler ? 'NEWS_PUBLISHED_system_by' : 'NEWS_PUBLISHED_system'
+        if (scheduler) values.scheduler = truncate(scheduler, 60)
+      }
+      break
+    }
     case 'COMMENTS_TOGGLED':
       if (typeof details.commentsEnabled?.after === 'boolean') key = details.commentsEnabled.after ? 'COMMENTS_TOGGLED_on' : 'COMMENTS_TOGGLED_off'
       break
@@ -156,8 +166,16 @@ export function changeRows(t, entry) {
   } else if (details.reason) {
     rows.push({ label: t('activity.fields.reason'), note: truncate(details.reason, 500) })
   }
+  // a schedule: the UTC instants of the log, shown in the time zone of the reader
+  if (details.scheduledAt && ['NEWS_SCHEDULED', 'NEWS_SCHEDULE_CHANGED', 'NEWS_PUBLISHED'].includes(entry.action)) {
+    const before = entry.action === 'NEWS_SCHEDULE_CHANGED' && details.scheduledAtBefore ? formatDateTime(details.scheduledAtBefore) : ''
+    rows.push({ label: t('activity.fields.scheduledAt'), before, after: formatDateTime(details.scheduledAt) })
+  }
   if (details.category && entry.action === 'NEWS_CREATED') rows.push({ label: t('activity.fields.category'), after: String(details.category) })
   if (details.role && entry.action === 'USER_CREATED') rows.push({ label: t('activity.fields.role'), after: roleNames(t, [details.role]) })
+  if (details.failures != null && (entry.action === 'ACCOUNT_LOCKED' || entry.action === 'IP_BLOCKED')) {
+    rows.push({ label: t('activity.fields.failures'), note: String(details.failures) })
+  }
   if (details.method) rows.push({ label: t('activity.fields.method'), note: t(`activity.methods.${details.method}`, { defaultValue: details.method }) })
   return rows
 }

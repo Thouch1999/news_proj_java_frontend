@@ -157,6 +157,11 @@ export default function SettingsProvider({ children }) {
       headerTheme: palette.headerText === '#FFFFFF' ? 'dark' : 'light',
       newsPerPage: Number.isFinite(perPage) ? perPage : 10,
       showViewCount: settings.show_view_count !== 'false',
+      // the promos (sponsors): the switches (the timing of the popup comes with each promo)
+      promos: {
+        enabled: settings.sponsors_enabled !== 'false',
+        popupEnabled: settings.sponsor_popup_enabled !== 'false',
+      },
     }
   }, [settings, loaded, merge, language, theme, palette.headerText])
 

@@ -1,0 +1,960 @@
+// The promos (sponsors) on the article page and their management in the dashboard. The class names say "promo" and
+// "partner" on purpose: ad blockers hide anything called ad, ads, banner or sponsor.
+// `.promo-scope` holds the colours of a promo. It follows <html data-bs-theme>, and an element with its own data-bs-theme
+// (the preview shows light and dark side by side) keeps its own mode.
+
+.promo-scope {
+  --promo-bg: #fff;
+  --promo-text: #1f2937;
+  --promo-muted: #5b6676; // 5.8:1 on white
+  --promo-border: #dfe4ec;
+  --promo-media-bg: #eef1f6;
+  --promo-label-bg: #eef1f6;
+  --promo-cta-bg: var(--news-navy, #27306d);
+  --promo-cta-text: var(--news-on-navy, #fff);
+  --promo-shadow: 0 2px 10px rgb(0 0 0 / 15%);
+}
+
+:root[data-bs-theme="dark"] .promo-scope,
+:root .promo-scope[data-bs-theme="dark"] {
+  --promo-bg: #252b3b;
+  --promo-text: #e6e9f0;
+  --promo-muted: #a9b3c6; // 6.3:1 on the card
+  --promo-border: #343c52;
+  --promo-media-bg: #2b3244;
+  --promo-label-bg: #2b3244;
+  --promo-cta-bg: #3f55c8; // white text 6:1
+  --promo-cta-text: #fff;
+  --promo-shadow: 0 2px 10px rgb(0 0 0 / 50%);
+}
+
+:root .promo-scope[data-bs-theme="light"] {
+  --promo-bg: #fff;
+  --promo-text: #1f2937;
+  --promo-muted: #5b6676;
+  --promo-border: #dfe4ec;
+  --promo-media-bg: #eef1f6;
+  --promo-label-bg: #eef1f6;
+  --promo-cta-bg: var(--news-navy, #27306d);
+  --promo-cta-text: var(--news-on-navy, #fff);
+  --promo-shadow: 0 2px 10px rgb(0 0 0 / 15%);
+}
+
+// ---- the pieces ----
+
+// the media with its label ON it (top left): a dark pill with white text, readable on any picture
+.promo-frame {
+  position: relative;
+  display: block;
+}
+
+.promo-label {
+  position: absolute;
+  top: 0.5rem;
+  inset-inline-start: 0.5rem;
+  z-index: 2;
+  padding: 0.1rem 0.55rem;
+  border-radius: 999px;
+  background: rgb(0 0 0 / 60%);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.6;
+  pointer-events: none;
+}
+
+.promo-media {
+  display: block;
+  position: relative;
+  width: 100%;
+  overflow: hidden; // no frame, no rounded box: the card or the popup rounds the corners
+  background: var(--promo-media-bg);
+
+  img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.promo-title {
+  color: var(--promo-text);
+  font-weight: 600;
+  line-height: 1.5; // Khmer needs room
+  overflow-wrap: anywhere;
+
+  &--large {
+    font-size: 1.25rem;
+  }
+}
+
+.promo-text {
+  color: var(--promo-muted);
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+.promo-cta {
+  display: inline-block;
+  padding: 0.45rem 0.9rem;
+  border-radius: 0.4rem;
+  background: var(--promo-cta-bg);
+  color: var(--promo-cta-text);
+  font-size: 0.9rem;
+  font-weight: 600;
+  line-height: 1.5;
+  text-align: center;
+
+  &--small {
+    flex-shrink: 0;
+    padding: 0.35rem 0.75rem;
+    font-size: 0.85rem;
+  }
+}
+
+// ---- sidebar: the whole card is a link; the picture box is 300 x 250 so the page does not jump ----
+
+.promo-card {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; // the media is edge to edge under the rounded top corners
+  border: 1px solid var(--promo-border);
+  border-radius: 0.6rem;
+  background: var(--promo-bg);
+  box-shadow: 0 1px 3px rgb(0 0 0 / 8%);
+  color: var(--promo-text);
+  text-decoration: none;
+  transition: box-shadow 0.15s ease;
+
+  &__body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    padding: 12px;
+  }
+
+  .promo-title {
+    display: -webkit-box;
+    overflow: hidden;
+    font-size: 1rem;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+  }
+
+  .promo-cta {
+    align-self: stretch;
+    min-height: 36px;
+    padding-block: 0.3rem;
+  }
+
+  &:is(a):hover,
+  &:is(a):focus-visible {
+    box-shadow: var(--promo-shadow);
+    color: var(--promo-text);
+    text-decoration: none;
+  }
+}
+
+// ---- popup (tablet and computer) ----
+
+.promo-dialog {
+  max-width: 640px;
+}
+
+.promo-modal {
+  border: 1px solid var(--promo-border);
+  background: var(--promo-bg);
+  color: var(--promo-text);
+
+  overflow: hidden;
+
+  // no header row: the media starts at the top and the close button floats over it, always visible
+  .modal-body {
+    padding: 0;
+  }
+
+  .modal-header {
+    position: absolute;
+    top: 0.5rem;
+    inset-inline-end: 0.5rem;
+    z-index: 5;
+    padding: 0;
+    border: 0;
+    background: transparent;
+  }
+
+  .btn-close {
+    --bs-btn-close-bg: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23fff'%3e%3cpath d='M.293.293a1 1 0 0 1 1.414 0L8 6.586 14.293.293a1 1 0 1 1 1.414 1.414L9.414 8l6.293 6.293a1 1 0 0 1-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 0 1-1.414-1.414L6.586 8 .293 1.707a1 1 0 0 1 0-1.414z'/%3e%3c/svg%3e");
+    width: 2.25rem;
+    height: 2.25rem;
+    margin: 0;
+    padding: 0;
+    border-radius: 50%;
+    background-color: rgb(0 0 0 / 65%);
+    background-size: 0.8rem;
+    opacity: 1;
+
+    &:hover,
+    &:focus-visible {
+      background-color: rgb(0 0 0 / 85%);
+      opacity: 1;
+    }
+  }
+}
+
+.promo-popup-body {
+  display: flex;
+  flex-direction: column;
+  color: var(--promo-text);
+  text-decoration: none;
+
+  &__body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 1rem;
+  }
+
+  .promo-cta {
+    align-self: flex-start;
+  }
+
+  &:is(a):hover,
+  &:is(a):focus-visible {
+    color: var(--promo-text);
+    text-decoration: none;
+  }
+}
+
+// ---- mobile bar: never taller than about 80px, above the safe area at the bottom of the screen ----
+
+.promo-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 8px 4px 8px 12px;
+  border-top: 1px solid var(--promo-border);
+  background: var(--promo-bg);
+  color: var(--promo-text);
+
+  &--fixed {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 1030;
+    padding-bottom: calc(8px + env(safe-area-inset-bottom));
+    box-shadow: 0 -2px 10px rgb(0 0 0 / 15%);
+    animation: promo-bar-in 0.3s ease-out;
+  }
+
+  &__link {
+    display: flex;
+    flex: 1 1 auto;
+    align-items: center;
+    gap: 0.75rem;
+    min-width: 0;
+    color: var(--promo-text);
+    text-decoration: none;
+
+    &:is(a):hover,
+    &:is(a):focus-visible {
+      color: var(--promo-text);
+      text-decoration: none;
+    }
+  }
+
+  &__thumb {
+    flex-shrink: 0;
+    width: 56px;
+    height: 56px;
+    overflow: hidden;
+    border-radius: 0.4rem;
+    background: var(--promo-media-bg);
+
+    img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+
+  &__text {
+    display: -webkit-box;
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    font-size: 0.875rem;
+    font-weight: 600;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+  }
+
+  &__close {
+    flex-shrink: 0;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--promo-muted);
+
+    &:hover:not(:disabled),
+    &:focus-visible {
+      background: var(--promo-media-bg);
+      color: var(--promo-text);
+    }
+  }
+}
+
+@keyframes promo-bar-in {
+  from {
+    transform: translateY(100%);
+  }
+
+  to {
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .promo-bar--fixed {
+    animation: none;
+  }
+
+  .promo-card {
+    transition: none;
+  }
+}
+
+// ---- the dashboard: list, form, preview, statistics ----
+
+.dashboard-shell {
+  .partner-thumb {
+    flex-shrink: 0;
+    width: 72px;
+    height: 60px;
+    border-radius: 6px;
+    object-fit: cover;
+    background: var(--app-surface-2);
+
+    &--empty {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--app-muted);
+    }
+  }
+
+  .partner-name {
+    min-width: 0;
+  }
+
+  .partner-badge {
+    background: var(--app-icon-bg);
+    color: var(--app-primary-text);
+    font-weight: 500;
+  }
+
+  .partner-category-list {
+    max-height: 11rem;
+    padding: 0.5rem 0.75rem;
+    overflow: auto;
+    border: 1px solid var(--app-border);
+    border-radius: 0.375rem;
+    background: var(--app-surface);
+  }
+
+  // one image of the form: the picture at its real size (never wider than its column)
+  .partner-image-box {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    max-width: 100%;
+    overflow: hidden;
+    border: 1px dashed var(--app-border);
+    border-radius: 0.5rem;
+    background: var(--app-surface-2);
+    color: var(--app-muted);
+
+    img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+
+  // the preview: a stage for each colour mode, side by side when there is room
+  .promo-stage {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    min-width: 0;
+    padding: 1rem;
+    border: 1px solid var(--app-border);
+    border-radius: 0.5rem;
+    color: var(--promo-text);
+
+    &[data-bs-theme="light"] {
+      background: #f1f1f1;
+      --promo-text: #1f2937;
+    }
+
+    &[data-bs-theme="dark"] {
+      background: #14181f;
+      --promo-text: #e6e9f0;
+    }
+
+    .promo-stage__title {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--promo-text);
+    }
+
+    .promo-card,
+    .promo-popup-frame {
+      width: 100%;
+      max-width: 332px;
+      margin-inline: auto;
+    }
+  }
+
+  .promo-popup-frame {
+    overflow: hidden;
+    border: 1px solid var(--promo-border);
+    border-radius: 0.6rem;
+    background: var(--promo-bg);
+    box-shadow: var(--promo-shadow);
+
+    &.promo-scope {
+      max-width: 100%;
+    }
+  }
+
+  // a phone: the bar sits at the bottom of the frame
+  .promo-phone {
+    position: relative;
+    width: 100%;
+    max-width: 360px;
+    height: 170px;
+    margin-inline: auto;
+    overflow: hidden;
+    border: 1px solid var(--promo-border);
+    border-radius: 1rem;
+    background: var(--promo-media-bg);
+
+    .promo-bar {
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      left: 0;
+    }
+  }
+
+  .partner-range {
+    width: 100%;
+  }
+}
+
+// ---- "Where to show": a checkbox row for each place, its images below when it is checked ----
+
+.dashboard-shell {
+  .partner-place {
+    border: 1px solid var(--app-border);
+    border-radius: 0.5rem;
+    background: var(--app-surface);
+
+    &.is-checked {
+      border-color: var(--app-primary-text);
+    }
+
+    &.has-error {
+      border-color: var(--bs-danger);
+    }
+
+    &__row {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      padding: 0.75rem 1rem;
+      border-radius: 0.5rem;
+      cursor: pointer;
+
+      .form-check-input {
+        flex-shrink: 0;
+        margin-top: 0.2rem;
+      }
+
+      &:has(.form-check-input:focus-visible) {
+        outline: 2px solid var(--app-primary-text);
+        outline-offset: 2px;
+      }
+    }
+
+    &__body {
+      padding: 0 1rem 1rem 2.75rem;
+    }
+
+    &__kept {
+      padding: 0 1rem 0.75rem 2.75rem;
+    }
+  }
+
+  .partner-image-box.is-invalid {
+    border-color: var(--bs-danger);
+  }
+
+  // the video preview of the form: a muted loop with controls in the same box as a picture
+  .partner-video-box {
+    border-style: solid;
+    background: #000;
+
+    video {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+
+  // "Media type": the segmented control of a place
+  .partner-media-switch .btn {
+    display: inline-flex;
+    align-items: center;
+  }
+
+  // a checked YouTube link: the thumbnail with a play icon and the title as readers will see it
+  .partner-youtube-card {
+    display: flex;
+    flex-direction: column;
+    max-width: 18rem;
+    overflow: hidden;
+    border: 1px solid var(--app-border);
+    border-radius: 0.5rem;
+    background: var(--app-surface);
+
+    &__poster {
+      position: relative;
+      display: block;
+      aspect-ratio: 16 / 9;
+      background: var(--app-surface-2);
+
+      img {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+    }
+
+    &__title {
+      padding: 0.5rem 0.75rem;
+      font-weight: 600;
+      overflow-wrap: anywhere;
+    }
+  }
+
+  // "Popup timing": the options and the number of days in one row
+  .partner-timing {
+    padding-top: 1rem;
+    border-top: 1px solid var(--app-border);
+
+    &__option {
+      margin-bottom: 0.25rem;
+    }
+
+    &__days {
+      width: 5.5rem;
+    }
+  }
+
+  // Settings > Sponsors > Sidebar: the three layouts as radio cards with a small drawing
+  .partner-narrow-input {
+    max-width: 8rem;
+  }
+
+  .partner-layout-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr));
+    gap: 0.75rem;
+  }
+
+  .partner-layout {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    border: 1px solid var(--app-border);
+    border-radius: 0.5rem;
+    background: var(--app-surface);
+    color: var(--app-muted);
+    text-align: center;
+    cursor: pointer;
+
+    &.is-checked {
+      border-color: var(--app-primary-text);
+      color: var(--app-primary-text);
+      box-shadow: 0 0 0 1px var(--app-primary-text);
+    }
+
+    &:has(.partner-layout__input:focus-visible) {
+      outline: 2px solid var(--app-primary-text);
+      outline-offset: 2px;
+    }
+
+    &__input {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    &__drawing {
+      width: 100%;
+      max-width: 8rem;
+      height: auto;
+    }
+
+    &__name {
+      color: var(--app-text);
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+  }
+
+  // The actions of the sponsor form stay at the bottom of the screen: saving never needs a scroll to the top
+  .partner-action-bar {
+    position: sticky;
+    bottom: 0;
+    z-index: 5;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    padding: 0.75rem 1rem;
+    padding-bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));
+    border-top: 1px solid var(--app-border);
+    border-radius: 0.5rem 0.5rem 0 0;
+    background: var(--app-surface);
+    box-shadow: 0 -4px 12px rgb(0 0 0 / 8%);
+  }
+}
+
+// ---- public: video file and YouTube in the sidebar and the popup (the media is outside the click link) ----
+
+.promo-media--video,
+.promo-media--poster,
+.promo-media--embed {
+  position: relative;
+}
+
+.promo-media video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.promo-media--embed iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+// the big play button on a poster (a tap plays) and the same icon without a button (the admin preview)
+.promo-media__play {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  padding: 0;
+  transform: translate(-50%, -50%);
+  border: 0;
+  border-radius: 50%;
+  background: rgb(0 0 0 / 65%);
+  color: #fff;
+
+  &:hover,
+  &:focus-visible {
+    background: rgb(0 0 0 / 85%);
+  }
+
+  &--static {
+    pointer-events: none;
+  }
+}
+
+// mute / unmute of a video that plays by itself: at least 44px to touch, in a corner
+.promo-media__sound {
+  position: absolute;
+  right: 0.5rem;
+  bottom: 0.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgb(0 0 0 / 65%);
+  color: #fff;
+
+  &:hover,
+  &:focus-visible {
+    background: rgb(0 0 0 / 85%);
+  }
+}
+
+.promo-media__play:focus-visible,
+.promo-media__sound:focus-visible {
+  outline: 3px solid #fff;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 5px rgb(0 0 0 / 80%);
+}
+
+// the text under a video is the link: title, text and button
+.promo-card__link,
+.promo-popup-body__link {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  color: var(--promo-text);
+  text-decoration: none;
+
+  &:hover,
+  &:focus-visible {
+    color: var(--promo-text);
+    text-decoration: none;
+  }
+
+  .promo-cta {
+    align-self: stretch;
+  }
+}
+
+.promo-popup-body__link {
+  gap: 0.75rem;
+
+  .promo-cta {
+    align-self: flex-start;
+  }
+}
+
+// ---- public: the slideshow of the sidebar (one label, slides, dots and arrows) ----
+
+.promo-block {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 0;
+  color: var(--promo-text);
+}
+
+.promo-block__label {
+  color: var(--promo-muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+// every slide is in the same grid cell: the block is as tall as its tallest slide, so the page never jumps
+.promo-slides {
+  display: grid;
+}
+
+.promo-slide {
+  grid-area: 1 / 1;
+  display: grid;
+  align-content: start;
+  gap: 12px;
+  min-width: 0;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0s linear 0.3s;
+
+  &.is-current {
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.3s ease;
+  }
+
+  &--GRID_2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  &--LOGOS_4 {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+
+    &.is-current {
+      transition: none;
+    }
+  }
+}
+
+// a tile (2 per row): the picture edge to edge and the title on two lines at most; all of it is the link
+.promo-tile {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--promo-border);
+  border-radius: 0.6rem;
+  background: var(--promo-bg);
+  box-shadow: 0 1px 3px rgb(0 0 0 / 8%);
+  color: var(--promo-text);
+  text-decoration: none;
+  transition: box-shadow 0.15s ease;
+
+  &:is(a):hover,
+  &:is(a):focus-visible {
+    box-shadow: var(--promo-shadow);
+    color: var(--promo-text);
+    text-decoration: none;
+  }
+
+  &__title {
+    display: -webkit-box;
+    overflow: hidden;
+    padding: 8px 10px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    line-height: 1.5; // Khmer needs room
+    overflow-wrap: anywhere;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+  }
+}
+
+// a logo (4 per row): a square tile, the logo inside with room around it
+.promo-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 1;
+  min-width: 0;
+  padding: 12%;
+  overflow: hidden;
+  border: 1px solid var(--promo-border);
+  border-radius: 0.5rem;
+  background: var(--promo-bg);
+  color: var(--promo-text);
+  text-decoration: none;
+
+  img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  &__initial {
+    font-size: 1.5rem;
+    font-weight: 700;
+  }
+
+  &:is(a):hover,
+  &:is(a):focus-visible {
+    box-shadow: var(--promo-shadow);
+    color: var(--promo-text);
+    text-decoration: none;
+  }
+}
+
+.promo-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+
+  &__arrow,
+  &__dot {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--promo-muted);
+  }
+
+  &__arrow {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+
+    &:hover {
+      background: var(--promo-media-bg);
+      color: var(--promo-text);
+    }
+
+    @media (pointer: coarse) {
+      width: 44px;
+      height: 44px;
+    }
+  }
+
+  &__dots {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+  }
+
+  // the dot is small, the touch area around it is 24px (44px on a touch screen)
+  &__dot {
+    width: 24px;
+    height: 24px;
+
+    &::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: currentcolor;
+      opacity: 0.45;
+    }
+
+    &[aria-current="true"] {
+      color: var(--promo-text);
+
+      &::before {
+        width: 10px;
+        height: 10px;
+        opacity: 1;
+      }
+    }
+
+    @media (pointer: coarse) {
+      width: 32px;
+      height: 44px;
+    }
+  }
+
+  &__arrow:focus-visible,
+  &__dot:focus-visible {
+    outline: 2px solid var(--promo-cta-bg);
+    outline-offset: 1px;
+  }
+}

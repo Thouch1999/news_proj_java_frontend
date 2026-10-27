@@ -1,4 +1,4 @@
-import { Archive, CheckCircle, ChatDots, EyeSlash, PersonPlus, Send, ShieldCheck, XCircle } from 'react-bootstrap-icons'
+import { Archive, CheckCircle, ChatDots, Clock, EyeSlash, PersonPlus, Send, ShieldCheck, XCircle } from 'react-bootstrap-icons'
 import { ROLES } from './roles'
 import { ROUTES } from './routes'
 
@@ -15,6 +15,7 @@ export const PAGE_SIZES = [10, 20, 50] // the backend gives at most 50 per page
 // The text of each type is under notifications.messages in the translations.
 export const NOTIFICATION_TYPES = {
   ARTICLE_SUBMITTED: { icon: Send, tone: 'info' },
+  ARTICLE_SCHEDULED: { icon: Clock, tone: 'info' },
   ARTICLE_PUBLISHED: { icon: CheckCircle, tone: 'success' },
   ARTICLE_REJECTED: { icon: XCircle, tone: 'danger' },
   ARTICLE_ARCHIVED: { icon: Archive, tone: 'neutral' },

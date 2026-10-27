@@ -1,3 +1,5 @@
+import SidebarPreview from '../../components/partners/SidebarPreview'
+import SidebarSettings from '../../components/partners/SidebarSettings'
 import { useState } from 'react'
 import { Alert, Button, Card, Col, Form, Row, Tab, Tabs } from 'react-bootstrap'
 import { useTranslation } from 'react-i18next'
@@ -121,6 +123,22 @@ function SettingsEditor({ initial }) {
       disabled={busy}
       {...extra}
     />
+  )
+
+  // a setting with a fixed list of values (the labels are dashboard.settings.options.<key>.<value>)
+  const selectField = (key, values) => (
+    <Form.Group className="mb-3" controlId={`setting-${key}`}>
+      <Form.Label>{label(key)}</Form.Label>
+      <Form.Select value={draft[key] ?? ''} disabled={busy} isInvalid={Boolean(errors[key])} onChange={(event) => change(key)(event.target.value)}>
+        {values.map((value) => (
+          <option key={value} value={value}>
+            {t(`dashboard.settings.options.${key}.${value}`)}
+          </option>
+        ))}
+      </Form.Select>
+      <Form.Control.Feedback type="invalid">{errors[key]}</Form.Control.Feedback>
+      {help(key) && <Form.Text className="text-muted">{help(key)}</Form.Text>}
+    </Form.Group>
   )
 
   const pair = (englishKey, khmerKey) => (
@@ -327,6 +345,39 @@ function SettingsEditor({ initial }) {
               </Row>
               {switchField('comments_enabled_default')}
               {switchField('show_view_count')}
+            </>,
+          )}
+          {section(
+            t('dashboard.settings.sections.comments'),
+            <>
+              <p className="text-muted small">{t('dashboard.settings.commentsIntro')}</p>
+              {field('comment_blocked_words')}
+            </>,
+          )}
+          {section(
+            t('dashboard.settings.sections.sponsors'),
+            <>
+              {switchField('sponsors_enabled')}
+              {switchField('sponsor_popup_enabled')}
+              <p className="text-muted small">{t('dashboard.settings.popupIntro')}</p>
+              <Row>
+                <Col md={6}>{selectField('popup_trigger', ['DELAY', 'SCROLL', 'FIRST_OF_BOTH'])}</Col>
+                <Col md={6}>{selectField('popup_frequency', ['PER_VISIT', 'PER_DAY', 'EVERY_N_DAYS'])}</Col>
+              </Row>
+              <Row>
+                <Col md={4}>{field('popup_delay_seconds', { type: 'number', inputMode: 'numeric' })}</Col>
+                <Col md={4}>{field('popup_scroll_percent', { type: 'number', inputMode: 'numeric' })}</Col>
+                <Col md={4}>{field('popup_frequency_days', { type: 'number', inputMode: 'numeric' })}</Col>
+              </Row>
+            </>,
+          )}
+          {section(
+            t('dashboard.settings.sections.sidebar'),
+            <>
+              <p className="text-muted small">{t('dashboard.settings.sidebarIntro')}</p>
+              <SidebarSettings draft={draft} errors={errors} disabled={busy} onChange={change} />
+              <h3 className="h6 mt-4">{t('dashboard.settings.sidebarPreview.title')}</h3>
+              <SidebarPreview draft={draft} />
             </>,
           )}
           {footer('content')}

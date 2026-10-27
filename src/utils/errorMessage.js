@@ -1,17 +1,23 @@
 import i18n from '../i18n'
 import { BACKEND_ERROR_CODES } from '../i18n/backendErrors'
+import { formatCountdown, secondsLeft } from './retryAfter'
 
 // The translation key of a backend error, or null when the message is not one of the backend's own (then the backend
 // text is shown as it is). The backend answers with `message` (the English text of its MessageConstant) and a numeric
 // `code` (the HTTP status); the string code of MessageConstant is not sent, so the English text is mapped to it.
 function backendKey(error) {
+  // the newer errors send their own string code (error.errorCode); the older ones are found by their English text
+  if (error.errorCode && i18n.exists(`errors.backend.${error.errorCode}`)) {
+    return `errors.backend.${error.errorCode}`
+  }
   const code = BACKEND_ERROR_CODES[error.message]
   return code && i18n.exists(`errors.backend.${code}`) ? `errors.backend.${code}` : null
 }
 
 // Text to show the user for a failed service call (backend message plus field errors), in the selected language.
 // Call it while rendering (ErrorAlert does), so the text follows a language change.
-export function errorMessage(error) {
+// `seconds` is the time to show in a "try again in {{time}}" message (default: what is left of the countdown).
+export function errorMessage(error, seconds = secondsLeft(error)) {
   if (!error) {
     return i18n.t('errors.generic')
   }
@@ -19,7 +25,7 @@ export function errorMessage(error) {
     return i18n.t('errors.network')
   }
   const key = backendKey(error)
-  const message = key ? i18n.t(key) : error.message
+  const message = key ? i18n.t(key, { time: formatCountdown(seconds) }) : error.message
   // field errors (validation) come from the backend in English and stay as they are
   const fieldErrors = error.details ? Object.values(error.details) : []
   if (fieldErrors.length > 0) {

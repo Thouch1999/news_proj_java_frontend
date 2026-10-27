@@ -33,6 +33,9 @@ export const ROUTES = {
   ADMIN_REVIEW: '/admin/review',
   ADMIN_COMMENTS: '/admin/comments',
   ADMIN_NEWS_NEW: '/admin/news/new',
+  // the sponsors ("partners" in the code: ad blockers hide paths named ad, ads or sponsor)
+  ADMIN_PARTNERS: '/admin/partners',
+  ADMIN_PARTNER_NEW: '/admin/partners/new',
 }
 
 // public site (slugs are plain a-z, digits and hyphens)
@@ -60,6 +63,10 @@ export const adminReviewPath = (id) => `/admin/review/${id}`
 export const adminNewsPath = (id) => `/admin/news/${id}`
 
 export const adminUserPath = (id) => `/admin/users/${id}`
+
+export const adminPartnerPath = (id) => `/admin/partners/${id}`
+
+export const adminPartnerStatsPath = (id) => `/admin/partners/${id}/stats`
 
 // Where each role lands after login.
 export const HOME_BY_ROLE = {

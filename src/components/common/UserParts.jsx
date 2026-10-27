@@ -1,9 +1,10 @@
 import { Badge, Dropdown, Form, OverlayTrigger, Tooltip } from 'react-bootstrap'
-import { CheckCircle, ExclamationTriangle, Person, ThreeDots } from 'react-bootstrap-icons'
+import { CheckCircle, ExclamationTriangle, Lock, Person, ThreeDots } from 'react-bootstrap-icons'
 import { Trans, useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import { ROLE_ICON, ROLES } from '../../constants/roles'
 import { adminUserPath } from '../../constants/routes'
+import { useFormat } from '../../hooks/useFormat'
 import { guardsFor } from '../../utils/userGuards'
 import { userName } from '../../utils/userName'
 import ConfirmDialog from './ConfirmDialog'
@@ -39,6 +40,19 @@ export function SuperAdminBadge({ compact = false }) {
     <span className={`super-admin-badge${compact ? ' super-admin-badge--compact' : ''}`} title={compact ? t('users.superAdmin.badge') : undefined}>
       <CrownIcon />
       <span className={compact ? 'visually-hidden' : undefined}>{t('users.superAdmin.badge')}</span>
+    </span>
+  )
+}
+
+// "Locked until 14:35": the account is locked after too many failed sign-ins. The time is shown when the backend sends it
+// (`lockedUntil`), else only "Locked".
+export function LockedBadge({ user }) {
+  const { t } = useTranslation()
+  const { formatTime } = useFormat()
+  return (
+    <span className="locked-badge">
+      <Lock aria-hidden="true" />
+      {user.lockedUntil ? t('users.detail.lockedUntil', { time: formatTime(user.lockedUntil) }) : t('users.detail.locked')}
     </span>
   )
 }

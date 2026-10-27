@@ -1,6 +1,6 @@
 import { Col, Row } from 'react-bootstrap'
 import { ChatDots, EyeSlash, Eye, FileText, HourglassSplit, People, PersonExclamation, ArrowReturnLeft } from 'react-bootstrap-icons'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ROUTES } from '../../constants/routes'
 import { useDashboardRange } from '../../hooks/useDashboardRange'
@@ -10,6 +10,7 @@ import * as reportService from '../../services/reportService'
 import DashboardHeader from './DashboardHeader'
 import { KpiCard } from './DashboardParts'
 import ActivityFeedCard from '../activity/ActivityFeedCard'
+import UpcomingCard from './UpcomingCard'
 import { CategoryBars, NeedsAttention, StatusDonut, TopArticles, ViewsPublishedChart } from './DashboardWidgets'
 
 // The editor and admin dashboard. `area` comes from constants/articleAreas.js (it says where the review queue, the
@@ -18,7 +19,9 @@ import { CategoryBars, NeedsAttention, StatusDonut, TopArticles, ViewsPublishedC
 export default function StaffDashboard({ area }) {
   const { t } = useTranslation()
   const range = useDashboardRange()
-  const summary = useRemoteData('summary', () => reportService.getSummary())
+  // a scheduled article went live (the Upcoming card saw it): the numbers are asked for again
+  const [dueRound, setDueRound] = useState(0)
+  const summary = useRemoteData(`summary|${dueRound}`, () => reportService.getSummary())
   const trends = useRemoteData(`trends|${range.from}|${range.to}`, () => reportService.getTrends(range))
   const data = summary.data
   const pending = data?.newsByStatus.PENDING ?? 0
@@ -68,14 +71,19 @@ export default function StaffDashboard({ area }) {
         </Col>
       </Row>
       <Row className="g-3 mb-3">
-        <Col md={6} xl={4}>
+        <Col lg={6}>
+          <UpcomingCard area={area} onDue={() => setDueRound((value) => value + 1)} />
+        </Col>
+        <Col lg={6}>
+          <ActivityFeedCard area={area} />
+        </Col>
+      </Row>
+      <Row className="g-3 mb-3">
+        <Col md={6}>
           <StatusDonut title={t('dashboard.overview.status.title')} counts={data?.newsByStatus} loading={summary.loading} error={summary.error} area={area} />
         </Col>
-        <Col md={6} xl={4}>
+        <Col md={6}>
           <CategoryBars />
-        </Col>
-        <Col xl={4}>
-          <ActivityFeedCard area={area} />
         </Col>
       </Row>
       <TopArticles range={range} />

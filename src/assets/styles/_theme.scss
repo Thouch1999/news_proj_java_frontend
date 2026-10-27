@@ -57,6 +57,7 @@
   --app-danger: #c62828; // a trend that went down: 5.6:1 on the surface
   --app-status-draft: #6c757d; // the article status colours (Bootstrap secondary, warning, success, danger, dark)
   --app-status-pending: #ffc107;
+  --app-status-scheduled: #0dcaf0; // Bootstrap info, the SCHEDULED badge
   --app-status-published: #198754;
   --app-status-rejected: #dc3545;
   --app-status-archived: #343a40;
@@ -103,6 +104,7 @@
   --app-danger: #ff8a8a; // 6.4:1 on the surface
   --app-status-draft: #94a0b3;
   --app-status-pending: #ffc107;
+  --app-status-scheduled: #3dd5f3;
   --app-status-published: #3fbf7f;
   --app-status-rejected: #ff6b7a;
   --app-status-archived: #cbd5e1;
@@ -653,42 +655,82 @@
     --bs-dropdown-link-active-color: #fff;
   }
 
-  // ---- sidebar
+  // ---- sidebar: exactly the viewport below the top bar, everything fits without scrolling (only a very short screen scrolls
+  // the menu inside itself); an icon-only rail on tablets; an offcanvas on phones (same menu)
   .dashboard-sidebar {
     position: fixed;
     top: var(--dash-topbar-height);
-    bottom: 0;
     left: 0;
     z-index: 1020;
     width: var(--dash-sidebar-width);
-    overflow-y: auto;
-    padding: 0.5rem 0 1.5rem;
+    height: calc(100dvh - var(--dash-topbar-height));
+    overflow: hidden;
+    padding: 0.5rem 0;
     background: var(--app-sidebar-bg);
     border-right: 1px solid var(--app-border);
 
-    @media (max-width: 767.98px) {
-      width: 100%;
+    @media (max-height: 600px) {
+      overflow-y: auto;
+    }
+  }
+
+  .dashboard-offcanvas {
+    --bs-offcanvas-width: min(var(--dash-sidebar-width), 85vw);
+    --bs-offcanvas-bg: var(--app-sidebar-bg);
+    --bs-offcanvas-color: var(--app-sidebar-text);
+    --bs-offcanvas-border-color: var(--app-border);
+
+    .offcanvas-title {
+      color: var(--app-heading);
+      font-weight: 700;
     }
 
-    .menu-title {
-      padding: 0.9rem 1.5rem 0.35rem;
-      color: var(--app-muted);
-      font-size: 0.85rem;
-      font-weight: 600;
+    .offcanvas-body {
+      padding: 0 0 1rem;
+    }
+  }
+
+  .dashboard-sidebar,
+  .dashboard-offcanvas {
+    .dashboard-menu {
+      display: flex;
+      flex-direction: column;
     }
 
     .nav-link {
       display: flex;
       align-items: center;
+      gap: 0.6rem;
       position: relative;
-      padding: 0.625rem 1.5rem;
+      width: 100%;
+      min-height: 40px;
+      padding: 0.4rem 1.25rem;
+      border: 0;
+      background: none;
       color: var(--app-sidebar-text);
       font-size: 0.9rem;
       font-weight: 500;
+      line-height: 1.25;
+      text-align: start;
       transition: color 0.2s, background-color 0.2s;
 
       &:hover {
         color: var(--app-heading);
+      }
+
+      &:focus-visible {
+        outline: 2px solid var(--app-primary-text);
+        outline-offset: -2px;
+      }
+
+      .menu-icon {
+        flex-shrink: 0;
+      }
+
+      .menu-label {
+        flex: 1;
+        min-width: 0;
+        overflow-wrap: anywhere; // Khmer labels are longer: they wrap, never overflow
       }
 
       &.active {
@@ -704,11 +746,105 @@
           position: absolute;
           top: 0;
           bottom: 0;
-          left: 0;
+          inset-inline-start: 0;
           width: 3px;
           background: var(--app-primary-text);
         }
       }
+    }
+
+    // the header of a group: icon, label, chevron
+    .menu-group-toggle {
+      cursor: pointer;
+
+      &.is-current:not(.is-open) {
+        color: var(--app-sidebar-active-text);
+      }
+
+      .menu-chevron {
+        flex-shrink: 0;
+        font-size: 0.75rem;
+        transition: transform 0.2s;
+      }
+
+      &.is-open .menu-chevron {
+        transform: rotate(90deg);
+      }
+    }
+
+    // the entries of an open group: indented, a little smaller, no icon
+    .menu-sub {
+      min-height: 36px;
+      padding-block: 0.3rem;
+      padding-inline-start: 3.1rem;
+      font-size: 0.85rem;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .nav-link,
+      .menu-chevron {
+        transition: none;
+      }
+    }
+  }
+
+  // tablet: an icon rail (the groups open flyouts)
+  @media (min-width: 768px) and (max-width: 991.98px) {
+    --dash-sidebar-width: 64px;
+
+    .dashboard-topbar .brand {
+      padding: 0 1rem;
+
+      .brand-name {
+        display: none;
+      }
+    }
+
+    .dashboard-sidebar {
+      overflow: visible;
+
+      .nav-link {
+        justify-content: center;
+        padding-inline: 0;
+
+        .menu-label {
+          position: absolute;
+          width: 1px;
+          height: 1px;
+          overflow: hidden;
+          clip-path: inset(50%);
+          white-space: nowrap;
+        }
+
+        .menu-icon {
+          font-size: 1.15rem;
+        }
+      }
+
+      .menu-badge--dot {
+        position: absolute;
+        top: 4px;
+        inset-inline-end: 8px;
+        min-width: 1.1rem;
+        padding: 0.15rem 0.3rem;
+        font-size: 0.62rem;
+      }
+
+      .menu-flyout {
+        .dropdown-menu {
+          min-width: 12rem;
+        }
+
+        .dropdown-toggle::after {
+          display: none;
+        }
+      }
+    }
+  }
+
+  @media (max-height: 600px) and (min-width: 768px) and (max-width: 991.98px) {
+    .dashboard-sidebar {
+      overflow-y: auto;
     }
   }
 
@@ -1298,6 +1434,28 @@
       &:focus-visible {
         color: var(--app-primary-text);
         text-decoration: underline;
+      }
+    }
+
+    // why the protection kept the comment for review (a soft warning, readable in both themes)
+    &__note {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.4rem;
+      width: fit-content;
+      max-width: 100%;
+      margin-top: 0.4rem;
+      padding: 0.2rem 0.55rem;
+      border-radius: 0.4rem;
+      background: var(--app-warn-icon-bg);
+      color: var(--app-warn-icon);
+      font-size: 0.82rem;
+      line-height: 1.4;
+      overflow-wrap: anywhere;
+
+      svg {
+        flex-shrink: 0;
+        margin-top: 0.15rem;
       }
     }
 
@@ -2820,6 +2978,20 @@ html[lang="km"] {
   }
 }
 
+// "Locked until 14:35" next to the status of an account that was locked by too many failed sign-ins
+.locked-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.15rem 0.55rem;
+  border: 1px solid var(--app-warn-border);
+  border-radius: 999px;
+  background: var(--app-warn-icon-bg);
+  color: var(--app-warn-icon);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
 .you-badge {
   background: var(--app-surface-2);
   color: var(--app-muted);
@@ -3755,4 +3927,42 @@ html[lang="km"] {
 // the role in "created the account of X as Admin": bold, and in the primary colour for an admin
 .activity-role--admin {
   color: var(--app-primary-text);
+}
+
+// ---- scheduled publishing ----
+
+// the go-live time of a SCHEDULED article in the article list
+.goes-live {
+  color: var(--app-text);
+  font-size: 0.9rem;
+
+  svg {
+    color: var(--app-primary);
+    vertical-align: -0.125em;
+  }
+}
+
+// the dashboard card "Upcoming": time, title, author
+.upcoming-list {
+  li {
+    padding: 8px 0;
+
+    & + li {
+      border-top: 1px solid var(--app-border);
+    }
+  }
+
+  .upcoming-time {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    color: var(--app-text);
+    font-weight: 600;
+
+    svg {
+      color: var(--app-primary);
+      flex-shrink: 0;
+    }
+  }
 }

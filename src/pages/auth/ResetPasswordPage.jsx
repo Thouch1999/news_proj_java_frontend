@@ -11,6 +11,7 @@ import ResendButton from '../../components/form/ResendButton'
 import { OTP_PURPOSE, RESEND_COOLDOWN_SECONDS } from '../../constants/otp'
 import { ROUTES } from '../../constants/routes'
 import { useCountdown } from '../../hooks/useCountdown'
+import { useRetryAfter } from '../../hooks/useRetryAfter'
 import * as authService from '../../services/authService'
 import { hasErrors, rules } from '../../utils/validators'
 
@@ -24,6 +25,7 @@ export default function ResetPasswordPage() {
   const [otp, setOtp] = useState('')
   const [errors, setErrors] = useState({})
   const [apiError, setApiError] = useState(null)
+  const retry = useRetryAfter(apiError)
   const [notice, setNotice] = useState(state?.noticeKey ?? null)
   const [submitting, setSubmitting] = useState(false)
 
@@ -108,12 +110,12 @@ export default function ResetPasswordPage() {
           labels={{ password: t('auth.fields.newPassword'), confirm: t('auth.fields.confirmNewPassword') }}
           onChange={(value) => setForm((current) => ({ ...current, ...value }))}
         />
-        <Button type="submit" className="w-100" disabled={submitting}>
+        <Button type="submit" className="w-100" disabled={submitting || retry > 0}>
           {submitting && <Spinner size="sm" className="me-2" aria-hidden="true" />}
           {submitting ? t('auth.reset.resetting') : t('auth.reset.submit')}
         </Button>
         <div className="text-center mt-2">
-          <ResendButton remaining={countdown.remaining} onClick={handleResend} />
+          <ResendButton remaining={countdown.remaining} onClick={handleResend} disabled={retry > 0} />
         </div>
       </Form>
     </AuthPage>

@@ -7,6 +7,7 @@ import { EmptyState, ErrorState } from '../../components/common/ListStates'
 import ArticleHeader from '../../components/news/ArticleHeader'
 import CommentSection from '../../components/news/CommentSection'
 import ImageGallery from '../../components/news/ImageGallery'
+import { OverlayPromo, SidebarPromo } from '../../components/promo/ArticlePromos'
 import { MostViewedBlock, SideBlock, SideNewsList } from '../../components/news/NewsListSidebar'
 import NewsCard from '../../components/news/NewsCard'
 import SafeHtml from '../../components/news/SafeHtml'
@@ -46,6 +47,8 @@ function Article({ article }) {
   const related = others.slice(0, RELATED_COUNT)
   const more = others.slice(RELATED_COUNT, RELATED_COUNT + MORE_COUNT)
   const caption = article.images?.[0]?.caption
+  // new for every article that opens: a promo is counted once per page view
+  const [pageView] = useState(() => `${article.id}-${Date.now()}-${Math.random()}`)
 
   return (
     <Row className="g-5">
@@ -97,10 +100,13 @@ function Article({ article }) {
         <div className="article-column">
           <CommentSection article={article} />
         </div>
+        {/* a popup (tablet, computer) or a bottom bar (phone); it draws itself outside the text, after a scroll or a delay */}
+        <OverlayPromo article={article} pageView={pageView} />
       </Col>
 
       <Col lg={4}>
         <aside className="article-side news-side" aria-label={t('public.side.label')}>
+          <SidebarPromo article={article} pageView={pageView} />
           <MostViewedBlock />
           {more.length > 0 && (
             <SideBlock title={t('public.detail.moreIn', { category: article.category.name })} id="side-more-category">

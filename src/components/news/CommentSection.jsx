@@ -5,21 +5,28 @@ import { Link, useLocation } from 'react-router-dom'
 import ConfirmDialog from '../common/ConfirmDialog'
 import UserAvatar from '../common/UserAvatar'
 import ErrorAlert from '../common/ErrorAlert'
+import HoneypotField from '../form/HoneypotField'
 import PageSpinner from '../common/PageSpinner'
 import { ROUTES } from '../../constants/routes'
 import { useAuth } from '../../hooks/useAuth'
+import { useRetryAfter } from '../../hooks/useRetryAfter'
 import * as commentService from '../../services/commentService'
 import { useFormat } from '../../hooks/useFormat'
 
 const PAGE_SIZE = 10
 const MAX_LENGTH = 2000
+const MAX_LINKS = 2 // the backend refuses a comment with more links (COMMENT_TOO_MANY_LINKS)
 
 function CommentForm({ newsId, onAdded }) {
   const { t } = useTranslation()
   const [content, setContent] = useState('')
+  const [website, setWebsite] = useState('') // the honeypot: stays empty for a person
   const [error, setError] = useState(null)
+  const [held, setHeld] = useState(false) // the comment was kept for review (a blocked word)
   const [sending, setSending] = useState(false)
   const blank = !content.trim()
+  // too many comments, or an account that is too new: the button waits for the countdown, then works again by itself
+  const retry = useRetryAfter(error)
 
   const handleSubmit = async (event) => {
     event.preventDefault()
@@ -28,10 +35,15 @@ function CommentForm({ newsId, onAdded }) {
     }
     setSending(true)
     setError(null)
+    setHeld(false)
     try {
-      const created = await commentService.addComment(newsId, content.trim())
+      const created = await commentService.addComment(newsId, content.trim(), website)
       setContent('')
-      onAdded(created)
+      if (created?.status === 'HIDDEN') {
+        setHeld(true) // not shown in the list: a moderator reviews it first
+      } else {
+        onAdded(created)
+      }
     } catch (caught) {
       setError(caught) // for example 409: an editor switched the comments off meanwhile
     } finally {
@@ -42,15 +54,22 @@ function CommentForm({ newsId, onAdded }) {
   return (
     <Form onSubmit={handleSubmit} className="mb-4" noValidate>
       <ErrorAlert error={error} />
+      {held && <Alert variant="success">{t('public.comments.held')}</Alert>}
       <Form.Group controlId="new-comment">
         <Form.Label className="visually-hidden">{t('public.comments.write')}</Form.Label>
-        <Form.Control as="textarea" rows={3} maxLength={MAX_LENGTH} placeholder={t('public.comments.placeholder')} value={content} onChange={(event) => setContent(event.target.value)} />
+        <Form.Control as="textarea" rows={3} maxLength={MAX_LENGTH} placeholder={t('public.comments.placeholder')} value={content} onChange={(event) => setContent(event.target.value)} aria-describedby="new-comment-hint" />
+        <div className="d-flex justify-content-between align-items-start gap-2 mt-1">
+          <Form.Text id="new-comment-hint" className="text-muted">
+            {t('public.comments.linkHint', { max: MAX_LINKS })}
+          </Form.Text>
+          <span className="text-muted small text-nowrap">
+            {content.length}/{MAX_LENGTH}
+          </span>
+        </div>
       </Form.Group>
-      <div className="d-flex justify-content-between align-items-center mt-2">
-        <span className="text-muted small">
-          {content.length}/{MAX_LENGTH}
-        </span>
-        <Button type="submit" disabled={sending || blank}>
+      <HoneypotField id="comment-website" value={website} onChange={setWebsite} />
+      <div className="text-end mt-2">
+        <Button type="submit" disabled={sending || blank || retry > 0}>
           {sending ? t('public.comments.sending') : t('public.comments.post')}
         </Button>
       </div>

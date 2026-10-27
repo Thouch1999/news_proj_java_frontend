@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Badge, Button, Dropdown, Form, Placeholder, Spinner } from 'react-bootstrap'
-import { Eye, EyeSlash, ThreeDots } from 'react-bootstrap-icons'
+import { Eye, EyeSlash, ShieldExclamation, ThreeDots } from 'react-bootstrap-icons'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import UserAvatar from '../common/UserAvatar'
@@ -12,6 +12,14 @@ import { UpdatedCell } from './ArticleListParts'
 export function CommentStatusBadge({ status }) {
   const { t } = useTranslation()
   return <Badge bg={status === 'HIDDEN' ? 'secondary' : 'success'}>{status === 'HIDDEN' ? t('news.comments.moderation.hidden') : t('news.comments.moderation.visible')}</Badge>
+}
+
+// The backend writes the note in English ("Contains a blocked word: casino"); the known one is shown in the selected language
+const BLOCKED_WORD_NOTE = /^Contains a blocked word: ([\s\S]+)$/
+
+function noteText(t, note) {
+  const found = BLOCKED_WORD_NOTE.exec(note)
+  return found ? t('news.comments.moderation.blockedWordNote', { word: found[1] }) : note
 }
 
 // The comment as plain text (line breaks kept), three lines and "Show more" when it is longer
@@ -67,6 +75,13 @@ export function CommentRow({ comment, area, selected, busy, onSelect, onToggle, 
           <CommentStatusBadge status={comment.status} />
         </div>
         <ClampedText text={comment.content} />
+        {/* why the protection kept it for review (only a moderator gets the note) */}
+        {comment.moderationNote && (
+          <div className="comment-row__note">
+            <ShieldExclamation aria-hidden="true" />
+            <span>{noteText(t, comment.moderationNote)}</span>
+          </div>
+        )}
         <div className="small text-muted mt-1 text-truncate">
           {t('news.comments.moderation.on')}{' '}
           <Link to={area.editPath(comment.newsId)} className="news-title">

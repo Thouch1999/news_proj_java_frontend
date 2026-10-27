@@ -72,7 +72,26 @@ export const BACKEND_ERROR_CODES = {
   "Too many wrong attempts, please request a new OTP": "OTP_ATTEMPTS_EXCEEDED",
   "Please wait before requesting another OTP": "OTP_RESEND_COOLDOWN",
   "OTP request limit reached, please try again later": "OTP_RESEND_LIMIT_EXCEEDED",
-  "Email has not been verified by OTP": "EMAIL_NOT_VERIFIED"
+  "Email has not been verified by OTP": "EMAIL_NOT_VERIFIED",
+  "This image is used by a chosen place: uncheck the place first": "SPONSOR_IMAGE_IN_USE",
+  "Sponsor not found": "SPONSOR_NOT_FOUND",
+  "The sponsor has no image for this placement": "SPONSOR_CREATIVE_NOT_FOUND",
+  "Unknown placement": "SPONSOR_PLACEMENT_INVALID",
+  "Status must be active, scheduled, ended or inactive": "SPONSOR_STATUS_INVALID",
+  "The date range is not valid (from must not be after to, 366 days at most)": "SPONSOR_STATS_RANGE_INVALID",
+  "Only PNG, JPG and WebP images are allowed": "SPONSOR_IMAGE_TYPE_NOT_ALLOWED",
+  "The image is too large (2 MB at most)": "SPONSOR_IMAGE_TOO_LARGE",
+  "Only MP4 (H.264) and WebM videos are allowed": "SPONSOR_VIDEO_TYPE_NOT_ALLOWED",
+  "The video is too large (15 MB at most)": "SPONSOR_VIDEO_TOO_LARGE",
+  "The video is too long (30 seconds at most)": "SPONSOR_VIDEO_TOO_LONG",
+  "The sponsor has no video for this placement": "SPONSOR_VIDEO_NOT_FOUND",
+  "The sponsor has no logo": "SPONSOR_LOGO_NOT_FOUND",
+  "This kind of media can not be used in this placement": "SPONSOR_MEDIA_NOT_ALLOWED",
+  "Too many requests, please try again later": "RATE_LIMITED",
+  "Too many failed login attempts, please try again later": "ACCOUNT_TEMPORARILY_LOCKED",
+  "A comment can have at most 2 links": "COMMENT_TOO_MANY_LINKS",
+  "You already posted this comment": "COMMENT_DUPLICATE",
+  "Your account is too new to comment, please try again in a few minutes": "ACCOUNT_TOO_NEW",
 }
 
 // Every code, for the translation files (errors.backend.<CODE>).
@@ -148,5 +167,10 @@ export const BACKEND_ERROR_LIST = [
   "OTP_ATTEMPTS_EXCEEDED",
   "OTP_RESEND_COOLDOWN",
   "OTP_RESEND_LIMIT_EXCEEDED",
-  "EMAIL_NOT_VERIFIED"
+  "EMAIL_NOT_VERIFIED",
+  "RATE_LIMITED",
+  "ACCOUNT_TEMPORARILY_LOCKED",
+  "COMMENT_TOO_MANY_LINKS",
+  "COMMENT_DUPLICATE",
+  "ACCOUNT_TOO_NEW"
 ]

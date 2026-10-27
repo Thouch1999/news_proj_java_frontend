@@ -1,18 +1,20 @@
 import { useState } from 'react'
-import { Link, NavLink, Outlet } from 'react-router-dom'
-import { Badge, Dropdown, Nav } from 'react-bootstrap'
+import { Link, Outlet } from 'react-router-dom'
+import { Dropdown, Offcanvas } from 'react-bootstrap'
 import { useTranslation } from 'react-i18next'
 import { BoxArrowRight, BoxArrowUpRight, List, Person } from 'react-bootstrap-icons'
 import LanguageSwitch from '../components/common/LanguageSwitch'
 import NotificationBell from '../components/notifications/NotificationBell'
 import UserAvatar from '../components/common/UserAvatar'
 import { SuperAdminBadge } from '../components/common/UserParts'
+import DashboardMenu from '../components/common/DashboardMenu'
 import ThemeToggle from '../components/common/ThemeToggle'
-import { DASHBOARD_MENU, MENU_GROUPS } from '../constants/dashboardMenu'
+import { buildMenu } from '../constants/dashboardMenu'
 import { ROLES } from '../constants/roles'
 import { ROUTES } from '../constants/routes'
 import ReviewCountProvider from '../context/ReviewCountProvider'
 import { useAuth } from '../hooks/useAuth'
+import { useMediaQuery } from '../hooks/useMediaQuery'
 import { useReviewCount } from '../hooks/useReviewCount'
 import { useSettings } from '../hooks/useSettings'
 
@@ -26,11 +28,14 @@ function DashboardShell() {
   const { dashboardName, logoSrc, copyright } = useSettings()
   const { count: pending } = useReviewCount()
   const [menuOpen, setMenuOpen] = useState(false)
-  const menu = DASHBOARD_MENU.filter((item) => hasAnyRole(item.roles))
+  const nodes = buildMenu(hasAnyRole) // single entries and groups, for the roles of this user
+  const mobile = useMediaQuery('(max-width: 767.98px)') // the menu is an offcanvas
+  const tablet = useMediaQuery('(min-width: 768px) and (max-width: 991.98px)') // the menu is icons with flyouts
+  const [shell, setShell] = useState(null) // the offcanvas is drawn inside the shell, so it has the colours of the dashboard
   const name = user?.fullName || user?.username || ''
 
   return (
-    <div className="dashboard-shell">
+    <div className="dashboard-shell" ref={setShell}>
       <header className="dashboard-topbar">
         <div className="d-flex align-items-center">
           <Link to={ROUTES.HOME} className="brand">
@@ -75,28 +80,20 @@ function DashboardShell() {
         </div>
       </header>
 
-      <aside className={`dashboard-sidebar ${menuOpen ? '' : 'd-none'} d-md-block`}>
-        {MENU_GROUPS.map((group) => {
-          const items = menu.filter((item) => item.group === group)
-          if (items.length === 0) return null
-          return (
-            <Nav key={group} className="flex-column" aria-label={t(`dashboard.menu.groups.${group}`)}>
-              <div className="menu-title">{t(`dashboard.menu.groups.${group}`)}</div>
-              {items.map(({ icon: Icon, ...item }) => (
-                <Nav.Link key={item.to} as={NavLink} to={item.to} end={item.end ?? false} onClick={() => setMenuOpen(false)}>
-                  <Icon className="me-2" aria-hidden="true" />
-                  {t(item.labelKey)}
-                  {item.badge === 'review' && pending > 0 && (
-                    <Badge pill bg="" className="menu-badge ms-auto" aria-label={t('dashboard.menu.pendingCount', { count: pending })}>
-                      {pending > 99 ? '99+' : pending}
-                    </Badge>
-                  )}
-                </Nav.Link>
-              ))}
-            </Nav>
-          )
-        })}
-      </aside>
+      {mobile ? (
+        <Offcanvas show={menuOpen} onHide={() => setMenuOpen(false)} container={shell} className="dashboard-offcanvas" aria-label={t('dashboard.menu.label')}>
+          <Offcanvas.Header closeButton closeLabel={t('common.actions.close')}>
+            <Offcanvas.Title as="span">{dashboardName}</Offcanvas.Title>
+          </Offcanvas.Header>
+          <Offcanvas.Body>
+            <DashboardMenu nodes={nodes} pending={pending ?? 0} onNavigate={() => setMenuOpen(false)} />
+          </Offcanvas.Body>
+        </Offcanvas>
+      ) : (
+        <aside className={`dashboard-sidebar${tablet ? ' is-collapsed' : ''}`}>
+          <DashboardMenu nodes={nodes} pending={pending ?? 0} collapsed={tablet} />
+        </aside>
+      )}
 
       <div className="dashboard-main">
         <main className="dashboard-content">

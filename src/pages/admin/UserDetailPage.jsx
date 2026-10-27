@@ -6,7 +6,7 @@ import ConfirmDialog from '../../components/common/ConfirmDialog'
 import ActivityHistoryCard from '../../components/activity/ActivityHistoryCard'
 import ErrorAlert from '../../components/common/ErrorAlert'
 import PageSpinner from '../../components/common/PageSpinner'
-import { ReasonTip, RoleBadge, SuperAdminBadge, UserPhoto, UserStatus } from '../../components/common/UserParts'
+import { LockedBadge, ReasonTip, RoleBadge, SuperAdminBadge, UserPhoto, UserStatus } from '../../components/common/UserParts'
 import FormCard from '../../components/form/FormCard'
 import ResetPasswordDialog from '../../components/form/ResetPasswordDialog'
 import { ROLES } from '../../constants/roles'
@@ -30,7 +30,7 @@ export default function UserDetailPage() {
   const loadError = loaded.error
   const [actionError, setActionError] = useState(null)
   const [message, setMessage] = useState(state?.messageKey ?? null)
-  const [dialog, setDialog] = useState(null) // 'status' | 'role' | 'password' | null
+  const [dialog, setDialog] = useState(null) // 'status' | 'role' | 'password' | 'unlock' | null
   const [busy, setBusy] = useState(false)
 
   useEffect(() => {
@@ -110,6 +110,7 @@ export default function UserDetailPage() {
           <div className="d-flex flex-wrap align-items-center gap-2 small">
             <RoleBadge role={user.role} />
             <UserStatus user={user} />
+            {user.locked && <LockedBadge user={user} />}
             <span className="text-muted">@{user.username}</span>
           </div>
         </div>
@@ -162,6 +163,15 @@ export default function UserDetailPage() {
             )}
           </FormCard>
 
+          {user.locked && (
+            <FormCard title={t('users.detail.lockCard')} className="mb-3">
+              <p className="small mb-2">{t('users.detail.lockedHelp')}</p>
+              <Button variant="outline-warning" disabled={busy} onClick={() => setDialog('unlock')}>
+                {t('users.detail.unlock')}
+              </Button>
+            </FormCard>
+          )}
+
           <FormCard title={t('users.fields.role')} className="mb-3">
             <Form.Select aria-label={t('users.fields.role')} value={role} onChange={(event) => setRole(event.target.value)} disabled={Boolean(guards.role) || busy}>
               {Object.values(ROLES).map((name) => (
@@ -190,7 +200,7 @@ export default function UserDetailPage() {
 
       {/* what was done to this account (created, role, password reset ...) and its sign-ins */}
       <div className="mt-3">
-        <ActivityHistoryCard types={['USER', 'AUTH']} id={user.id} refreshKey={`${user.role}|${user.active}`} />
+        <ActivityHistoryCard types={['USER', 'AUTH']} id={user.id} refreshKey={`${user.role}|${user.active}|${user.locked}`} />
       </div>
 
       <ConfirmDialog
@@ -207,6 +217,18 @@ export default function UserDetailPage() {
         }
       >
         {user.active ? t('users.detail.deactivateText', { username: user.username }) : t('users.detail.activateText', { username: user.username })}
+      </ConfirmDialog>
+
+      <ConfirmDialog
+        show={dialog === 'unlock'}
+        title={t('users.detail.unlockTitle')}
+        confirmLabel={t('users.detail.unlock')}
+        confirmVariant="warning"
+        busy={busy}
+        onCancel={() => setDialog(null)}
+        onConfirm={() => run(() => userService.unlockUser(user.id), 'users.detail.unlocked')}
+      >
+        {t('users.detail.unlockText', { username: user.username })}
       </ConfirmDialog>
 
       <ConfirmDialog

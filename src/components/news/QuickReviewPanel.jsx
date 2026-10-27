@@ -7,6 +7,7 @@ import { useFormat } from '../../hooks/useFormat'
 import { readingStats } from '../../utils/readingStats'
 import { AuthorCell } from './ArticleListParts'
 import ArticlePreview from './ArticlePreview'
+import PublishSplitButton from './PublishSplitButton'
 import { WaitingBadge } from './ReviewParts'
 import StatusBadge from './StatusBadge'
 
@@ -91,9 +92,7 @@ export default function QuickReviewPanel({ item, details, area, position, total,
               <Button as={Link} to={area.editPath(item.id)} variant="outline-secondary">
                 {t('news.review.editShort')}
               </Button>
-              <Button variant="primary" disabled={!article || article.status !== 'PENDING'} onClick={() => onAction('publish')}>
-                {t('news.workflow.actions.publish')}
-              </Button>
+              <PublishSplitButton drop="up" disabled={!article || article.status !== 'PENDING'} onPublish={() => onAction('publish')} onSchedule={() => onAction('schedule')} />
             </div>
           </div>
         </>

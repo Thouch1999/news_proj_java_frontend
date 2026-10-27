@@ -12,6 +12,7 @@ import { EMAIL_NOT_VERIFIED_MESSAGE, OTP_LENGTH, RESEND_COOLDOWN_SECONDS } from 
 import { ROUTES } from '../../constants/routes'
 import { useAuth } from '../../hooks/useAuth'
 import { useCountdown } from '../../hooks/useCountdown'
+import { useRetryAfter } from '../../hooks/useRetryAfter'
 import { useSettings } from '../../hooks/useSettings'
 import * as authService from '../../services/authService'
 import { postLoginPath } from '../../utils/postLoginPath'
@@ -36,6 +37,9 @@ export default function LoginPage() {
   const [apiError, setApiError] = useState(null)
   const [notice, setNotice] = useState(null)
   const [submitting, setSubmitting] = useState(false)
+  // too many failed attempts: the buttons wait for the countdown of the error, then work again by themselves
+  const retry = useRetryAfter(apiError)
+  const blocked = retry > 0
 
   if (isAuthenticated) {
     return <Navigate to={postLoginPath(user, from)} replace />
@@ -138,12 +142,12 @@ export default function LoginPage() {
               {errors.otp}
             </div>
           )}
-          <Button type="submit" className="w-100" disabled={submitting}>
+          <Button type="submit" className="w-100" disabled={submitting || blocked}>
             {submitting && <Spinner size="sm" className="me-2" aria-hidden="true" />}
             {submitting ? t('auth.login.verifying') : t('auth.otp.verify')}
           </Button>
           <div className="text-center mt-2">
-            <ResendButton remaining={countdown.remaining} onClick={handleResend} />
+            <ResendButton remaining={countdown.remaining} onClick={handleResend} disabled={blocked} />
           </div>
         </Form>
       </AuthPage>
@@ -179,7 +183,7 @@ export default function LoginPage() {
           labelAction={<Link to={ROUTES.FORGOT_PASSWORD} className="small">{t('auth.login.forgot')}</Link>}
           onChange={(value) => setForm((current) => ({ ...current, password: value }))}
         />
-        <Button type="submit" className="w-100" disabled={submitting}>
+        <Button type="submit" className="w-100" disabled={submitting || blocked}>
           {submitting && <Spinner size="sm" className="me-2" aria-hidden="true" />}
           {submitting ? t('auth.login.loggingIn') : t('auth.login.submit')}
         </Button>

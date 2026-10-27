@@ -1,9 +1,11 @@
 import { Form } from 'react-bootstrap'
+import { useTranslation } from 'react-i18next'
 import { SETTING_RULES } from '../../constants/siteSettings'
 
 // One text setting: a label, an input (or a textarea for a multi-line value), a character counter for the long ones, a
 // help text and the problem under it (from the form check or from the backend). `lang` marks Khmer text for the browser.
 export default function SettingField({ id, label, help, value, onChange, error, settingKey, type = 'text', lang, disabled = false }) {
+  const { t } = useTranslation()
   const rule = SETTING_RULES[settingKey] ?? {}
   const multiline = Boolean(rule.multiline)
   const describedBy = [help ? `${id}-help` : null, error ? `${id}-error` : null].filter(Boolean).join(' ') || undefined
@@ -13,7 +15,8 @@ export default function SettingField({ id, label, help, value, onChange, error, 
       <Form.Label>{label}</Form.Label>
       <Form.Control
         as={multiline ? 'textarea' : 'input'}
-        rows={multiline ? 3 : undefined}
+        rows={multiline ? (rule.rows ?? 3) : undefined}
+        spellCheck={rule.lines ? false : undefined}
         type={multiline ? undefined : type}
         lang={lang}
         value={value}
@@ -35,6 +38,7 @@ export default function SettingField({ id, label, help, value, onChange, error, 
         )}
         {multiline && rule.max && (
           <Form.Text className="text-muted text-nowrap" aria-hidden="true">
+            {rule.lines && `${t('dashboard.settings.linesCount', { count: value.split(/\r?\n/).filter((line) => line.trim()).length })} · `}
             {value.length}/{rule.max}
           </Form.Text>
         )}

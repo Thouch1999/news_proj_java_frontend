@@ -28,8 +28,9 @@ export function getManagedNews(id) {
 // An editor or an admin gets all articles and may filter by authorId and categoryId; for an author the backend
 // always returns only their own articles. An item has no content: { id, title, slug, summary, thumbnail, status, authorId,
 // authorName, categoryName, rejectionReason, editable, createdAt, updatedAt }
-export function listManagedNews({ page = 1, size = 10, status, authorId, categoryId } = {}) {
+export function listManagedNews({ page = 1, size = 10, status, authorId, categoryId, sort } = {}) {
   const params = { page, size }
+  if (sort) params.sort = sort
   if (status) params.status = status
   if (authorId) params.authorId = authorId
   if (categoryId) params.categoryId = categoryId
@@ -41,7 +42,7 @@ export function deleteNews(id) {
   return httpClient.delete(`${NEWS}/${id}`)
 }
 
-// ---- editorial workflow (statuses: DRAFT, PENDING, PUBLISHED, REJECTED, ARCHIVED) ----
+// ---- editorial workflow (statuses: DRAFT, PENDING, SCHEDULED, PUBLISHED, REJECTED, ARCHIVED) ----
 // Each action returns the whole article. A wrong role is 403 and a status that does not allow the action is 409.
 
 // The author's own DRAFT or REJECTED article -> PENDING (the rejection reason is cleared).
@@ -49,7 +50,7 @@ export function submitNews(id) {
   return httpClient.post(`${NEWS}/${id}/submit`)
 }
 
-// EDITOR/ADMIN: PENDING -> PUBLISHED. ADMIN only: DRAFT -> PUBLISHED ("publish now", without review).
+// EDITOR/ADMIN: PENDING or SCHEDULED ("publish now") -> PUBLISHED. ADMIN only: DRAFT -> PUBLISHED ("publish now", without review).
 export function publishNews(id) {
   return httpClient.post(`${NEWS}/${id}/publish`)
 }
@@ -69,7 +70,29 @@ export function restoreNews(id) {
   return httpClient.post(`${NEWS}/${id}/restore`)
 }
 
-// Runs one workflow action by its key (see constants/newsStatus.js); `reason` is used by 'reject' only.
+// ---- scheduled publishing (EDITOR/ADMIN; `scheduledAt` is a UTC instant such as 2026-10-20T00:00:00Z, 5 minutes to 1 year ahead) ----
+
+// PENDING -> SCHEDULED; ADMIN only: DRAFT -> SCHEDULED. The article goes live by itself (the backend job runs every minute).
+export function scheduleNews(id, scheduledAt) {
+  return httpClient.post(`${NEWS}/${id}/schedule`, { scheduledAt })
+}
+
+// Changes the time of a SCHEDULED article
+export function rescheduleNews(id, scheduledAt) {
+  return httpClient.patch(`${NEWS}/${id}/schedule`, { scheduledAt })
+}
+
+// SCHEDULED -> PENDING (the schedule is cleared)
+export function cancelNewsSchedule(id) {
+  return httpClient.delete(`${NEWS}/${id}/schedule`)
+}
+
+// The next 10 scheduled articles, nearest first: items of the management list plus scheduledAt and scheduledByName
+export function listUpcomingNews() {
+  return httpClient.get(`${NEWS}/scheduled/upcoming`)
+}
+
+// Runs one workflow action by its key (see constants/newsStatus.js); `reason` is the text of a rejection, or the UTC time of a schedule or a change of it.
 export function runWorkflowAction(action, id, reason) {
   switch (action) {
     case 'submit':
@@ -82,6 +105,12 @@ export function runWorkflowAction(action, id, reason) {
       return archiveNews(id)
     case 'restore':
       return restoreNews(id)
+    case 'schedule':
+      return scheduleNews(id, reason)
+    case 'reschedule':
+      return rescheduleNews(id, reason)
+    case 'unschedule':
+      return cancelNewsSchedule(id)
     default:
       return Promise.reject(new Error(`Unknown workflow action: ${action}`))
   }

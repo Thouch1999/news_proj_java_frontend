@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Badge, Button, Dropdown, Form, Nav, OverlayTrigger, Placeholder, Tooltip } from 'react-bootstrap'
-import { BoxArrowUpRight, FileEarmarkText, Funnel, Image, Inbox, PencilSquare, ThreeDots } from 'react-bootstrap-icons'
+import { BoxArrowUpRight, Clock, FileEarmarkText, Funnel, Image, Inbox, PencilSquare, ThreeDots } from 'react-bootstrap-icons'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import Pagination from '../common/Pagination'
@@ -8,6 +8,7 @@ import UserAvatar from '../common/UserAvatar'
 import { ARTICLE_PAGE_SIZES, NEWS_STATUS, workflowActions } from '../../constants/newsStatus'
 import { newsPath } from '../../constants/routes'
 import { useFormat } from '../../hooks/useFormat'
+import { useNow } from '../../hooks/useNow'
 import { mediaUrl } from '../../utils/mediaUrl'
 
 // The parts of the article list (admin "All articles", editor "All articles", author "My articles"). `area` comes from
@@ -152,6 +153,20 @@ export function UpdatedCell({ value }) {
   )
 }
 
+// A SCHEDULED article: the time it goes live (with a clock) and "in 14 hours" in a tooltip
+export function GoesLiveCell({ value }) {
+  const { formatSchedule, formatUntil } = useFormat()
+  const now = useNow()
+  return (
+    <OverlayTrigger placement="top" overlay={<Tooltip id={`goes-live-${value}`}>{formatUntil(value, now)}</Tooltip>}>
+      <time dateTime={value} tabIndex={0} className="text-nowrap goes-live">
+        <Clock aria-hidden="true" className="me-1" />
+        {formatSchedule(value)}
+      </time>
+    </OverlayTrigger>
+  )
+}
+
 // ---- actions ----
 
 // View on the site (a PUBLISHED article only) and Edit as icon buttons, then a "..." menu with the other actions that
@@ -159,7 +174,9 @@ export function UpdatedCell({ value }) {
 // Restore (admin) and, last and in red, Delete. Reviewing happens on the review page.
 export function ArticleActions({ article, area, canDelete, onWorkflow, onDelete }) {
   const { t } = useTranslation()
-  const workflow = workflowActions(area.role, article.status).filter((action) => ['archive', 'restore'].includes(action.key) || (action.key === 'publish' && article.status === 'DRAFT'))
+  const workflow = workflowActions(area.role, article.status).filter(
+    (action) => ['archive', 'restore', 'schedule', 'reschedule', 'unschedule'].includes(action.key) || (action.key === 'publish' && (article.status === 'DRAFT' || article.status === 'SCHEDULED')),
+  )
   const review = area.staff && article.status === 'PENDING' && area.reviewPath
   const hasMenu = Boolean(review) || workflow.length > 0 || canDelete
   const editLabel = article.editable ? t('common.actions.edit') : t('common.actions.view')

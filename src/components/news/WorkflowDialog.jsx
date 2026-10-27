@@ -4,6 +4,7 @@ import { Trans, useTranslation } from 'react-i18next'
 import ConfirmDialog from '../common/ConfirmDialog'
 import ErrorAlert from '../common/ErrorAlert'
 import { WORKFLOW_ACTIONS } from '../../constants/newsStatus'
+import ScheduleDialog from './ScheduleDialog'
 
 const REASON_MAX = 1000
 
@@ -23,19 +24,28 @@ function question(action, article) {
       return <Trans i18nKey="news.workflow.dialog.archive" values={values} components={components} />
     case 'restore':
       return <Trans i18nKey="news.workflow.dialog.restore" values={values} components={components} />
+    case 'unschedule':
+      return <Trans i18nKey="news.workflow.dialog.unschedule" values={values} components={components} />
     default:
       return null
   }
 }
 
-// Confirmation for one workflow action. "Reject" asks for the required reason, which the author will see.
+// Confirmation for one workflow action. "Reject" asks for the required reason, which the author will see; "Schedule" and
+// "Change time" open the ScheduleDialog.
 // Mount it with a `key` that changes per action so the reason box starts empty.
 export default function WorkflowDialog({ action, article, busy, error, onConfirm, onCancel }) {
   const { t } = useTranslation()
   const [reason, setReason] = useState('')
   const info = action ? WORKFLOW_ACTIONS[action] : null
   const reject = action === 'reject'
+  const scheduling = action === 'schedule' || action === 'reschedule'
   const label = action === 'publish' && article?.status === 'DRAFT' ? t('news.workflow.dialog.publishNowLabel') : info ? t(info.labelKey) : undefined
+
+  // the time of a schedule is chosen in its own dialog; its answer is the UTC time, passed where the rejection reason goes
+  if (scheduling) {
+    return <ScheduleDialog show change={action === 'reschedule'} article={article} busy={busy} error={error} onCancel={onCancel} onConfirm={onConfirm} />
+  }
 
   return (
     <ConfirmDialog

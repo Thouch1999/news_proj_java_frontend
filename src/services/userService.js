@@ -55,6 +55,11 @@ export function deactivateUser(id) {
   return httpClient.put(`${USERS}/${id}/deactivate`)
 }
 
+// Lifts the lock of an account that had too many failed sign-ins. Returns the user (locked: false).
+export function unlockUser(id) {
+  return httpClient.put(`${USERS}/${id}/unlock`)
+}
+
 // A user has exactly one role, so this replaces it.
 export function changeUserRole(id, role) {
   return httpClient.put(`${USERS}/${id}/role`, { role })

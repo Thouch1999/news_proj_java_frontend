@@ -17,6 +17,9 @@ import NewsEditorPage from '../pages/admin/NewsEditorPage'
 import AdminNewsListPage from '../pages/admin/NewsListPage'
 import AdminReviewPage from '../pages/admin/ReviewPage'
 import AdminReviewQueuePage from '../pages/admin/ReviewQueuePage'
+import PartnerEditorPage from '../pages/admin/PartnerEditorPage'
+import PartnersPage from '../pages/admin/PartnersPage'
+import PartnerStatsPage from '../pages/admin/PartnerStatsPage'
 import RolesPage from '../pages/admin/RolesPage'
 import SettingsPage from '../pages/admin/SettingsPage'
 import UserCreatePage from '../pages/admin/UserCreatePage'
@@ -114,6 +117,10 @@ export default function AppRoutes() {
           <Route path="roles" element={<RolesPage />} />
           <Route path="categories" element={<CategoriesPage />} />
           <Route path="tags" element={<TagsPage />} />
+          <Route path="partners" element={<PartnersPage />} />
+          <Route path="partners/new" element={<PartnerEditorPage />} />
+          <Route path="partners/:id" element={<PartnerEditorPage />} />
+          <Route path="partners/:id/stats" element={<PartnerStatsPage />} />
           <Route path="settings" element={<SettingsPage />} />
           <Route path="activity-log" element={<ActivityLogPage />} />
         </Route>

@@ -4,7 +4,7 @@ const NEWS = '/api/v1/news'
 const COMMENTS = '/api/v1/comments'
 
 // A comment: { id, newsId, newsTitle, newsSlug, userId, userName, content (plain text, not HTML), status
-//   ('VISIBLE' | 'HIDDEN'), createdAt, updatedAt }. userName is the full name or the username, never the e-mail.
+//   ('VISIBLE' | 'HIDDEN'), createdAt, updatedAt, moderationNote (only in the moderation list) }. userName is the full name or the username, never the e-mail.
 
 // ---- public / any logged-in user ----
 
@@ -14,9 +14,11 @@ export function listComments(newsId, { page = 1, size = 10 } = {}) {
   return httpClient.get(`${NEWS}/${newsId}/comments`, { params: { page, size } })
 }
 
-// Logged in only. content: up to 2000 characters. 404: article not published; 409: comments are disabled.
-export function addComment(newsId, content) {
-  return httpClient.post(`${NEWS}/${newsId}/comments`, { content })
+// Logged in only. content: up to 2000 characters; website: the honeypot (the empty text of the hidden field). 404: article not
+// published; 409: comments are disabled or the same comment again; 400: more than 2 links; 403: the account is too new;
+// 429: too many comments. A comment held for review (a blocked word) comes back with status 'HIDDEN' and a `message`.
+export function addComment(newsId, content, website = '') {
+  return httpClient.post(`${NEWS}/${newsId}/comments`, { content, website })
 }
 
 // The author of the comment, or an editor/admin (403 for anybody else). The comment is removed for good.

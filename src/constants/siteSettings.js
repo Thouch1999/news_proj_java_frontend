@@ -30,6 +30,17 @@ export const DEFAULT_SETTINGS = {
   share_image_url: '',
   news_per_page: '10',
   show_view_count: 'true',
+  sponsors_enabled: 'true',
+  sponsor_popup_enabled: 'true',
+  popup_trigger: 'FIRST_OF_BOTH',
+  popup_delay_seconds: '15',
+  popup_scroll_percent: '50',
+  popup_frequency: 'PER_DAY',
+  popup_frequency_days: '3',
+  sponsor_sidebar_count: '1',
+  sponsor_sidebar_layout: 'LIST_1',
+  sponsor_sidebar_rotate: 'true',
+  sponsor_sidebar_interval_seconds: '8',
 }
 
 // The checks of the admin form, the same as the backend's (SettingKey + SettingValueValidator); the backend decides.
@@ -59,7 +70,22 @@ export const SETTING_RULES = {
   meta_description_km: { max: 300, multiline: true },
   news_per_page: { required: true, type: 'number', min: 5, max: 50 },
   comments_enabled_default: { required: true, type: 'boolean' },
+  // one word or phrase per line; a comment that contains one is held for review (backend: comment_blocked_words)
+  comment_blocked_words: { max: 5000, multiline: true, rows: 8, lines: true },
   show_view_count: { required: true, type: 'boolean' },
+  sponsors_enabled: { required: true, type: 'boolean' },
+  sponsor_popup_enabled: { required: true, type: 'boolean' },
+  // the site defaults of the sponsor popup, inside the safety limits of the backend (SettingKey)
+  popup_trigger: { max: 20, required: true, oneOf: ['DELAY', 'SCROLL', 'FIRST_OF_BOTH'] },
+  popup_delay_seconds: { required: true, type: 'number', min: 5, max: 120 },
+  popup_scroll_percent: { required: true, type: 'number', min: 20, max: 90 },
+  popup_frequency: { max: 20, required: true, oneOf: ['PER_VISIT', 'PER_DAY', 'EVERY_N_DAYS'] },
+  popup_frequency_days: { required: true, type: 'number', min: 1, max: 30 },
+  // the sidebar slideshow
+  sponsor_sidebar_count: { required: true, type: 'number', min: 1, max: 12 },
+  sponsor_sidebar_layout: { max: 20, required: true, oneOf: ['LIST_1', 'GRID_2', 'LOGOS_4'] },
+  sponsor_sidebar_rotate: { required: true, type: 'boolean' },
+  sponsor_sidebar_interval_seconds: { required: true, type: 'number', min: 5, max: 60 },
 }
 
 // The tabs of the settings page and the group each one saves (PUT /api/v1/settings/{group}). The image settings are not
@@ -75,7 +101,7 @@ export const SETTINGS_TABS = [
     ],
   },
   { id: 'seo', keys: ['meta_description_en', 'meta_description_km'] },
-  { id: 'content', keys: ['news_per_page', 'comments_enabled_default', 'show_view_count'] },
+  { id: 'content', keys: ['news_per_page', 'comments_enabled_default', 'comment_blocked_words', 'show_view_count', 'sponsors_enabled', 'sponsor_popup_enabled', 'popup_trigger', 'popup_delay_seconds', 'popup_scroll_percent', 'popup_frequency', 'popup_frequency_days', 'sponsor_sidebar_count', 'sponsor_sidebar_layout', 'sponsor_sidebar_rotate', 'sponsor_sidebar_interval_seconds'] },
 ]
 
 // `type` is the last part of POST /api/v1/settings/images/{type}; `group` is where the setting lives (for removing it).

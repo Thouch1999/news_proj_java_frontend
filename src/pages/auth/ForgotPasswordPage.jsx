@@ -6,6 +6,7 @@ import AuthPage from '../../components/common/AuthPage'
 import ErrorAlert from '../../components/common/ErrorAlert'
 import FormField from '../../components/form/FormField'
 import { RESEND_COOLDOWN_SECONDS } from '../../constants/otp'
+import { useRetryAfter } from '../../hooks/useRetryAfter'
 import { ROUTES } from '../../constants/routes'
 import * as authService from '../../services/authService'
 import { rules } from '../../utils/validators'
@@ -17,6 +18,7 @@ export default function ForgotPasswordPage() {
   const [error, setError] = useState('')
   const [apiError, setApiError] = useState(null)
   const [submitting, setSubmitting] = useState(false)
+  const retry = useRetryAfter(apiError)
 
   const handleSubmit = async (event) => {
     event.preventDefault()
@@ -45,7 +47,7 @@ export default function ForgotPasswordPage() {
       <Form onSubmit={handleSubmit} noValidate>
         <ErrorAlert error={apiError} />
         <FormField id="email" label={t('auth.fields.email')} type="email" value={email} onChange={(event) => setEmail(event.target.value)} error={error} autoComplete="email" autoFocus />
-        <Button type="submit" className="w-100" disabled={submitting}>
+        <Button type="submit" className="w-100" disabled={submitting || retry > 0}>
           {submitting && <Spinner size="sm" className="me-2" aria-hidden="true" />}
           {submitting ? t('auth.forgot.sending') : t('auth.forgot.send')}
         </Button>

@@ -16,6 +16,9 @@ import WorkflowDialog from './WorkflowDialog'
 
 const DEFAULT_SIZE = ARTICLE_PAGE_SIZES[0]
 
+// the message after an article left the queue, by the action that took it out
+const REVIEW_DONE = { publish: 'news.review.published', schedule: 'news.review.scheduled', reject: 'news.review.rejected' }
+
 // The editors' review queue: PENDING articles, the oldest first, as rows. "Quick review" opens the article in a panel
 // where it can be published or rejected and the next one opens by itself. `area` comes from constants/articleAreas.js.
 //
@@ -104,7 +107,7 @@ export default function ReviewQueue({ area }) {
     setState((current) => ({ ...current, data: { ...current.data, items: current.data.items.filter((row) => row.id !== updated.id), totalElements: remaining } }))
     setCount(remaining)
     refresh()
-    setToast({ variant: 'success', text: `${t(action === 'publish' ? 'news.review.published' : 'news.review.rejected')}${remaining === 0 ? ` ${t('news.review.caughtUp')}` : ''}` })
+    setToast({ variant: 'success', text: `${t(REVIEW_DONE[action] ?? 'news.review.rejected')}${remaining === 0 ? ` ${t('news.review.caughtUp')}` : ''}` })
     if (next) {
       setSelectedId(next.id)
     } else {

@@ -1,5 +1,5 @@
 import { Alert, Breadcrumb, Button, Dropdown, Spinner } from 'react-bootstrap'
-import { BoxArrowUpRight, CheckCircle, Eye, ExclamationTriangle, HourglassSplit, InfoCircle, Lock, PencilSquare, ThreeDots } from 'react-bootstrap-icons'
+import { BoxArrowUpRight, CheckCircle, Clock, Eye, ExclamationTriangle, HourglassSplit, InfoCircle, Lock, PencilSquare, ThreeDots } from 'react-bootstrap-icons'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import { NEWS_STATUS } from '../../constants/newsStatus'
@@ -113,7 +113,11 @@ export function ArticleNotice({ area, article, readOnly }) {
   let icon = InfoCircle
   let variant = 'secondary'
   let body
-  if (readOnly) {
+  if (article.status === 'SCHEDULED') {
+    icon = Clock
+    variant = 'info'
+    body = t('news.editor.notice.SCHEDULED')
+  } else if (readOnly) {
     icon = Lock
     body = area.staff ? t('news.editor.locked.staff', { status: statusName(article.status, t) }) : t('news.editor.locked.author', { status: statusName(article.status, t) })
   } else if (article.status === 'REJECTED') {

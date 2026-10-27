@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { WORKFLOW_ACTIONS, workflowActions } from '../../constants/newsStatus'
 import { useWorkflowAction } from '../../hooks/useWorkflowAction'
 import ArticleHistory from './ArticleHistory'
+import PublishSplitButton from './PublishSplitButton'
 import StatusBadge from './StatusBadge'
 import WorkflowDialog from './WorkflowDialog'
 
@@ -14,6 +15,7 @@ export default function WorkflowCard({ area, article, history, onChange, dirty =
   const { t } = useTranslation()
   const { pending, busy, error, start, cancel, confirm } = useWorkflowAction((updated, action) => onChange(updated, WORKFLOW_ACTIONS[action].doneKey))
   const actions = workflowActions(area.role, article.status)
+  const split = actions.some((action) => action.key === 'publish') && actions.some((action) => action.key === 'schedule')
 
   return (
     <Card body className="mb-3">
@@ -24,11 +26,18 @@ export default function WorkflowCard({ area, article, history, onChange, dirty =
 
       {actions.length > 0 ? (
         <div className="d-flex flex-wrap gap-2">
-          {actions.map((action) => (
-            <Button key={action.key} variant={action.variant} size="sm" disabled={dirty} onClick={() => start(action.key, article)}>
-              {t(action.labelKey)}
-            </Button>
-          ))}
+          {actions.map((action) => {
+            // a PENDING article: "Publish now" with "Schedule…" behind its arrow, in one button
+            if (action.key === 'schedule' && split) return null
+            if (action.key === 'publish' && split) {
+              return <PublishSplitButton key={action.key} disabled={dirty} onPublish={() => start('publish', article)} onSchedule={() => start('schedule', article)} />
+            }
+            return (
+              <Button key={action.key} variant={action.variant} size="sm" disabled={dirty} onClick={() => start(action.key, article)}>
+                {t(action.labelKey)}
+              </Button>
+            )
+          })}
         </div>
       ) : (
         <p className="text-muted small mb-0">{t('news.workflow.none')}</p>

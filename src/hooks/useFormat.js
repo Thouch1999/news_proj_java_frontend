@@ -1,10 +1,11 @@
 import { useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { intlLocale } from '../i18n'
+import { untilParts } from '../utils/schedule'
 
 // Dates and numbers in the selected language (Khmer month names in Khmer mode). Dates from the API are ISO strings
 // without a time zone (for example 2026-03-05T09:00:00). The hook re-renders the component when the language changes.
-// Returns { formatDate, formatDateTime, formatNumber, formatPercent, formatMonth, formatDay, formatLongDate, formatFullDate, formatAgo, locale }.
+// Returns { formatDate, formatDateTime, formatTime, formatNumber, formatPercent, formatMonth, formatDay, formatLongDate, formatFullDate, formatAgo, formatSchedule, formatUntil, locale }.
 export function useFormat() {
   const { i18n } = useTranslation()
   const locale = intlLocale(i18n.language)
@@ -22,6 +23,21 @@ export function useFormat() {
   const formatLongDate = useCallback((value) => new Date(value).toLocaleDateString(locale, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }), [locale])
   // 'Oct 17, 2026, 15:29' (date and time, 24 hours)
   const formatFullDate = useCallback((value) => new Date(value).toLocaleString(locale, { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }), [locale])
+  // '14:35' (a time of today, 24 hours)
+  const formatTime = useCallback((value) => new Date(value).toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }), [locale])
+  // 'Tue, 20 Oct 2026, 07:00' (a go-live time, 24 hours, in the local time zone)
+  const formatSchedule = useCallback((value) => new Date(value).toLocaleString(locale, { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }), [locale])
+  // 'in 14 hours' for a time ahead (a time that has passed is 'now'); `now` is milliseconds
+  const formatUntil = useCallback(
+    (value, now = Date.now()) => {
+      const ms = new Date(value).getTime() - now
+      const formatter = new Intl.RelativeTimeFormat(locale, { numeric: 'auto' })
+      if (ms < 30000) return formatter.format(0, 'second')
+      const [count, unit] = untilParts(ms)
+      return formatter.format(count, unit)
+    },
+    [locale],
+  )
   // '5 minutes ago', 'yesterday' ... in the selected language; a time a little in the future (clock difference) is 'now'
   const formatAgo = useCallback(
     (value) => {
@@ -45,7 +61,7 @@ export function useFormat() {
   )
 
   return useMemo(
-    () => ({ formatDate, formatDateTime, formatNumber, formatPercent, formatMonth, formatDay, formatLongDate, formatFullDate, formatAgo, locale }),
-    [formatDate, formatDateTime, formatNumber, formatPercent, formatMonth, formatDay, formatLongDate, formatFullDate, formatAgo, locale],
+    () => ({ formatDate, formatDateTime, formatTime, formatNumber, formatPercent, formatMonth, formatDay, formatLongDate, formatFullDate, formatAgo, formatSchedule, formatUntil, locale }),
+    [formatDate, formatDateTime, formatTime, formatNumber, formatPercent, formatMonth, formatDay, formatLongDate, formatFullDate, formatAgo, formatSchedule, formatUntil, locale],
   )
 }

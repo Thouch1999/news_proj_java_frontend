@@ -1,4 +1,5 @@
 import { NOTIFICATION_TYPES } from '../constants/notifications'
+import { formatDateTime } from './dates'
 
 const MAX_TITLE = 60
 const MAX_NAME = 30
@@ -34,6 +35,9 @@ export function notificationText(t, item) {
       return { text: t(item.groupCount > 1 ? 'notifications.messages.NEW_COMMENT_group' : 'notifications.messages.NEW_COMMENT', values), detail: null }
     case 'ARTICLE_REJECTED':
       return { text: t('notifications.messages.ARTICLE_REJECTED', values), detail: data.reason ? t('notifications.reason', { reason: truncate(data.reason, MAX_REASON) }) : null }
+    case 'ARTICLE_SCHEDULED':
+      // the go-live time is a UTC instant: shown in the time zone of the reader
+      return { text: data.scheduledAt ? t('notifications.messages.ARTICLE_SCHEDULED', { ...values, when: formatDateTime(data.scheduledAt) }) : fallback, detail: null }
     case 'ROLES_CHANGED': {
       const names = (roles) => (Array.isArray(roles) ? roles.map((role) => t(`common.roles.${role}`, { defaultValue: role })).join(', ') : '')
       const roles = names(data.roles)

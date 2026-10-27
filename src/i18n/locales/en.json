@@ -79,7 +79,13 @@
       "SETTINGS_UPDATED": "Settings changed",
       "LOGIN_SUCCESS": "Signed in",
       "LOGIN_FAILED": "Failed sign-in",
-      "PASSWORD_CHANGED": "Password changed"
+      "PASSWORD_CHANGED": "Password changed",
+      "ACCOUNT_LOCKED": "Account locked",
+      "IP_BLOCKED": "IP address blocked",
+      "ACCOUNT_UNLOCKED": "Account unlocked",
+      "NEWS_SCHEDULED": "Article scheduled",
+      "NEWS_SCHEDULE_CHANGED": "Schedule changed",
+      "NEWS_SCHEDULE_CANCELLED": "Schedule cancelled"
     },
     "targets": {
       "NEWS": "Article",
@@ -123,7 +129,15 @@
       "LOGIN_SUCCESS": "<1>{{actor}}</1> signed in",
       "LOGIN_FAILED": "Failed sign-in for <2>{{target}}</2>",
       "PASSWORD_CHANGED": "<1>{{actor}}</1> changed their password",
-      "PASSWORD_CHANGED_reset": "<1>{{actor}}</1> reset their password"
+      "PASSWORD_CHANGED_reset": "<1>{{actor}}</1> reset their password",
+      "ACCOUNT_LOCKED": "The account <2>{{target}}</2> was locked after too many failed sign-ins",
+      "IP_BLOCKED": "The IP address <2>{{target}}</2> was blocked after too many failed sign-ins",
+      "ACCOUNT_UNLOCKED": "<1>{{actor}}</1> unlocked the account of <2>{{target}}</2>",
+      "NEWS_SCHEDULED": "<1>{{actor}}</1> scheduled the article <2>“{{target}}”</2>",
+      "NEWS_SCHEDULE_CHANGED": "<1>{{actor}}</1> changed the publishing time of <2>“{{target}}”</2>",
+      "NEWS_SCHEDULE_CANCELLED": "<1>{{actor}}</1> cancelled the schedule of <2>“{{target}}”</2>",
+      "NEWS_PUBLISHED_system": "<1>{{actor}}</1> published the article <2>“{{target}}”</2> (scheduled)",
+      "NEWS_PUBLISHED_system_by": "<1>{{actor}}</1> published the article <2>“{{target}}”</2> (scheduled by {{scheduler}})"
     },
     "settingGroups": {
       "general": "General",
@@ -147,7 +161,10 @@
       "reason": "Reason",
       "role": "Role",
       "roles": "Roles",
-      "method": "Method"
+      "method": "Method",
+      "failures": "Failed attempts",
+      "scheduledAt": "Goes live",
+      "scheduledAtBefore": "Previous time"
     },
     "values": {
       "on": "On",
@@ -428,7 +445,8 @@
         "content": "Content",
         "overview": "Overview",
         "system": "System",
-        "users": "Users"
+        "users": "Users",
+        "revenue": "Revenue"
       },
       "items": {
         "activityLog": "Activity log",
@@ -443,10 +461,12 @@
         "settings": "Settings",
         "tags": "Tags",
         "users": "Users",
-        "writeArticle": "Create article"
+        "writeArticle": "Create article",
+        "partners": "Sponsors"
       },
       "pendingCount_one": "{{count}} article waiting for review",
-      "pendingCount_other": "{{count}} articles waiting for review"
+      "pendingCount_other": "{{count}} articles waiting for review",
+      "label": "Dashboard menu"
     },
     "overview": {
       "greeting": {
@@ -553,6 +573,11 @@
         "views": "views",
         "comments": "comments",
         "empty": "No articles to show for this period."
+      },
+      "upcoming": {
+        "title": "Upcoming",
+        "seeAll": "View scheduled",
+        "empty": "Nothing scheduled"
       }
     },
     "profile": {
@@ -783,6 +808,54 @@
         "title_format": {
           "help": "Use {page} for the page title and {site} for the site name, for example {page} | {site}.",
           "label": "Browser tab title format"
+        },
+        "sponsors_enabled": {
+          "label": "Show sponsors",
+          "help": "Off: no sponsor is shown anywhere on the website."
+        },
+        "sponsor_popup_enabled": {
+          "label": "Show sponsor popup",
+          "help": "Off: no popup on tablets and computers and no bottom bar on phones. The sidebar sponsor stays."
+        },
+        "popup_delay_seconds": {
+          "label": "Popup delay (seconds)",
+          "help": "5 to 120. The popup never opens before 5 seconds."
+        },
+        "popup_scroll_percent": {
+          "label": "Popup scroll (%)",
+          "help": "The part of the article the reader scrolls before the popup opens (20 to 90)."
+        },
+        "popup_trigger": {
+          "label": "Popup opens",
+          "help": "After a delay, after the reader scrolled, or at whichever comes first."
+        },
+        "popup_frequency": {
+          "label": "How often a reader sees it",
+          "help": "Once per visit, once per day, or once every few days."
+        },
+        "popup_frequency_days": {
+          "label": "Days between popups",
+          "help": "Used with \"Once every N days\" (1 to 30)."
+        },
+        "sponsor_sidebar_count": {
+          "label": "Sponsors per slide",
+          "help": "From 1 to 12."
+        },
+        "sponsor_sidebar_layout": {
+          "label": "Layout",
+          "help": "Logos fit 4–12 per slide."
+        },
+        "sponsor_sidebar_rotate": {
+          "label": "Auto-rotate",
+          "help": "When there are more sponsors than fit on one slide, the next group appears by itself and the list loops."
+        },
+        "sponsor_sidebar_interval_seconds": {
+          "label": "Change every {{value}} seconds",
+          "help": "{{min}} to {{max}} seconds."
+        },
+        "comment_blocked_words": {
+          "label": "Blocked words",
+          "help": "One word or phrase per line, in English or Khmer, not case-sensitive. A comment that contains one is not published: it waits for a moderator to review it."
         }
       },
       "fixErrors": "Some values are not valid. Check the fields below.",
@@ -839,7 +912,10 @@
         "names": "Names and language",
         "news": "News",
         "search": "Search engines and sharing",
-        "social": "Social links"
+        "social": "Social links",
+        "sponsors": "Sponsors",
+        "sidebar": "Sidebar",
+        "comments": "Comments and spam"
       },
       "seoImageHint": "The image shown when a page is shared is set in the Branding tab (Share image).",
       "tabs": {
@@ -868,7 +944,37 @@
         "required": "This field is required",
         "singleLine": "Must be a single line",
         "wholeNumber": "Enter a whole number"
-      }
+      },
+      "popupIntro": "The default timing of the sponsor popup. A sponsor can have its own timing in its form.",
+      "options": {
+        "popup_trigger": {
+          "DELAY": "After a delay",
+          "SCROLL": "After scrolling",
+          "FIRST_OF_BOTH": "Whichever comes first"
+        },
+        "popup_frequency": {
+          "PER_VISIT": "Once per visit",
+          "PER_DAY": "Once per day",
+          "EVERY_N_DAYS": "Once every N days"
+        },
+        "sponsor_sidebar_layout": {
+          "LIST_1": "Large cards · 1 per row",
+          "GRID_2": "Tiles · 2 per row",
+          "LOGOS_4": "Logos · 4 per row"
+        }
+      },
+      "sidebarIntro": "The sponsors of the article sidebar: how many are shown at a time, how they look and whether they change by themselves.",
+      "sidebarRotateOff": "Auto-rotate is off.",
+      "sidebarPreview": {
+        "title": "Preview",
+        "sample": "Sponsor {{number}}",
+        "none": "No active sponsor is shown in the sidebar yet: placeholders are shown.",
+        "loop": "{{sponsors}} active sponsors · {{slides}} slides · a full loop takes {{seconds}} seconds",
+        "still": "{{sponsors}} active sponsors · {{slides}} slides · no rotation"
+      },
+      "linesCount_one": "{{count}} entry",
+      "linesCount_other": "{{count}} entries",
+      "commentsIntro": "Comments are checked before they are published. Links, repeated comments and very new accounts are limited by the system."
     },
     "slugRequired": "Slug is required for this name (letters a-z, digits and hyphens)",
     "tags": {
@@ -888,6 +994,311 @@
       "search": "Search tags",
       "title": "Tags",
       "updated": "Tag updated."
+    },
+    "partners": {
+      "title": "Sponsors",
+      "intro": "Companies that pay to be shown on the article pages. The numbers are for the last 30 days.",
+      "create": "Add sponsor",
+      "search": "Search by name or title",
+      "status": "Filter by status",
+      "tabs": {
+        "all": "All",
+        "active": "Active",
+        "scheduled": "Scheduled",
+        "ended": "Ended",
+        "inactive": "Inactive"
+      },
+      "columns": {
+        "sponsor": "Sponsor",
+        "placements": "Placements",
+        "dates": "Dates",
+        "weight": "Weight",
+        "views": "Views",
+        "clicks": "Clicks",
+        "rate": "Click rate",
+        "active": "Active",
+        "actions": "Actions"
+      },
+      "placements": {
+        "ARTICLE_SIDEBAR": "Sidebar",
+        "ARTICLE_POPUP": "Popup",
+        "MOBILE_BOTTOM_BAR": "Mobile bar"
+      },
+      "noPlacement": "No place chosen",
+      "dates": {
+        "always": "No limit",
+        "from": "From {{date}}",
+        "until": "Until {{date}}",
+        "range": "{{from}} to {{to}}"
+      },
+      "empty": {
+        "none": "No sponsors yet",
+        "search": "No sponsors match these filters"
+      },
+      "actions": {
+        "edit": "Edit",
+        "stats": "Statistics",
+        "duplicate": "Duplicate",
+        "delete": "Delete"
+      },
+      "activeSwitch": "{{name}} is active",
+      "activated": "The sponsor is active.",
+      "deactivated": "The sponsor is switched off.",
+      "deleteTitle": "Delete this sponsor?",
+      "deleteText": "Delete <1>{{name}}</1> with its images and its statistics? This cannot be undone.",
+      "deleted": "The sponsor was deleted.",
+      "duplicated": "The sponsor was duplicated. It is switched off until you activate it.",
+      "duplicatedNoImages": "The sponsor was duplicated, but some images could not be copied. Upload them again.",
+      "copySuffix": "(copy)",
+      "saved": "Changes saved.",
+      "created": "The sponsor was created.",
+      "imagesFailed": "The sponsor was saved, but an image could not be saved: {{message}}",
+      "form": {
+        "titleNew": "Add sponsor",
+        "titleEdit": "Edit sponsor",
+        "back": "Back to sponsors",
+        "save": "Save changes",
+        "saveNew": "Create sponsor",
+        "saving": "Saving...",
+        "stats": "Statistics",
+        "main": "Sponsor",
+        "name": "Sponsor name",
+        "nameHelp": "The company that pays. Only you see it.",
+        "title": "Title",
+        "titleHelp": "The headline readers see.",
+        "description": "Short text",
+        "descriptionHelp": "Plain text, shown in the popup.",
+        "ctaText": "Button text",
+        "ctaHelp": "For example \"Learn more\".",
+        "targetUrl": "Link",
+        "targetHelp": "An https address. Readers are sent here when they click.",
+        "testLink": "Test link",
+        "counter": "{{count}} / {{max}}",
+        "settings": "Publishing",
+        "active": "Active",
+        "activeHelp": "Switched off: it is never shown, whatever the dates.",
+        "start": "Start",
+        "end": "End",
+        "timeHelp": "Your local time. It is saved as UTC. Empty: no limit.",
+        "weight": "Weight",
+        "weightHelp": "The higher the weight, the more often it is chosen against other sponsors of the same placement. Weight 20 is shown about twice as often as weight 10.",
+        "weightValue": "{{value}}",
+        "language": "Language",
+        "languageHelp": "Shown only to readers of this language.",
+        "languages": {
+          "ALL": "All languages",
+          "EN": "English",
+          "KM": "ខ្មែរ"
+        },
+        "categories": "Categories",
+        "categoriesHelp": "Optional. Choose none to show it with every category.",
+        "allCategories": "All categories",
+        "noCategories": "There are no categories yet.",
+        "leaveTitle": "Leave this page?",
+        "leaveBody": "You have unsaved changes. If you leave now they are lost.",
+        "leaveConfirm": "Leave",
+        "notFound": "This sponsor was not found.",
+        "actions": "Form actions"
+      },
+      "errors": {
+        "required": "This field is required",
+        "max": "At most {{max}} characters",
+        "plainText": "Plain text only: the characters < and > are not allowed",
+        "singleLine": "Must be a single line",
+        "https": "Enter an https link, for example https://example.com",
+        "weight": "Enter a whole number from {{min}} to {{max}}",
+        "endAfterStart": "The end must be after the start",
+        "fix": "Please fix the fields marked in red.",
+        "placements": "Choose at least one place.",
+        "sidebarImage": "Upload the sidebar image.",
+        "popupImage": "Upload the popup image.",
+        "imageForVideo": "Upload the new image, or switch back to keep the video.",
+        "posterRequired": "Choose the poster image for the video.",
+        "videoRequired": "Upload the video file.",
+        "youtubeRequired": "Enter the YouTube link.",
+        "popupDelay": "Enter a whole number from {{min}} to {{max}} seconds",
+        "popupScroll": "Enter a whole number from {{min}} to {{max}} percent",
+        "popupDays": "Enter a whole number from {{min}} to {{max}} days",
+        "logo": "Upload the square logo: the sidebar shows logos."
+      },
+      "images": {
+        "title": "Images",
+        "intro": "The image of each place you chose. A place you uncheck keeps its image.",
+        "recommended": "Shown at {{width}} × {{height}} px. Upload {{uploadWidth}} × {{uploadHeight}} px for sharp screens.",
+        "recommendedSame": "Shown at {{width}} × {{height}} px.",
+        "none": "No image: this place is not used.",
+        "upload": "Upload image",
+        "replace": "Replace image",
+        "remove": "Remove image",
+        "undo": "Keep the saved image",
+        "pending": "Will be saved with the sponsor.",
+        "removing": "Will be removed when you save.",
+        "type": "Only PNG, JPG and WebP images are allowed",
+        "tooLarge": "The image is too large ({{max}} MB at most)",
+        "sizeWarning": "This image is {{width}} × {{height}} px. {{uploadWidth}} × {{uploadHeight}} px is recommended; a different shape is cropped.",
+        "alt": "Description of the image",
+        "altHelp": "For readers who cannot see it. Empty: the title is used.",
+        "places": {
+          "ARTICLE_SIDEBAR": "Sidebar (article page)",
+          "ARTICLE_POPUP": "Popup (desktop and tablet)",
+          "MOBILE_BOTTOM_BAR": "Bottom bar (phone)"
+        },
+        "kept": "Image kept — check the box to use it again.",
+        "sidebar": "Sidebar image",
+        "popup": "Popup image",
+        "bar": "Mobile bar image (optional)",
+        "barHint": "If empty, a square part of the popup image is used.",
+        "barGenerated": "A square part of the popup image is used.",
+        "required": "Required",
+        "logo": "Logo (square, 256 × 256 px)",
+        "logoHint": "Upload a square logo."
+      },
+      "preview": {
+        "title": "Preview",
+        "intro": "How it looks on the website. Nothing is counted here.",
+        "light": "Light mode",
+        "dark": "Dark mode",
+        "noImage": "Add the media for this place to preview it.",
+        "sampleTitle": "Your title",
+        "tabs": {
+          "ARTICLE_SIDEBAR": "Sidebar",
+          "ARTICLE_POPUP": "Popup",
+          "MOBILE_BOTTOM_BAR": "Mobile bar"
+        },
+        "label": "Sponsored",
+        "noPlace": "Choose a place to see its preview.",
+        "popupDesktop": "Popup (tablet and computer)",
+        "popupMobile": "Bar on a phone"
+      },
+      "stats": {
+        "title": "Statistics: {{name}}",
+        "back": "Back to sponsors",
+        "export": "Export CSV",
+        "exported": "The file was saved.",
+        "views": "Views",
+        "clicks": "Clicks",
+        "rate": "Click rate",
+        "chart": "Views and clicks per day",
+        "chartLabel": "Line chart of the views and the clicks of each day",
+        "views_series": "Views",
+        "clicks_series": "Clicks",
+        "byPlacement": "By placement",
+        "placement": "Placement",
+        "noData": "No views in this period yet.",
+        "timeNote": "Days are counted in UTC.",
+        "notFound": "This sponsor was not found.",
+        "devices": {
+          "DESKTOP": "Desktop popup",
+          "MOBILE": "Mobile bar"
+        },
+        "popupSplit": "Popup",
+        "plays": "Video plays",
+        "completion": "Completion rate",
+        "completions": "{{formatted}} completions"
+      },
+      "filters": {
+        "placement": "Filter by place",
+        "allPlaces": "All places"
+      },
+      "where": {
+        "title": "Where to show",
+        "intro": "Choose at least one place. Each place needs its image, video or link.",
+        "sidebar": {
+          "label": "Right sidebar on articles",
+          "help": "Shown at the top of the sidebar on article pages."
+        },
+        "popup": {
+          "label": "Popup on articles",
+          "help": "Shown after the reader scrolls or waits (see Popup timing); on phones it appears as a small bar at the bottom."
+        }
+      },
+      "media": {
+        "type": "Media type",
+        "types": {
+          "IMAGE": "Image",
+          "VIDEO_FILE": "Video file",
+          "YOUTUBE": "YouTube"
+        },
+        "mobileNote": "On phones the popup is a small bar with the logo (or a square part of the popup image): videos do not play there.",
+        "pending": "Will be saved with the sponsor.",
+        "video": {
+          "title": "Video file",
+          "help": "MP4 (H.264) or WebM. At most {{maxMb}} MB and {{maxSeconds}} seconds. It starts muted when readers see it.",
+          "upload": "Upload video",
+          "replace": "Replace video",
+          "none": "No video yet.",
+          "preview": "Video preview",
+          "seconds": "({{seconds}} seconds)",
+          "newNeedsPoster": "A new video needs its poster image too.",
+          "undo": "Keep the saved video"
+        },
+        "poster": {
+          "title": "Poster image",
+          "optional": "(optional)",
+          "help": "Shown before the video plays, on phones and while it loads. Recommended {{width}} × {{height}} px.",
+          "helpYoutube": "Without it, the YouTube thumbnail is used.",
+          "upload": "Upload poster",
+          "replace": "Replace poster",
+          "useThumbnail": "Use the YouTube thumbnail",
+          "thumbnailNote": "The YouTube thumbnail will be used.",
+          "none": "No poster yet."
+        },
+        "youtube": {
+          "title": "YouTube video",
+          "link": "YouTube link",
+          "placeholder": "https://www.youtube.com/watch?v=...",
+          "help": "Accepted: youtube.com/watch?v=..., youtu.be/..., youtube.com/shorts/... and youtube.com/embed/... links. The video loads only when the popup opens.",
+          "check": "Check",
+          "checking": "Checking...",
+          "found": "Video found.",
+          "videoId": "Video ID: {{id}}",
+          "changed": "Check the link again to see its thumbnail."
+        },
+        "errors": {
+          "videoType": "Only MP4 (H.264) and WebM videos are allowed",
+          "videoTooLarge": "The video is too large ({{max}} MB at most)",
+          "videoTooLong": "The video is {{seconds}} seconds long ({{max}} seconds at most)"
+        }
+      },
+      "timing": {
+        "title": "Popup timing",
+        "useDefault": "Use the site default",
+        "defaultsAre": "Site default: {{rules}}.",
+        "when": "When to show",
+        "triggers": {
+          "DELAY": "After a delay",
+          "SCROLL": "After scrolling",
+          "FIRST_OF_BOTH": "Whichever comes first"
+        },
+        "delay": "Delay: {{value}} seconds",
+        "delayHint": "{{min}} to {{max}} seconds.",
+        "scroll": "Scroll: {{value}}% of the article",
+        "scrollHint": "{{min}}% to {{max}}%.",
+        "notUsed": "Not used with this choice.",
+        "how": "How often",
+        "frequencies": {
+          "PER_VISIT": "Once per visit",
+          "PER_DAY": "Once per day"
+        },
+        "everyBefore": "Once every",
+        "everyAfter": "days",
+        "daysLabel": "Number of days",
+        "daysHint": "{{min}} to {{max}} days.",
+        "limitsNote": "The limits protect readers: a popup never opens in the first {{min}} seconds.",
+        "summary": {
+          "DELAY": "after {{delay}} seconds",
+          "SCROLL": "after the reader scrolled {{scroll}}% of the article",
+          "FIRST_OF_BOTH": "after {{delay}} seconds or {{scroll}}% scrolled, whichever comes first",
+          "PER_VISIT": "once per visit",
+          "PER_DAY": "once per day",
+          "EVERY_N_DAYS": "once every {{days}} days"
+        }
+      },
+      "logo": {
+        "title": "Logo",
+        "intro": "A square logo for the bar on phones and for the Logos layout of the sidebar. Without it, phones show a square part of the popup image and the Logos layout skips this sponsor."
+      },
+      "noLogoWarning": "No logo: this sponsor is not shown in the sidebar (Logos layout)."
     }
   },
   "errors": {
@@ -963,7 +1374,26 @@
       "UNSUPPORTED_MEDIA_TYPE": "Unsupported media type",
       "USER_NOT_FOUND": "User not found",
       "USERNAME_ALREADY_EXISTS": "Username already taken",
-      "VALIDATION_FAILED": "Validation failed"
+      "VALIDATION_FAILED": "Validation failed",
+      "SPONSOR_NOT_FOUND": "Sponsor not found",
+      "SPONSOR_CREATIVE_NOT_FOUND": "The sponsor has no image for this placement",
+      "SPONSOR_PLACEMENT_INVALID": "Unknown placement",
+      "SPONSOR_STATUS_INVALID": "Status must be active, scheduled, ended or inactive",
+      "SPONSOR_STATS_RANGE_INVALID": "The date range is not valid (from must not be after to, 366 days at most)",
+      "SPONSOR_IMAGE_TYPE_NOT_ALLOWED": "Only PNG, JPG and WebP images are allowed",
+      "SPONSOR_IMAGE_IN_USE": "This image is used by a chosen place: uncheck the place first",
+      "SPONSOR_IMAGE_TOO_LARGE": "The image is too large (2 MB at most)",
+      "SPONSOR_VIDEO_TYPE_NOT_ALLOWED": "Only MP4 (H.264) and WebM videos are allowed",
+      "SPONSOR_VIDEO_TOO_LARGE": "The video is too large (15 MB at most)",
+      "SPONSOR_VIDEO_TOO_LONG": "The video is too long (30 seconds at most)",
+      "SPONSOR_VIDEO_NOT_FOUND": "The sponsor has no video for this placement",
+      "SPONSOR_MEDIA_NOT_ALLOWED": "This kind of media can not be used in this placement",
+      "SPONSOR_LOGO_NOT_FOUND": "The sponsor has no logo",
+      "RATE_LIMITED": "Too many attempts. Try again in {{time}}.",
+      "ACCOUNT_TEMPORARILY_LOCKED": "Too many failed sign-in attempts. Try again in {{time}}.",
+      "ACCOUNT_TOO_NEW": "Your account is too new to comment. Try again in {{time}}.",
+      "COMMENT_TOO_MANY_LINKS": "Your comment has too many links. Use at most 2.",
+      "COMMENT_DUPLICATE": "You already posted this comment."
     },
     "backHome": "Back to home",
     "forbidden": {
@@ -1059,7 +1489,8 @@
         "unhiddenDone": "Comment shown.",
         "viewOnSite": "View on site",
         "viewUser": "View user",
-        "visible": "Visible"
+        "visible": "Visible",
+        "blockedWordNote": "Held for review: contains the blocked word “{{word}}”"
       },
       "toggle": {
         "disabled": "Comments disabled",
@@ -1120,7 +1551,8 @@
         "PUBLISHED": "This article is live. Changes are visible to readers as soon as you save.",
         "PENDING": "This article is waiting for review.",
         "DRAFT": "This is a draft. Readers cannot see it yet.",
-        "ARCHIVED": "This article is archived. Readers cannot see it."
+        "ARCHIVED": "This article is archived. Readers cannot see it.",
+        "SCHEDULED": "This article is scheduled and not visible to readers yet."
       },
       "organize": {
         "title": "Organize"
@@ -1134,7 +1566,10 @@
         "updated": "Updated",
         "published": "Published",
         "notSaved": "Not saved yet",
-        "notPublished": "Not published"
+        "notPublished": "Not published",
+        "goesLive": "Goes live",
+        "goesLiveIn": "{{relative}}",
+        "scheduledBy": "Scheduled by"
       },
       "rejection": {
         "hintAdmin": "As an admin you can edit this article in any status.",
@@ -1178,7 +1613,8 @@
         "status": "Status",
         "title": "Title",
         "updated": "Updated",
-        "article": "Article"
+        "article": "Article",
+        "goesLive": "Goes live"
       },
       "create": "Create article",
       "deleted": "\"{{title}}\" deleted.",
@@ -1207,7 +1643,8 @@
         "PENDING": "Pending",
         "PUBLISHED": "Published",
         "REJECTED": "Rejected",
-        "ARCHIVED": "Archived"
+        "ARCHIVED": "Archived",
+        "SCHEDULED": "Scheduled"
       },
       "toolbar": {
         "filters": "Filters",
@@ -1282,7 +1719,8 @@
         "hour_other": "Waiting {{count}} hours",
         "day_one": "Waiting {{count}} day",
         "day_other": "Waiting {{count}} days"
-      }
+      },
+      "scheduled": "Article scheduled."
     },
     "richText": {
       "bold": "Bold",
@@ -1303,7 +1741,8 @@
       "DRAFT": "Draft",
       "PENDING": "Pending review",
       "PUBLISHED": "Published",
-      "REJECTED": "Rejected"
+      "REJECTED": "Rejected",
+      "SCHEDULED": "Scheduled"
     },
     "workflow": {
       "actions": {
@@ -1312,7 +1751,11 @@
         "publishNow": "Publish now",
         "reject": "Reject",
         "restore": "Restore",
-        "submit": "Submit for review"
+        "submit": "Submit for review",
+        "schedule": "Schedule…",
+        "reschedule": "Change time",
+        "unschedule": "Cancel schedule",
+        "moreWays": "More ways to publish"
       },
       "dialog": {
         "archive": "Archive <strong>{{title}}</strong>? It is removed from the public site. Only an admin can restore it.",
@@ -1323,19 +1766,45 @@
         "reject": "Reject <strong>{{title}}</strong>? The author sees your reason, fixes the article and submits it again.",
         "rejectTitle": "Reject article",
         "restore": "Restore <strong>{{title}}</strong>? It is published again.",
-        "submit": "Submit <strong>{{title}}</strong> for review? An editor will check it. While it is pending you cannot edit it."
+        "submit": "Submit <strong>{{title}}</strong> for review? An editor will check it. While it is pending you cannot edit it.",
+        "unschedule": "Cancel the schedule of <strong>{{title}}</strong>? It goes back to pending review and is not published at the planned time."
       },
       "done": {
         "archive": "Article archived.",
         "publish": "Article published.",
         "reject": "Article rejected.",
         "restore": "Article restored and published again.",
-        "submit": "Submitted for review."
+        "submit": "Submitted for review.",
+        "schedule": "Article scheduled.",
+        "reschedule": "Schedule changed.",
+        "unschedule": "Schedule cancelled. The article is pending review again."
       },
       "history": "Status history",
       "none": "No workflow action is available for this status.",
       "saveFirst": "Save your changes first, then use the workflow actions.",
       "title": "Workflow"
+    },
+    "schedule": {
+      "title": "Schedule article",
+      "changeTitle": "Change time",
+      "confirm": "Schedule",
+      "intro": "Choose when <strong>{{title}}</strong> goes live.",
+      "quick": "Quick choices",
+      "choices": {
+        "tonight": "Tonight 19:00",
+        "tomorrow7": "Tomorrow 07:00",
+        "tomorrow12": "Tomorrow 12:00",
+        "monday": "Monday 07:00"
+      },
+      "date": "Date",
+      "time": "Time",
+      "zone": "Your time zone: {{zone}}",
+      "goesLive": "Goes live {{relative}} ({{date}})",
+      "problems": {
+        "required": "Choose a date and a time.",
+        "tooSoon": "Choose a time at least 5 minutes from now.",
+        "tooFar": "Choose a time within the next year."
+      }
     }
   },
   "notifications": {
@@ -1364,7 +1833,8 @@
       "NEW_COMMENT": "{{actorName}} commented on “{{newsTitle}}”",
       "NEW_COMMENT_group": "{{count}} new comments on “{{newsTitle}}”",
       "NEW_USER": "{{actorName}} registered as a new user",
-      "ROLES_CHANGED": "Your role is now {{roles}}"
+      "ROLES_CHANGED": "Your role is now {{roles}}",
+      "ARTICLE_SCHEDULED": "Your article “{{newsTitle}}” is scheduled to go live on {{when}}"
     },
     "moreActions": "More actions",
     "newToast": "You have a new notification",
@@ -1416,7 +1886,9 @@
       "post": "Post comment",
       "sending": "Sending...",
       "title": "Comments ({{total}})",
-      "write": "Write a comment"
+      "write": "Write a comment",
+      "linkHint": "Max {{max}} links.",
+      "held": "Thanks! Your comment will appear after review."
     },
     "detail": {
       "by": "By {{name}}",
@@ -1525,6 +1997,22 @@
       "grid": "Grid view",
       "label": "View",
       "list": "List view"
+    },
+    "promo": {
+      "open": "Open",
+      "popupLabel": "Sponsored message",
+      "barLabel": "Sponsored message",
+      "play": "Play video",
+      "mute": "Mute video",
+      "unmute": "Unmute video",
+      "videoLabel": "Sponsored video",
+      "blockLabel": "Sponsored",
+      "blockLabelLogos": "Sponsored by",
+      "carouselLabel": "Sponsors",
+      "previous": "Previous sponsors",
+      "next": "Next sponsors",
+      "slideDot": "Show sponsors {{n}} of {{total}}",
+      "slideOf": "{{n}} of {{total}}"
     }
   },
   "users": {
@@ -1596,7 +2084,15 @@
       "resetPassword": "Reset password",
       "resetText": "Set a new password for <1>{{username}}</1>. Their refresh tokens are revoked, so they have to log in again.",
       "roleChanged": "Role changed.",
-      "you": "You"
+      "you": "You",
+      "locked": "Locked",
+      "lockedUntil": "Locked until {{time}}",
+      "lockCard": "Sign-in lock",
+      "lockedHelp": "This account was locked after too many failed sign-in attempts. It unlocks by itself after a while.",
+      "unlock": "Unlock now",
+      "unlockTitle": "Unlock account",
+      "unlockText": "{{username}} will be able to sign in again right away, and the count of failed attempts starts again.",
+      "unlocked": "Account unlocked."
     },
     "fields": {
       "address": "Address",

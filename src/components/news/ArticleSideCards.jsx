@@ -1,9 +1,12 @@
 import { Button, Card, Form, OverlayTrigger, Tooltip } from 'react-bootstrap'
+import { Clock } from 'react-bootstrap-icons'
 import { useTranslation } from 'react-i18next'
 import TagPicker from '../form/TagPicker'
 import { useFormat } from '../../hooks/useFormat'
+import { useNow } from '../../hooks/useNow'
 import ArticleHistory from './ArticleHistory'
 import { AuthorCell } from './ArticleListParts'
+import PublishSplitButton from './PublishSplitButton'
 import StatusBadge from './StatusBadge'
 
 // The cards of the side column of the article page: Publishing and Organize here, the others (thumbnail, comments,
@@ -33,8 +36,14 @@ function Row({ label, children }) {
 
 // Status, author, the dates and the main workflow button of the status (Submit for review, Publish, Archive, ...).
 // `author` is the name to show for an article that is not saved yet (the logged-in user).
-export function PublishingCard({ article, author, dirty, action, onAction }) {
+export function PublishingCard({ article, author, dirty, actions, onAction }) {
   const { t } = useTranslation()
+  const { formatSchedule, formatUntil } = useFormat()
+  const now = useNow()
+  const scheduled = article?.status === 'SCHEDULED'
+  // a PENDING (or admin DRAFT) article: the main action, and "Schedule…" in the same button when both are there
+  const action = scheduled ? null : actions[0]
+  const canSchedule = !scheduled && actions.some((item) => item.key === 'schedule')
   return (
     <Card>
       <Card.Header className="bg-surface">
@@ -50,16 +59,37 @@ export function PublishingCard({ article, author, dirty, action, onAction }) {
           </Row>
           <Row label={t('news.editor.publishing.created')}>{article ? <DateValue value={article.createdAt} /> : <span className="text-muted">{t('news.editor.publishing.notSaved')}</span>}</Row>
           <Row label={t('news.editor.publishing.updated')}>{article ? <DateValue value={article.updatedAt} /> : <span className="text-muted">&ndash;</span>}</Row>
-          <Row label={t('news.editor.publishing.published')}>{article?.publishedAt ? <DateValue value={article.publishedAt} /> : <span className="text-muted">{t('news.editor.publishing.notPublished')}</span>}</Row>
+          {scheduled && article.scheduledAt ? (
+            <>
+              <Row label={t('news.editor.publishing.goesLive')}>
+                <span className="d-inline-flex align-items-center gap-1 fw-semibold">
+                  <Clock aria-hidden="true" />
+                  <time dateTime={article.scheduledAt}>{formatSchedule(article.scheduledAt)}</time>
+                </span>
+                <div className="text-muted">{t('news.editor.publishing.goesLiveIn', { relative: formatUntil(article.scheduledAt, now) })}</div>
+              </Row>
+              {article.scheduledByName && <Row label={t('news.editor.publishing.scheduledBy')}>{article.scheduledByName}</Row>}
+            </>
+          ) : (
+            <Row label={t('news.editor.publishing.published')}>{article?.publishedAt ? <DateValue value={article.publishedAt} /> : <span className="text-muted">{t('news.editor.publishing.notPublished')}</span>}</Row>
+          )}
         </dl>
-        {action && (
-          <>
-            <Button variant={action.variant} className="w-100" disabled={dirty} onClick={() => onAction(action.key)}>
-              {t(action.labelKey)}
-            </Button>
-            {dirty && <p className="text-warning small mt-2 mb-0">{t('news.workflow.saveFirst')}</p>}
-          </>
+        {scheduled && (
+          <div className="d-flex flex-wrap gap-2">
+            {actions.map((item) => (
+              <Button key={item.key} variant={item.key === 'publish' ? 'primary' : item.variant} size="sm" disabled={dirty} onClick={() => onAction(item.key)}>
+                {t(item.labelKey)}
+              </Button>
+            ))}
+          </div>
         )}
+        {action && canSchedule && <PublishSplitButton block disabled={dirty} onPublish={() => onAction(action.key)} onSchedule={() => onAction('schedule')} />}
+        {action && !canSchedule && (
+          <Button variant={action.variant} className="w-100" disabled={dirty} onClick={() => onAction(action.key)}>
+            {t(action.labelKey)}
+          </Button>
+        )}
+        {dirty && (scheduled || action) && <p className="text-warning small mt-2 mb-0">{t('news.workflow.saveFirst')}</p>}
       </Card.Body>
     </Card>
   )

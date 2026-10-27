@@ -11,6 +11,7 @@ import { OTP_LENGTH, OTP_PURPOSE, RESEND_COOLDOWN_SECONDS } from '../../constant
 import { ROUTES } from '../../constants/routes'
 import { useAuth } from '../../hooks/useAuth'
 import { useCountdown } from '../../hooks/useCountdown'
+import { useRetryAfter } from '../../hooks/useRetryAfter'
 import * as authService from '../../services/authService'
 import { rules } from '../../utils/validators'
 
@@ -27,6 +28,7 @@ export default function VerifyEmailPage() {
   const [apiError, setApiError] = useState(null)
   const [notice, setNotice] = useState(null)
   const [submitting, setSubmitting] = useState(false)
+  const retry = useRetryAfter(apiError)
 
   // arriving from registration: the code was sent a moment ago, so only start the countdown once
   const [started, setStarted] = useState(false)
@@ -99,12 +101,12 @@ export default function VerifyEmailPage() {
             {errors.otp}
           </div>
         )}
-        <Button type="submit" className="w-100" disabled={submitting}>
+        <Button type="submit" className="w-100" disabled={submitting || retry > 0}>
           {submitting && <Spinner size="sm" className="me-2" aria-hidden="true" />}
           {submitting ? t('auth.verify.verifying') : t('auth.verify.submit')}
         </Button>
         <div className="text-center mt-2">
-          <ResendButton remaining={countdown.remaining} onClick={handleResend} />
+          <ResendButton remaining={countdown.remaining} onClick={handleResend} disabled={retry > 0} />
         </div>
       </Form>
     </AuthPage>

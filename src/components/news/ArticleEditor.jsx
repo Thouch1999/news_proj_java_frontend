@@ -298,7 +298,7 @@ function ArticleForm({ area, initial, categories, tags }) {
           </div>
 
           <div className="editor-col editor-col--side">
-            {slot(4, <PublishingCard article={article} author={name} dirty={dirty} action={actions[0]} onAction={(key) => workflow.start(key, article)} />)}
+            {slot(4, <PublishingCard article={article} author={name} dirty={dirty} actions={actions} onAction={(key) => workflow.start(key, article)} />)}
             {!readOnly && slot(5, <OrganizeCard form={form} errors={fieldErrors} categories={options} tags={tags} onChange={change} />)}
             {slot(6, <ThumbnailCard newsId={article?.id} thumbnail={article?.thumbnail} editable={!readOnly} saved={Boolean(article)} onThumbnailChange={setThumbnail} />)}
             {/* an editor/admin switches the comments of a saved article at once; everybody else saves the switch with the article */}

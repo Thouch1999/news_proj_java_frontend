@@ -4,11 +4,12 @@ import { useTranslation } from 'react-i18next'
 import { Link, useSearchParams } from 'react-router-dom'
 import { ARTICLE_PAGE_SIZES, WORKFLOW_ACTIONS } from '../../constants/newsStatus'
 import { useArticleFilterChoices } from '../../hooks/useArticleFilterChoices'
+import { useRefreshWhenDue } from '../../hooks/useRefreshWhenDue'
 import { useWorkflowAction } from '../../hooks/useWorkflowAction'
 import * as newsService from '../../services/newsService'
 import * as reportService from '../../services/reportService'
 import { errorMessage } from '../../utils/errorMessage'
-import { ArticleActions, ArticleEmpty, ArticleFooter, ArticleSkeleton, ArticleStatusTabs, ArticleTitleCell, ArticleToolbar, AuthorCell, UpdatedCell } from './ArticleListParts'
+import { ArticleActions, ArticleEmpty, ArticleFooter, ArticleSkeleton, ArticleStatusTabs, ArticleTitleCell, ArticleToolbar, AuthorCell, GoesLiveCell, UpdatedCell } from './ArticleListParts'
 import DeleteArticleDialog from './DeleteArticleDialog'
 import StatusBadge from './StatusBadge'
 import WorkflowDialog from './WorkflowDialog'
@@ -67,7 +68,7 @@ export default function ArticleList({ area }) {
   useEffect(() => {
     let current = true
     newsService
-      .listManagedNews({ page, size, status, authorId, categoryId })
+      .listManagedNews({ page, size, status, authorId, categoryId, sort: status === 'SCHEDULED' ? 'scheduledAt' : undefined })
       .then((data) => {
         if (current) setState({ key: queryKey, data, error: null })
       })
@@ -110,6 +111,11 @@ export default function ArticleList({ area }) {
   const canDelete = (article) => admin || (!staff && article.status === 'DRAFT')
 
   const refresh = () => setReloadKey((key) => key + 1)
+  // an article whose time has come is published by the backend within a minute: the list follows without a click
+  useRefreshWhenDue(
+    (result?.items ?? []).filter((article) => article.status === 'SCHEDULED' && article.scheduledAt).map((article) => article.scheduledAt),
+    refresh,
+  )
   const workflow = useWorkflowAction((updated, action) => {
     setToast({ variant: 'success', text: t('news.list.workflowDone', { title: updated.title, message: t(WORKFLOW_ACTIONS[action].doneKey) }) })
     refresh()
@@ -175,7 +181,7 @@ export default function ArticleList({ area }) {
                     <th>{t('news.list.columns.article')}</th>
                     {staff && <th>{t('news.list.columns.author')}</th>}
                     <th>{t('news.list.columns.status')}</th>
-                    <th>{t('news.list.columns.updated')}</th>
+                    <th>{status === 'SCHEDULED' ? t('news.list.columns.goesLive') : t('news.list.columns.updated')}</th>
                     <th className="text-end">{t('news.list.columns.actions')}</th>
                   </tr>
                 </thead>
@@ -193,9 +199,7 @@ export default function ArticleList({ area }) {
                       <td>
                         <StatusBadge status={article.status} />
                       </td>
-                      <td>
-                        <UpdatedCell value={article.updatedAt} />
-                      </td>
+                      <td>{article.status === 'SCHEDULED' && article.scheduledAt ? <GoesLiveCell value={article.scheduledAt} /> : <UpdatedCell value={article.updatedAt} />}</td>
                       <td className="text-end text-nowrap">{actions(article)}</td>
                     </tr>
                   ))}
@@ -210,9 +214,7 @@ export default function ArticleList({ area }) {
                   <div className="d-flex flex-wrap align-items-center gap-2 mt-2 small">
                     <StatusBadge status={article.status} />
                     {staff && <AuthorCell name={article.authorName} />}
-                    <span className="text-muted">
-                      <UpdatedCell value={article.updatedAt} />
-                    </span>
+                    <span className="text-muted">{article.status === 'SCHEDULED' && article.scheduledAt ? <GoesLiveCell value={article.scheduledAt} /> : <UpdatedCell value={article.updatedAt} />}</span>
                     <span className="ms-auto">{actions(article)}</span>
                   </div>
                 </li>

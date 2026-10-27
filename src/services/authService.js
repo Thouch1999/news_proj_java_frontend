@@ -2,7 +2,8 @@ import httpClient from './httpClient'
 
 const AUTH = '/api/v1/auth'
 
-// data: { username, fullName, email, password, confirm } (phone and address are optional)
+// data: { username, fullName, email, password, confirm, website } (phone and address are optional). `website` is the honeypot:
+// always the empty text of the hidden field (the backend ignores a request in which it is filled in).
 export function register(data) {
   return httpClient.post(`${AUTH}/register`, data)
 }
