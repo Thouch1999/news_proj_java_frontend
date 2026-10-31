@@ -6,38 +6,31 @@ import AuthPage from '../../components/common/AuthPage'
 import ErrorAlert from '../../components/common/ErrorAlert'
 import FormField from '../../components/form/FormField'
 import PasswordInput from '../../components/form/PasswordInput'
-import OtpInput from '../../components/form/OtpInput'
-import ResendButton from '../../components/form/ResendButton'
-import { EMAIL_NOT_VERIFIED_MESSAGE, OTP_LENGTH, RESEND_COOLDOWN_SECONDS } from '../../constants/otp'
+import { EMAIL_NOT_VERIFIED_MESSAGE, OTP_PURPOSE } from '../../constants/otp'
 import { ROUTES } from '../../constants/routes'
 import { useAuth } from '../../hooks/useAuth'
-import { useCountdown } from '../../hooks/useCountdown'
 import { useRetryAfter } from '../../hooks/useRetryAfter'
 import { useSettings } from '../../hooks/useSettings'
 import * as authService from '../../services/authService'
+import { savePending } from '../../utils/pendingVerification'
 import { postLoginPath } from '../../utils/postLoginPath'
-import { maskEmail } from '../../utils/text'
 import { rules } from '../../utils/validators'
+import LoginCodeStep from './LoginCodeStep'
 
 export default function LoginPage() {
   const { t } = useTranslation()
-  const { state } = useLocation()
+  const { state, pathname } = useLocation()
   const navigate = useNavigate()
   const { user, isAuthenticated, setSession } = useAuth()
-  const countdown = useCountdown()
   const { siteName } = useSettings()
   const passwordRef = useRef(null)
   const from = state?.from
 
-  // 'credentials' first; staff accounts then get the 'otp' step
-  const [step, setStep] = useState('credentials')
-  const [form, setForm] = useState({ email: '', password: '' })
-  const [otp, setOtp] = useState('')
+  const [form, setForm] = useState({ email: state?.email ?? '', password: '' })
   const [errors, setErrors] = useState({})
   const [apiError, setApiError] = useState(null)
-  const [notice, setNotice] = useState(null)
   const [submitting, setSubmitting] = useState(false)
-  // too many failed attempts: the buttons wait for the countdown of the error, then work again by themselves
+  // too many failed attempts: the button waits for the countdown of the error, then works again by itself
   const retry = useRetryAfter(apiError)
   const blocked = retry > 0
 
@@ -45,25 +38,13 @@ export default function LoginPage() {
     return <Navigate to={postLoginPath(user, from)} replace />
   }
 
+  // staff accounts then get the code step on its own route, so a refresh stays on it
+  if (pathname === ROUTES.LOGIN_VERIFY) {
+    return <LoginCodeStep password={form.password} from={from} />
+  }
+
   const update = (field) => (event) => setForm((current) => ({ ...current, [field]: event.target.value }))
   const email = form.email.trim().toLowerCase()
-
-  const finish = (result) => {
-    setSession(result)
-    navigate(postLoginPath(result.user, from), { replace: true })
-  }
-
-  // used by the first step and by "resend code": the backend re-checks the password and sends a new LOGIN code
-  const requestLogin = async () => {
-    const result = await authService.login({ email, password: form.password })
-    if (result.otpRequired) {
-      setStep('otp')
-      setOtp('')
-      countdown.start(RESEND_COOLDOWN_SECONDS)
-    } else {
-      finish(result)
-    }
-  }
 
   const handleCredentials = async (event) => {
     event.preventDefault()
@@ -75,7 +56,14 @@ export default function LoginPage() {
     }
     setSubmitting(true)
     try {
-      await requestLogin()
+      const result = await authService.login({ email, password: form.password })
+      if (result.otpRequired) {
+        savePending({ purpose: OTP_PURPOSE.LOGIN, email }) // email and times only: never the password
+        navigate(ROUTES.LOGIN_VERIFY, { state: from ? { from } : null })
+      } else {
+        setSession(result)
+        navigate(postLoginPath(result.user, from), { replace: true })
+      }
     } catch (error) {
       setApiError(error)
       setForm((current) => ({ ...current, password: '' }))
@@ -85,74 +73,8 @@ export default function LoginPage() {
     }
   }
 
-  const handleOtp = async (event) => {
-    event.preventDefault()
-    const found = { otp: rules.otp(otp) }
-    setErrors(found)
-    setApiError(null)
-    setNotice(null)
-    if (found.otp) {
-      return
-    }
-    setSubmitting(true)
-    try {
-      finish(await authService.verifyLoginOtp({ email, otp }))
-    } catch (error) {
-      setApiError(error)
-      setOtp('')
-      setSubmitting(false)
-    }
-  }
-
-  const handleResend = async () => {
-    setApiError(null)
-    setNotice(null)
-    try {
-      await requestLogin()
-      setNotice('auth.notices.codeResent')
-    } catch (error) {
-      setApiError(error)
-    }
-  }
-
-  const backToCredentials = () => {
-    setStep('credentials')
-    setOtp('')
-    setErrors({})
-    setApiError(null)
-    setNotice(null)
-  }
-
   // staff must verify the email before they can log in (readers can log in without it)
   const needsVerification = apiError?.code === 403 && apiError.message === EMAIL_NOT_VERIFIED_MESSAGE
-
-  if (step === 'otp') {
-    return (
-      <AuthPage
-        title={t('auth.login.otpTitle')}
-        description={t('auth.otp.sentTo', { length: OTP_LENGTH, email: maskEmail(email) })}
-        secondary={<Trans i18nKey="auth.otp.notYou" components={{ 1: <Button variant="link" type="button" className="p-0 align-baseline" onClick={backToCredentials} /> }} />}
-      >
-        <Form onSubmit={handleOtp} noValidate>
-          <ErrorAlert error={apiError} />
-          {notice && <Alert variant="info">{t(notice)}</Alert>}
-          <OtpInput value={otp} onChange={setOtp} invalid={Boolean(errors.otp)} describedBy="otp-error" disabled={submitting} autoFocus />
-          {errors.otp && (
-            <div id="otp-error" className="text-danger text-center small mb-2">
-              {errors.otp}
-            </div>
-          )}
-          <Button type="submit" className="w-100" disabled={submitting || blocked}>
-            {submitting && <Spinner size="sm" className="me-2" aria-hidden="true" />}
-            {submitting ? t('auth.login.verifying') : t('auth.otp.verify')}
-          </Button>
-          <div className="text-center mt-2">
-            <ResendButton remaining={countdown.remaining} onClick={handleResend} disabled={blocked} />
-          </div>
-        </Form>
-      </AuthPage>
-    )
-  }
 
   return (
     <AuthPage

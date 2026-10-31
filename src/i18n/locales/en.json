@@ -265,6 +265,13 @@
       "sentTo": "We sent a {{length}}-digit code to {{email}}.",
       "verify": "Verify"
     },
+    "pending": {
+      "expired": "This code has expired.",
+      "passwordForCode": "Enter your password to get a new code.",
+      "resentTo": "We sent a new code to {{email}}.",
+      "sendNew": "Send a new code",
+      "startAgain": "Please start again."
+    },
     "register": {
       "creating": "Creating account...",
       "description": "Create an account on {{site}} to bookmark articles and comment.",

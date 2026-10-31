@@ -1,13 +1,19 @@
-import { useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { OTP_LENGTH } from '../../constants/otp'
 
 // One box per digit. Typing moves forward, Backspace moves back, and pasting a code fills every box.
-// `describedBy` is the id of the error text under the boxes.
-export default function OtpInput({ value, onChange, disabled = false, invalid = false, describedBy, autoFocus = false }) {
+// `describedBy` is the id of the error text under the boxes. When `focusSignal` changes (above 0), the first box gets the focus.
+export default function OtpInput({ value, onChange, disabled = false, invalid = false, describedBy, autoFocus = false, focusSignal = 0 }) {
   const { t } = useTranslation()
   const inputs = useRef([])
   const focus = (index) => inputs.current[index]?.focus()
+
+  useEffect(() => {
+    if (focusSignal > 0) {
+      inputs.current[0]?.focus()
+    }
+  }, [focusSignal])
 
   const handleChange = (index, event) => {
     const digit = event.target.value.replace(/\D/g, '').slice(-1)

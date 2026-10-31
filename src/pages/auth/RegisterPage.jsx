@@ -1,20 +1,23 @@
 import { useState } from 'react'
-import { Button, Col, Form, Row, Spinner } from 'react-bootstrap'
+import { Alert, Button, Col, Form, Row, Spinner } from 'react-bootstrap'
 import { Trans, useTranslation } from 'react-i18next'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import AuthPage from '../../components/common/AuthPage'
 import ErrorAlert from '../../components/common/ErrorAlert'
 import FormField from '../../components/form/FormField'
 import HoneypotField from '../../components/form/HoneypotField'
 import PasswordFields from '../../components/form/PasswordFields'
+import { OTP_PURPOSE } from '../../constants/otp'
 import { ROUTES } from '../../constants/routes'
 import { useRetryAfter } from '../../hooks/useRetryAfter'
 import { useSettings } from '../../hooks/useSettings'
 import * as authService from '../../services/authService'
+import { savePending } from '../../utils/pendingVerification'
 import { blankToNull, hasErrors, rules } from '../../utils/validators'
 
 export default function RegisterPage() {
   const { t } = useTranslation()
+  const { state } = useLocation()
   const navigate = useNavigate()
   const [form, setForm] = useState({ username: '', email: '', fullName: '', password: '', confirm: '', website: '' })
   const [errors, setErrors] = useState({})
@@ -51,8 +54,9 @@ export default function RegisterPage() {
         confirm: form.confirm,
         website: form.website, // the honeypot: empty for a person
       })
-      // a verification code was just emailed, so the resend countdown starts right away
-      navigate(ROUTES.VERIFY_EMAIL, { state: { email, justSent: true } })
+      // a verification code was just emailed: the pending verification (with its countdowns) survives a refresh
+      savePending({ purpose: OTP_PURPOSE.REGISTER, email })
+      navigate(ROUTES.VERIFY_EMAIL)
     } catch (error) {
       setApiError(error)
     } finally {
@@ -65,6 +69,7 @@ export default function RegisterPage() {
       wide
       title={t('auth.register.title')}
       description={t('auth.register.description', { site: siteName })}
+      notice={state?.message && <Alert variant={state.variant ?? 'info'}>{state.message}</Alert>}
       secondary={<Trans i18nKey="auth.register.haveAccount" components={{ 1: <Link to={ROUTES.LOGIN} /> }} />}
     >
       <Form onSubmit={handleSubmit} noValidate>

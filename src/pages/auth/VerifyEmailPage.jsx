@@ -4,13 +4,13 @@ import { Trans, useTranslation } from 'react-i18next'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import AuthPage from '../../components/common/AuthPage'
 import ErrorAlert from '../../components/common/ErrorAlert'
-import FormField from '../../components/form/FormField'
 import OtpInput from '../../components/form/OtpInput'
-import ResendButton from '../../components/form/ResendButton'
-import { OTP_LENGTH, OTP_PURPOSE, RESEND_COOLDOWN_SECONDS } from '../../constants/otp'
+import OtpResendArea from '../../components/form/OtpResendArea'
+import PendingGate from '../../components/form/PendingGate'
+import { OTP_LENGTH, OTP_PURPOSE } from '../../constants/otp'
 import { ROUTES } from '../../constants/routes'
 import { useAuth } from '../../hooks/useAuth'
-import { useCountdown } from '../../hooks/useCountdown'
+import { usePendingVerification } from '../../hooks/usePendingVerification'
 import { useRetryAfter } from '../../hooks/useRetryAfter'
 import * as authService from '../../services/authService'
 import { rules } from '../../utils/validators'
@@ -20,36 +20,38 @@ export default function VerifyEmailPage() {
   const { state } = useLocation()
   const navigate = useNavigate()
   const { isAuthenticated, refreshUser } = useAuth()
-  const countdown = useCountdown()
+  const step = usePendingVerification({
+    purpose: OTP_PURPOSE.REGISTER,
+    startPath: ROUTES.REGISTER,
+    linkEmail: state?.email,
+    send: (email) => authService.resendOtp({ email, purpose: OTP_PURPOSE.REGISTER }),
+  })
 
-  const [email, setEmail] = useState(state?.email ?? '')
   const [otp, setOtp] = useState('')
   const [errors, setErrors] = useState({})
   const [apiError, setApiError] = useState(null)
-  const [notice, setNotice] = useState(null)
   const [submitting, setSubmitting] = useState(false)
   const retry = useRetryAfter(apiError)
 
-  // arriving from registration: the code was sent a moment ago, so only start the countdown once
-  const [started, setStarted] = useState(false)
-  if (state?.justSent && !started) {
-    setStarted(true)
-    countdown.start(RESEND_COOLDOWN_SECONDS)
+  if (step.gate) {
+    return <PendingGate gate={step.gate} />
   }
+  const { pending } = step
 
   const handleSubmit = async (event) => {
     event.preventDefault()
-    const found = { email: rules.email(email), otp: rules.otp(otp) }
+    const found = { otp: rules.otp(otp) }
     setErrors(found)
     setApiError(null)
-    setNotice(null)
-    if (found.email || found.otp) {
+    step.setNotice(null)
+    if (found.otp) {
       return
     }
 
     setSubmitting(true)
     try {
-      await authService.verifyEmail({ email: email.trim().toLowerCase(), otp })
+      await authService.verifyEmail({ email: pending.email, otp })
+      step.clear()
       if (isAuthenticated) {
         await refreshUser()
         navigate(ROUTES.PROFILE, { replace: true })
@@ -68,46 +70,44 @@ export default function VerifyEmailPage() {
   }
 
   const handleResend = async () => {
-    const emailError = rules.email(email)
-    setErrors({ email: emailError })
     setApiError(null)
-    setNotice(null)
-    if (emailError) {
-      return
-    }
-    try {
-      await authService.resendOtp({ email: email.trim().toLowerCase(), purpose: OTP_PURPOSE.REGISTER })
-      setNotice('auth.notices.verifyResent')
-      countdown.start(RESEND_COOLDOWN_SECONDS)
-    } catch (error) {
+    const error = await step.resend()
+    if (error) {
       setApiError(error)
+    } else {
+      setOtp('')
+      setErrors({})
     }
+  }
+
+  const startAgain = () => {
+    step.clear()
+    navigate(ROUTES.REGISTER)
   }
 
   return (
     <AuthPage
       title={t('auth.verify.title')}
-      description={t('auth.verify.intro', { length: OTP_LENGTH })}
-      secondary={<Trans i18nKey="auth.verify.secondary" components={{ 1: <Link to={ROUTES.LOGIN} /> }} />}
+      description={t('auth.otp.sentTo', { length: OTP_LENGTH, email: pending.maskedEmail })}
+      secondary={<Trans i18nKey="auth.verify.secondary" components={{ 1: <Link to={ROUTES.LOGIN} onClick={step.clear} /> }} />}
     >
       <Form onSubmit={handleSubmit} noValidate>
         <ErrorAlert error={apiError} />
-        {notice && <Alert variant="info">{t(notice)}</Alert>}
-        {!state?.email && <FormField id="email" label={t('auth.fields.email')} type="email" value={email} onChange={(event) => setEmail(event.target.value)} error={errors.email} autoComplete="email" autoFocus />}
-        {state?.email && <p className="text-center fw-semibold text-break">{email}</p>}
-        <OtpInput value={otp} onChange={setOtp} invalid={Boolean(errors.otp)} describedBy="otp-error" disabled={submitting} autoFocus={Boolean(state?.email)} />
+        {step.notice && <Alert variant="info">{step.notice}</Alert>}
+        <OtpInput value={otp} onChange={setOtp} invalid={Boolean(errors.otp)} describedBy="otp-error" disabled={submitting || step.expired} autoFocus focusSignal={step.focusSignal} />
         {errors.otp && (
           <div id="otp-error" className="text-danger text-center small mb-2">
             {errors.otp}
           </div>
         )}
-        <Button type="submit" className="w-100" disabled={submitting || retry > 0}>
+        <Button type="submit" className="w-100" disabled={submitting || step.expired || retry > 0}>
           {submitting && <Spinner size="sm" className="me-2" aria-hidden="true" />}
           {submitting ? t('auth.verify.verifying') : t('auth.verify.submit')}
         </Button>
-        <div className="text-center mt-2">
-          <ResendButton remaining={countdown.remaining} onClick={handleResend} disabled={retry > 0} />
-        </div>
+        <OtpResendArea expired={step.expired} remaining={step.resendRemaining} onResend={handleResend} disabled={step.sending || retry > 0} />
+        <p className="text-center small mt-2 mb-0">
+          <Trans i18nKey="auth.otp.notYou" components={{ 1: <Button variant="link" type="button" className="p-0 align-baseline" onClick={startAgain} /> }} />
+        </p>
       </Form>
     </AuthPage>
   )

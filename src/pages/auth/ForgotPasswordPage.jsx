@@ -1,18 +1,20 @@
 import { useState } from 'react'
-import { Button, Form, Spinner } from 'react-bootstrap'
+import { Alert, Button, Form, Spinner } from 'react-bootstrap'
 import { Trans, useTranslation } from 'react-i18next'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import AuthPage from '../../components/common/AuthPage'
 import ErrorAlert from '../../components/common/ErrorAlert'
 import FormField from '../../components/form/FormField'
-import { RESEND_COOLDOWN_SECONDS } from '../../constants/otp'
+import { OTP_PURPOSE } from '../../constants/otp'
 import { useRetryAfter } from '../../hooks/useRetryAfter'
 import { ROUTES } from '../../constants/routes'
 import * as authService from '../../services/authService'
+import { savePending } from '../../utils/pendingVerification'
 import { rules } from '../../utils/validators'
 
 export default function ForgotPasswordPage() {
   const { t } = useTranslation()
+  const { state } = useLocation()
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [error, setError] = useState('')
@@ -32,9 +34,8 @@ export default function ForgotPasswordPage() {
     try {
       const normalized = email.trim().toLowerCase()
       await authService.forgotPassword({ email: normalized })
-      navigate(ROUTES.RESET_PASSWORD, {
-        state: { email: normalized, noticeKey: 'auth.notices.forgotPassword', cooldown: RESEND_COOLDOWN_SECONDS },
-      })
+      savePending({ purpose: OTP_PURPOSE.RESET_PASSWORD, email: normalized })
+      navigate(ROUTES.RESET_PASSWORD, { state: { noticeKey: 'auth.notices.forgotPassword' } })
     } catch (caught) {
       setApiError(caught)
     } finally {
@@ -43,7 +44,11 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <AuthPage title={t('auth.forgot.title')} description={t('auth.forgot.intro')} secondary={<Trans i18nKey="auth.secondary.remembered" components={{ 1: <Link to={ROUTES.LOGIN} /> }} />}>
+    <AuthPage
+      title={t('auth.forgot.title')}
+      description={t('auth.forgot.intro')}
+      notice={state?.message && <Alert variant={state.variant ?? 'info'}>{state.message}</Alert>}
+      secondary={<Trans i18nKey="auth.secondary.remembered" components={{ 1: <Link to={ROUTES.LOGIN} /> }} />}>
       <Form onSubmit={handleSubmit} noValidate>
         <ErrorAlert error={apiError} />
         <FormField id="email" label={t('auth.fields.email')} type="email" value={email} onChange={(event) => setEmail(event.target.value)} error={error} autoComplete="email" autoFocus />
